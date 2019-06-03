@@ -4,3 +4,8 @@ AbstractArmyFactory::AbstractArmyFactory()
 {
 
 }
+
+AbstractArmyFactory::~AbstractArmyFactory()
+{
+
+}

@@ -4,3 +4,8 @@ Soldier::Soldier()
 {
 
 }
+
+Soldier::~Soldier()
+{
+
+}

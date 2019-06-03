@@ -4,3 +4,8 @@ Officer::Officer()
 {
 
 }
+
+Officer::~Officer()
+{
+
+}

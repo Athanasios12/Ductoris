@@ -28,11 +28,17 @@ SOURCES += main.cpp \
     src/army/spearman.cpp \
     src/army/swordsman.cpp \
     src/army/weapon.cpp \
-    src/army/roman/units/rcommander.cpp \
     src/army/roman/units/rswordsman.cpp \
     src/army/roman/units/rswordsmanofficer.cpp \
     src/army/roman/romanarmyfactory.cpp \
-    src/army/roman/rleaderskilltree.cpp
+    src/army/roman/rleaderskilltree.cpp \
+    src/army/roman/units/rLeader.cpp \
+    src/army/roman/rsoldier.cpp \
+    src/army/roman/units/rspearman.cpp \
+    src/army/roman/units/rarcher.cpp \
+    src/army/roman/units/rhorseman.cpp \
+    src/army/roman/units/rskirmisher.cpp \
+    Ductoris.cpp
 
 RESOURCES += qml.qrc
 
@@ -63,11 +69,17 @@ HEADERS += \
     src/army/spearman.h \
     src/army/swordsman.h \
     src/army/weapon.h \
-    src/army/roman/units/rcommander.h \
     src/army/roman/units/rswordsman.h \
     src/army/roman/units/rswordsmanofficer.h \
     src/army/roman/romanarmyfactory.h \
-    src/army/roman/rleaderskilltree.h
+    src/army/roman/rleaderskilltree.h \
+    src/army/roman/units/rLeader.h \
+    src/army/roman/rsoldier.h \
+    src/army/roman/units/rspearman.h \
+    src/army/roman/units/rarcher.h \
+    src/army/roman/units/rhorseman.h \
+    src/army/roman/units/rskirmisher.h \
+    Ductoris.h
 
 INCLUDEPATH += src/army/ \
                src/army/roman \

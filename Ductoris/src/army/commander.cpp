@@ -10,22 +10,39 @@ Commander::~Commander()
 
 }
 
-void Commander::addExp(uint16_t exp)
+Commander::Commander(Commander &&other):
+    Person(other),
+    m_soldierLimit(other.m_soldierLimit)
 {
-
+    other.m_soldierLimit = 0;
+    m_army = std::move(other.m_army);
 }
 
-void Commander::changeArmor(Armor armor)
+Commander &Commander::operator=(Commander &&other)
 {
-
-}
-
-void Commander::addWeapon(Weapon weapon)
-{
-
+    if(this != &other)
+    {
+        Person::operator =(other);
+        m_soldierLimit = other.m_soldierLimit;
+        other.m_soldierLimit = 0;
+        m_army = std::move(other.m_army);
+    }
+    return *this;
 }
 
 bool Commander::addSoldier(Soldier *soldier)
 {
-
+    bool added = false;
+    if(soldier)
+    {
+        if(m_skillTree->getArmyType() == soldier->m_skillTree->getArmyType())
+        {
+            if(m_army.size() < m_soldierLimit)
+            {
+                m_army.push_back(soldier);
+                added = true;
+            }
+        }
+    }
+    return added;
 }

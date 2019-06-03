@@ -6,6 +6,7 @@ class Officer : public Commander
 {
 public:
     Officer();
+    virtual ~Officer();
 };
 
 #endif // OFFICER_H

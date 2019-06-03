@@ -4,3 +4,8 @@ RSwordsman::RSwordsman()
 {
 
 }
+
+RSwordsman::~RSwordsman()
+{
+
+}

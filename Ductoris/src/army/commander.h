@@ -8,23 +8,17 @@
 
 class Commander : public Person
 {
-    enum CommanderType
-    {
-        Roman,
-        Macedon,
-        Gallic
-    };
 public:
     Commander();
     virtual ~Commander();
+    Commander(Commander &&other);
+    Commander &operator=(Commander &&other);
 
-    void addExp(uint16_t exp);
-    void changeArmor(Armor armor);
-    void addWeapon(Weapon weapon);
-
-    bool addSoldier(Soldier *soldier); //add reference to new soldier in army
+    virtual bool addSoldier(Soldier *soldier); //add reference to new soldier in army
+private:
+    Commander(const Commander &other) = delete;
+    Commander &operator=(const Commander &other) = delete;
 protected:
-    CommanderType m_cmdType;
     uint16_t m_soldierLimit;
     std::vector<Person*> m_army;
 };
