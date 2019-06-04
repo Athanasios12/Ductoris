@@ -24,22 +24,13 @@ public:
         uint16_t m_stamina{0};
     };
 
-    enum ArmyType
-    {
-        Roman,
-        Macedon,
-        Gallic
-    };
-
     SkillTree();
     virtual ~SkillTree();
 
     virtual bool checkIfThresholdReached(uint32_t exp) const = 0;
     virtual LevelBonus getLevelBonus(uint8_t levelNumber) const = 0;
     uint8_t getMaxLevel() const;
-    ArmyType getArmyType() const;
 protected:
-    ArmyType m_armyType;
     std::vector<Perk> m_perks;
     std::vector<uint32_t> m_levelThresholds;    
 };

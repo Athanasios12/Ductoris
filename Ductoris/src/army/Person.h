@@ -31,20 +31,30 @@ public:
         }
     };
 
+    enum ArmyType
+    {
+        Roman,
+        Macedon,
+        Gallic
+    };
+
     Person();
     Person(const Person &other);
     Person& operator=(const Person &other);
+    Person(Person &&other);
+    Person& operator=(Person &&other);
     virtual ~Person();
 
     void setPosition(uint32_t x, uint32_t y);
     std::pair<uint32_t, uint32_t> getPosition() const;
+    ArmyType getPersonArmyType() const;
 
     virtual bool addExp(uint16_t exp);
     virtual void changeArmor(Armor &&armor);
     virtual void addWeapon(const Weapon &weapon);
 protected:
     //Type
-    //PersonType m_type;
+    ArmyType m_type;
     std::unique_ptr<SkillTree> m_skillTree{nullptr};
     //Person Stats
     Stats m_stats;

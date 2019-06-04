@@ -1,6 +1,10 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
+<RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>src/ui/DuctorisTitleWindow.qml</file>
+        <file>src/ui/BattleScreen.qml</file>
+        <file>src/ui/maps/battlemap.png</file>
+        <file>src/ui/sprites/Commander_sprite.png</file>
+        <file>src/ui/sprites/Commander_sprite_still.png</file>
     </qresource>
 </RCC>

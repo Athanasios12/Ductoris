@@ -7,6 +7,7 @@ Person::Person()
 }
 
 Person::Person(const Person &other):
+    m_type(other.m_type),
     m_stats(other.m_stats),
     m_exp(other.m_exp),
     m_level(other.m_level),
@@ -20,11 +21,42 @@ Person &Person::operator=(const Person &other)
 {
     if(this != &other)
     {
+        m_type = other.m_type,
         m_stats = other.m_stats;
         m_exp = other.m_exp;
         m_level = other.m_level;
         m_armor = other.m_armor;
         m_weapons = other.m_weapons;
+    }
+    return *this;
+}
+
+Person::Person(Person &&other):
+    m_type(other.m_type),
+    m_stats(other.m_stats),
+    m_exp(other.m_exp),
+    m_level(other.m_level)
+{
+    other.m_stats = Stats();
+    other.m_exp = 0;
+    other.m_level = 0;
+    m_armor = std::move(other.m_armor);
+    m_weapons = std::move(other.m_weapons);
+}
+
+Person &Person::operator=(Person &&other)
+{
+    if(this != &other)
+    {
+        m_type = other.m_type,
+        m_stats = other.m_stats;
+        m_exp = other.m_exp;
+        m_level = other.m_level;
+        other.m_stats = Stats();
+        other.m_exp = 0;
+        other.m_level = 0;
+        m_armor = std::move(other.m_armor);
+        m_weapons = std::move(other.m_weapons);
     }
     return *this;
 }
@@ -42,6 +74,11 @@ void Person::setPosition(uint32_t x, uint32_t y)
 std::pair<uint32_t, uint32_t> Person::getPosition() const
 {
     return m_position;
+}
+
+Person::ArmyType Person::getPersonArmyType() const
+{
+    return m_type;
 }
 
 bool Person::addExp(uint16_t exp)

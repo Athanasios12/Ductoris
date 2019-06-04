@@ -1,31 +1,31 @@
 import QtQuick 2.6
-import QtQuick.Window 2.2
 
-Window {
+Item {
     visible: true
-    width: 640
-    height: 480
-    title: qsTr("Hello World")
+    width: 600
+    height: 800
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            console.log(qsTr('Clicked on background. Text: "' + textEdit.text + '"'))
-        }
-    }
-
-    TextEdit {
-        id: textEdit
-        text: qsTr("Enter some text...")
-        verticalAlignment: Text.AlignVCenter
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: 20
-        Rectangle {
+    Item
+    {
+        id: gameCanvas
+        objectName: "backgroundArea"
+        width: parent.width
+        anchors { top: parent.top; bottom: toolBar.top }
+        signal clicked(int x, int y)
+        Image
+        {
+            id: background
             anchors.fill: parent
-            anchors.margins: -10
-            color: "transparent"
-            border.width: 1
+            source: "background_samegame.jpg"
+            fillMode: Image.PreserveAspectCrop
+        }
+
+        MouseArea
+        {
+            id: mouseArea
+            anchors.fill: parent
+            onClicked: gameCanvas.clicked(mouse.x, mouse.y);
         }
     }
+
 }

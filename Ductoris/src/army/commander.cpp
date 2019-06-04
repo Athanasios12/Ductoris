@@ -35,7 +35,7 @@ bool Commander::addSoldier(Soldier *soldier)
     bool added = false;
     if(soldier)
     {
-        if(m_skillTree->getArmyType() == soldier->m_skillTree->getArmyType())
+        if(m_type == soldier->getPersonArmyType())
         {
             if(m_army.size() < m_soldierLimit)
             {

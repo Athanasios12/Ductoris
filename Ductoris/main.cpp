@@ -1,16 +1,15 @@
 #include <QGuiApplication>
-#include <QQmlApplicationEngine>
+#include <QQuickView>
+#include <QQuickItem>
 #include "Person.h"
 #include "Soldier.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-
-//    QQmlApplicationEngine engine;
-//    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-//    if (engine.rootObjects().isEmpty())
-//        return -1;
-
+    QQuickView view(QUrl(QStringLiteral("qrc:/src/ui/BattleScreen.qml")));
+    if (!view.rootObject())
+        return -1;
+    view.show();
     return app.exec();
 }
