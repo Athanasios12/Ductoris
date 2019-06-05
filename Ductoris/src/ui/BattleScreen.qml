@@ -5,13 +5,15 @@ Rectangle
     id: battleWindowScreen
     width: 800
     height: 600
-    color: "white"
+    color: "white"    
     Item
     {
         id: gameCanvas
         objectName: "backgroundArea"
         width: parent.width
-        anchors { top: parent.top; bottom: parent.bottom }
+        height: parent.height - 30
+        anchors { top: parent.top;}
+        SystemPalette { id: activePalette }
         signal clicked(int x, int y)
         Image
         {
@@ -19,98 +21,140 @@ Rectangle
             anchors.fill: parent
             source: "maps/battlemap.png"
             fillMode: Image.PreserveAspectCrop
+        }        
+        Person
+        {
+            id: person
+            width : 100
+            height : 100
+            x : Math.floor((gameCanvas.width / 2) - (person.width / 2))
+            y: Math.floor((gameCanvas.height / 2) - (person.height / 2))
         }
+//        Rectangle
+//        {
+//            id: person
+//            width : 100
+//            height : 100
+//            x : Math.floor((gameCanvas.width / 2) - (person.width / 2))
+//            y: Math.floor((gameCanvas.height / 2) - (person.height / 2))
+//            //animation properties
+//            property int newX: 0
+//            property int newY: 0
+//            property int newAngleRotation: 0
+//            property int rotationSpeed: 1
+//            property int speed: 5 // 1px/ 5ms
+//            property int time: 0
+//            color: "#00000000"
+//            SpriteSequence
+//            {
+//                id: personSpriteSequence
+//                width : person.width
+//                height : person.height
+//                anchors.centerIn: person.Center
+//                interpolate: false
+//                goalSprite: ""
+
+//                Sprite
+//                {
+//                    id: standSprite
+//                    name: "personStand"
+//                    source: "sprites/Commander_sprite_still.png"
+//                    frameCount: 1
+//                    frameWidth: person.width
+//                    frameHeight: person.height
+//                    frameRate: 10
+//                    to : {"personStand" : 1, "personWalk" : 0.1}
+//                }
+//                Sprite
+//                {
+//                    id: walkSprite
+//                    name: "personWalk"
+//                    source: "sprites/Commander_sprite.png"
+//                    frameCount: 2
+//                    frameWidth: person.width
+//                    frameHeight: person.height
+//                    frameRate: 4
+//                    to : {"personStand" : 1}
+//                }
+//            }
+//            SequentialAnimation
+//            {
+//                id: personAnimation
+//                ParallelAnimation
+//                {
+//                   ScriptAction { script: personSpriteSequence.goalSprite = "personWalk"; }
+//                   NumberAnimation
+//                   {
+//                       target: person; property: "x"; to : person.newX; duration: person.time
+//                   }
+//                   NumberAnimation
+//                   {
+//                       target: person; property: "y"; to : person.newY; duration: person.time
+//                   }
+//                }
+//                ScriptAction { script: personSpriteSequence.goalSprite = "personStand"; }
+//            }
+//        }
 
         MouseArea
         {
             id: mouseArea
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked:
             {
-                personSpriteSequence.newX = mouseArea.mouseX - Math.floor(personSpriteSequence.width / 2);
-                personSpriteSequence.newY = mouseArea.mouseY - Math.floor(personSpriteSequence.height / 2);
-                //dodać sprawdzenie czy nie wyszedł poza planszę
-                if(personSpriteSequence.newX < 0)
+                if(mouse.button === Qt.LeftButton)
                 {
-                    personSpriteSequence.newX = 0;
-                }
-                if(personSpriteSequence.newY < 0)
-                {
-                    personSpriteSequence.newY = 0;
-                }
-                if(personAnimation.running)
-                {
-                    personAnimation.stop();
-                }
-                var timeX = Math.floor(Math.abs(personSpriteSequence.newX - personSpriteSequence.x) * personSpriteSequence.speed);
-                var timeY = Math.floor(Math.abs(personSpriteSequence.newY - personSpriteSequence.y) * personSpriteSequence.speed);
-                if(timeX > timeY)
-                {
-                    personSpriteSequence.time = timeX;
+                    person.newX = mouseArea.mouseX - Math.floor(person.width / 2);
+                    person.newY = mouseArea.mouseY - Math.floor(person.height / 2);
+                    //dodać sprawdzenie czy nie wyszedł poza planszę
+                    if(person.newX < 0)
+                    {
+                        person.newX = 0;
+                    }
+                    if(person.newY < 0)
+                    {
+                        person.newY = 0;
+                    }
+                    if(person.personAnimation.running)
+                    {
+                        person.personAnimation.stop();
+                    }
+                    var timeX = Math.floor(Math.abs(person.newX - person.x) * person.speed);
+                    var timeY = Math.floor(Math.abs(person.newY - person.y) * person.speed);
+                    if(timeX > timeY)
+                    {
+                        person.time = timeX;
+                    }
+                    else
+                    {
+                        person.time = timeY;
+                    }
+                    person.personAnimation.start();
                 }
                 else
                 {
-                    personSpriteSequence.time = timeY;
+                    //attack animation
+                    console.log("Attack");
                 }
-                personAnimation.start();
             }
         }
-        //ustaw żeby frame rate sprite'a zalezal od szybkosc speed ktora tez mowi o tym jak szybko sie przemieszcza
-        //dodaj rotację - atan(dx/dy) - kat obrotu dla nowej pozycji(liczona od srodka sprite'a)
-        //predkosc rotacji jest stala i bazuje na predkosci przemieszczania jednostki - speed ->anglespeed
-        //Zrobic z sprite sequence osobny plik qml tak aby mozna było tworzyć ich wiele na mapie, generycznie z parametryzowanych
-        //
-        SpriteSequence
+    }
+
+    Rectangle
+    {
+        id: toolBar
+        width: parent.width; height: 30
+        color: activePalette.window
+        anchors.bottom: parent.bottom
+
+        Button
         {
-            id: personSpriteSequence
-            width : 100
-            height : 100
-            x : Math.floor((parent.width / 2) - (width / 2))
-            y: Math.floor((parent.height / 2) - (height / 2))
-            interpolate: false
-            goalSprite: ""
-            property int newX: 0
-            property int newY: 0
-            property int speed: 5 // 1px/ 5ms
-            property int time: 0
-            Sprite
-            {
-                name: "personStand"
-                source: "sprites/Commander_sprite_still.png"
-                frameCount: 1
-                frameWidth: 100
-                frameHeight: 100
-                frameRate: 10
-                to : {"personStand" : 1, "personWalk" : 0.1}
-            }
-            Sprite
-            {
-                name: "personWalk"
-                source: "sprites/Commander_sprite.png"
-                frameCount: 2
-                frameWidth: 100
-                frameHeight: 100
-                frameRate: 4
-                to : {"personStand" : 1}
-            }
-        }
-        SequentialAnimation
-        {
-            id: personAnimation
-            ParallelAnimation
-            {
-               ScriptAction { script: personSpriteSequence.goalSprite = "personWalk"; }
-               NumberAnimation
-               {
-                   target: personSpriteSequence; property: "x"; to : personSpriteSequence.newX; duration: personSpriteSequence.time
-               }
-               NumberAnimation
-               {
-                   target: personSpriteSequence; property: "y"; to : personSpriteSequence.newY; duration: personSpriteSequence.time
-               }
-            }
-            ScriptAction { script: personSpriteSequence.goalSprite = "personStand"; }
+            objectName: "btnNewGame"
+            anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+            height: parent.height
+            text: "New Game"
+            onClicked: console.log("This doesn't do anything yet...")
         }
     }
 }
