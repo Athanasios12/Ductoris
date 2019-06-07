@@ -1,15 +1,19 @@
 #include <QGuiApplication>
-#include <QQuickView>
-#include <QQuickItem>
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
 #include "Person.h"
 #include "Soldier.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    QQuickView view(QUrl(QStringLiteral("qrc:/src/ui/BattleScreen.qml")));
-    if (!view.rootObject())
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QStringLiteral("qrc:/src/ui/main.qml")));
+    if(engine.rootObjects().empty())
+    {
         return -1;
-    view.show();
+    }
+    QQuickWindow *window = qobject_cast<QQuickWindow*>(engine.rootObjects().at(0));
+    window->show();
     return app.exec();
 }

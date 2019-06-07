@@ -1,4 +1,8 @@
 #include "Ductoris.h"
+#include <QString>
+#include <QtQuick/QQuickView>
+
+const QString BATTLE_SCREEN_WINDOW_URL = QStringLiteral("qrc:/src/ui/BattleScreen.qml");
 
 //singleton init
 Ductoris *Ductoris::m_ductoriusGame = nullptr;

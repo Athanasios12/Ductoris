@@ -2,6 +2,7 @@
 #define DUCTORIS_H
 #include <QObject>
 
+
 class Ductoris : public QObject
 {
     Q_OBJECT
@@ -23,6 +24,7 @@ private:
 
     static Ductoris *m_ductoriusGame;
     bool m_initialized{false};
+
 };
 
 #endif // DUCTORIS_H

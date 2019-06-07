@@ -5,7 +5,8 @@ Rectangle
     id: battleWindowScreen
     width: 800
     height: 600
-    color: "white"    
+    color: "white"
+    signal btnGoBackToTitle
     Item
     {
         id: gameCanvas
@@ -34,22 +35,17 @@ Rectangle
             {
                 alpha = -180 - ((Math.atan2(X_p, Y_p) * 180) / Math.PI);
             }
-            console.log(" Diff : " + (Math.atan2(Y_p, X_p) * 180) / Math.PI);
-            console.log("Rotation angle phi : " + Phi+ " new angle : " + alpha);
-//            console.log("Person x = " + person.x + " y = " + person.y);
-//            console.log("Person new_x = " + person.newX + " new_y = " + person.newY);
             person.newAngleRotation = Math.floor(alpha);
         }
 
         onClicked:
         {
-            console.log("Canvas x = " + x + " y = " + person.y);
+            console.log("Canvas clicked");
             if(mouseBtn === Qt.LeftButton)
             {
                 person.newX = x - Math.floor(person.width / 2);
                 person.newY = y - Math.floor(person.height / 2);
-                console.log("Person x = " + person.x + " y = " + person.y);
-                console.log("Person new_x = " + person.newX + " new_y = " + person.newY);
+
                 //dodać sprawdzenie czy nie wyszedł poza planszę
                 if(person.newX < 0)
                 {
@@ -136,6 +132,17 @@ Rectangle
             height: parent.height
             text: "New Game"
             onClicked: console.log("This doesn't do anything yet...")
+        }
+        Button
+        {
+            objectName: "btnGoToTitle"
+            anchors { right: parent.right; }
+            height: parent.height
+            text: "Exit"
+            onClicked:
+            {
+                battleWindowScreen.btnGoBackToTitle();
+            }
         }
     }
 }

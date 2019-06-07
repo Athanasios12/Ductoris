@@ -10,8 +10,8 @@ Rectangle
     id: person
     x : 0
     y: 0
-    //color: "#00000000"
-    color : "red"
+    color: "#00000000"
+    //color : "red"
     rotation:0
     //animation properties
     property int newX: 0
@@ -93,7 +93,7 @@ Rectangle
             frameWidth: person.width
             frameHeight: person.height
             frameRate: 10
-            to : {"personStand" : 1, "personWalk" : 0.1}
+            to : {"personStand" : 1, "personWalk" : 0}
         }
         Sprite
         {
@@ -104,7 +104,7 @@ Rectangle
             frameWidth: person.width
             frameHeight: person.height
             frameRate: 4
-            to : {"personStand" : 1}
+            to : {"personWalk" : 0,"personStand" : 0.1}
         }
     }
     SequentialAnimation
