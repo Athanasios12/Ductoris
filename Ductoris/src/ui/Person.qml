@@ -10,12 +10,14 @@ Rectangle
     id: person
     x : 0
     y: 0
-    color: "#00000000"
+    //color: "#00000000"
+    color : "red"
+    rotation:0
     //animation properties
     property int newX: 0
     property int newY: 0
     property int newAngleRotation: 0
-    property int rotationSpeed: 1
+    property int rotationSpeed: 5
     property int speed: 5 // 1px/ 5ms
     property int time: 0
     //id aliases - to access from different file
@@ -23,7 +25,7 @@ Rectangle
     property alias personAnimation: personAnimation
     //signals
     signal finished
-    signal positionChanged(int x, int y)
+    signal positionChanged(int x, int y, int rotation)
 
     //funtion that can be connected to from backend c++ class
     function setSpriteProperties(spriteType, sourceImg, frameCount, frameWidth, frameHeight, frameRate)
@@ -60,18 +62,18 @@ Rectangle
 
     onPositionChanged:
     {
-        console.log("Position x: " + x + " y: " + y);
+        //console.log("Position x: " + x + " y: " + y + " angle : " + rotation);
     }
 
     //notify c++ backend about sprite position change
     onXChanged:
     {
-        positionChanged(person.x, person.y);
+        positionChanged(person.x, person.y, person.rotation);
     }
 
     onYChanged:
     {
-        positionChanged(person.x, person.y);
+        positionChanged(person.x, person.y, person.rotation);
     }
 
     SpriteSequence
@@ -82,7 +84,6 @@ Rectangle
         anchors.centerIn: person.Center
         interpolate: false
         goalSprite: ""
-
         Sprite
         {
             id: standSprite
@@ -109,6 +110,10 @@ Rectangle
     SequentialAnimation
     {
         id: personAnimation
+        RotationAnimation
+        {
+            target:person; from : person.rotation; to : person.rotation + newAngleRotation; duration: rotationSpeed * Math.abs(newAngleRotation)
+        }
         ParallelAnimation
         {
            ScriptAction { script: personSpriteSequence.goalSprite = "personWalk"; }
