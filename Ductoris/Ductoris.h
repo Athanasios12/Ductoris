@@ -1,7 +1,9 @@
 #ifndef DUCTORIS_H
 #define DUCTORIS_H
 #include <QObject>
-
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
+#include <memory>
 
 class Ductoris : public QObject
 {
@@ -10,11 +12,7 @@ public:
     ~Ductoris();
     static Ductoris *getInstance();
 public slots:
-    void onUnitMove(int x, int y);
-    void onSelectUnit();
-    void onUnitAttack();
-    void onNewUnitCreate();
-    void onUnitAttacked();
+    void onGameCanvasClicked(int x, int y, int mouseBtn);
 private:
     Ductoris();
     Ductoris(const Ductoris &other) = delete;
@@ -22,8 +20,9 @@ private:
 
     void initilize();
 
-    static Ductoris *m_ductoriusGame;
+    static Ductoris *m_ductorisGame;
     bool m_initialized{false};
+    std::unique_ptr<QQmlApplicationEngine> m_engine{nullptr};
 
 };
 

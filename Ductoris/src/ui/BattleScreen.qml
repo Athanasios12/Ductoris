@@ -3,6 +3,7 @@ import QtQuick 2.6
 Rectangle
 {
     id: battleWindowScreen
+    objectName: "battleWindowScreen"
     width: 800
     height: 600
     color: "white"
@@ -10,7 +11,7 @@ Rectangle
     Item
     {
         id: gameCanvas
-        objectName: "backgroundArea"
+        objectName: "gameCanvas"
         width: parent.width
         height: parent.height - 30
         anchors { top: parent.top;}
@@ -114,6 +115,7 @@ Rectangle
             onClicked:
             {
                 gameCanvas.clicked(mouse.x, mouse.y, mouse.button);
+                _ductorisApi.onGameCanvasClicked(mouse.x, mouse.y, mouse.button);
             }
         }
     }
