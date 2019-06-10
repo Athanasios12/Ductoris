@@ -65,6 +65,35 @@ Rectangle
         //console.log("Position x: " + x + " y: " + y + " angle : " + rotation);
     }
 
+    function onUpdateMovementData(newX, newY, time, rotation)
+    {
+        person.newX = newX;
+        person.newY = newY;
+        if(person.newX < 0)
+        {
+            person.newX = 0;
+        }
+        if(person.newY < 0)
+        {
+            person.newY = 0;
+        }
+        if(person.newX + person.width > gameCanvas.width)
+        {
+            person.newX = gameCanvas.width - person.width;
+        }
+        if(person.newY + person.height > gameCanvas.height)
+        {
+            person.newY = gameCanvas.height - person.height;
+        }
+        person.time = time;
+        person.newAngleRotation = rotation;
+        if(person.personAnimation.running)
+        {
+            person.personAnimation.stop();
+        }
+        person.personAnimation.start();
+    }
+
     //notify c++ backend about sprite position change
     onXChanged:
     {

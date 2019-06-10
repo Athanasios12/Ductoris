@@ -17,7 +17,7 @@ Rectangle
         anchors { top: parent.top;}
         SystemPalette { id: activePalette }
         signal clicked(int x, int y, int mouseBtn)
-
+        //to c++ c
         function calculateRotation()
         {
             //new position in global coordinates system
@@ -41,6 +41,7 @@ Rectangle
 
         onClicked:
         {
+            //move this to c++ backend class for Person
             console.log("Canvas clicked");
             if(mouseBtn === Qt.LeftButton)
             {

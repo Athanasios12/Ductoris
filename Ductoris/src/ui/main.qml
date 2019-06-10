@@ -28,6 +28,8 @@ Window
             onBtnGoBackToTitle:
             {
                 stack.pop();
+                //signal that the game is in exit
+                _ductorisApi.onExitGame();
             }
         }
     }
@@ -41,6 +43,7 @@ Window
             onBtnNewGameClicked:
             {
                 stack.push(battleScrComponent);
+                _ductorisApi.onGameStarted();
             }
         }
     }
