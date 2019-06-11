@@ -148,4 +148,10 @@ Rectangle
             }
         }
     }
+    FpsCounter
+    {
+        id: fpsCounter
+        anchors.right: parent.right
+        anchors.top: parent.top
+    }
 }

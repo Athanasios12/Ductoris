@@ -1,5 +1,5 @@
 #include "AbstractArmyFactoryTests.h"
-#include "abstractarmyfactory.h"
+#include "armyfactory.h"
 #include "romanarmyfactory.h"
 #include <memory>
 

@@ -1,12 +1,14 @@
 <RCC>
     <qresource prefix="/">
+        <file>src/ui/main.qml</file>
         <file>src/ui/DuctorisTitleWindow.qml</file>
         <file>src/ui/BattleScreen.qml</file>
         <file>src/ui/maps/battlemap.png</file>
         <file>src/ui/sprites/Commander_sprite.png</file>
+        <file>src/ui/images/spinner.png</file>
         <file>src/ui/sprites/Commander_sprite_still.png</file>
         <file>src/ui/Person.qml</file>
+        <file>src/ui/FpsCounter.qml</file>
         <file>src/ui/Button.qml</file>
-        <file>src/ui/main.qml</file>
     </qresource>
 </RCC>

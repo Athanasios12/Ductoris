@@ -13,7 +13,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += main.cpp \
-    src/army/abstractarmyfactory.cpp \
     src/army/acher.cpp \
     src/army/armor.cpp \
     src/army/army.cpp \
@@ -37,7 +36,8 @@ SOURCES += main.cpp \
     src/army/roman/units/rarcher.cpp \
     src/army/roman/units/rhorseman.cpp \
     src/army/roman/units/rskirmisher.cpp \
-    Ductoris.cpp
+    Ductoris.cpp \
+    src/army/armyfactory.cpp
 
 RESOURCES += qml.qrc
 
@@ -53,7 +53,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    src/army/abstractarmyfactory.h \
     src/army/acher.h \
     src/army/armor.h \
     src/army/army.h \
@@ -77,7 +76,9 @@ HEADERS += \
     src/army/roman/units/rarcher.h \
     src/army/roman/units/rhorseman.h \
     src/army/roman/units/rskirmisher.h \
-    Ductoris.h
+    Ductoris.h \
+    src/army/armyfactory.h \
+    globaldata.h
 
 INCLUDEPATH += src/army/ \
                src/army/roman \

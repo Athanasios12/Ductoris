@@ -4,6 +4,9 @@
 #include <QQmlProperty>
 #include <QQuickItem>
 #include <QQmlContext>
+#include "armyfactory.h"
+#include "globaldata.h"
+#include "romanarmyfactory.h"
 
 const QString MAIN_QML_SRC_FILENAME = QStringLiteral("qrc:/src/ui/main.qml");
 const QString BATTLE_SCREEN = QStringLiteral("battleWindowScreen");
@@ -31,17 +34,18 @@ void Ductoris::initilize()
     }
 }
 
-void Ductoris::movePerson(int x, int y)
+qint16 Ductoris::checkIfSelectedAUnit(int x, int y) const
 {
-    //calculate the movement parameters and signal the ui
-    m_selectedPerson->updatePersonMovementData();
+    qint16 personIdx = -1;
+    //check if under x, y position a person is present under x, y position
+    return personIdx;
 }
 
-Person* Ductoris::checkIfSelectedAPerson(int x, int y) const
+qint16 Ductoris::checkIfEnemyClicked(int x, int y) const
 {
-    Person* selected = nullptr;
-    //check if under x, y position a person is present under x, y position
-    return selected;
+    qint16 enemyIdx = -1;
+    //check if under x, y position is a enemy unit that can be attacked
+    return enemyIdx;
 }
 
 Ductoris::~Ductoris()
@@ -64,31 +68,60 @@ bool Ductoris::addNewUnit()
 
 }
 
+void Ductoris::onChosenLeader(int leaderType)
+{
+    std::unique_ptr<ArmyFactory> factory;
+    switch(static_cast<DuctorisTypes::ArmyType>(leaderType))
+    {
+    case DuctorisTypes::Roman:
+        factory.reset(new RomanArmyFactory);
+        break;
+    case DuctorisTypes::Macedon:
+        break;
+    case DuctorisTypes::Gallic:
+        break;
+    default:
+        break;
+    }
+    std::shared_ptr<Person> leader(factory->createLeader());
+    m_allUnits.push_back(std::move(leader));
+}
+
 void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
 {
     std::cout << "Game canvas clicked " << std::endl;
     //for now a simple placeholder
     if(mouseBtn == Qt::LeftButton) // left button clicked - select or move
     {
-        if(m_personSelected)
+        if(m_unitSelected)
         {
-            movePerson(x, y);
+            //move selected unit
+            if(m_selectedUnit.lock()) // make sure not a dangling pointer
+            {
+                m_selectedUnit->move(x, y);
+            }
         }
         else
         {
-            auto person = checkIfSelectedAPerson(x, y);
-            if(person)
+            auto personIdx = checkIfSelectedAUnit(x, y);
+            if(personIdx >= 0)
             {
-                m_selectedPerson = person;
-                m_personSelected = true;
+                m_selectedUnit = m_allUnits[personIdx];
+                m_unitSelected = true;
             }
         }
     }
     else if(mouseBtn == Qt::RightButton) // right button clicked - attack
     {
-        if(m_personSelected)
+        if(m_unitSelected && m_selectedUnit.lock())
         {
             //attack
+            auto enemyIdx = checkIfEnemyClicked(x, y);
+            if(enemyIdx >= 0)
+            {
+                m_selectedUnit->setActiveEnemy(m_enemyUnits[enemyIdx]);
+                m_selectedUnit->attack();
+            }
         }
     }
 }

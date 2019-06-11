@@ -1,18 +1,18 @@
-#ifndef ABSTRACTARMYFACTORY_H
-#define ABSTRACTARMYFACTORY_H
+#ifndef ARMYFACTORY_H
+#define ARMYFACTORY_H
 #include "Soldier.h"
 #include "commander.h"
 #include "officer.h"
 
-class AbstractArmyFactory
+class ArmyFactory
 {
 public:
-    AbstractArmyFactory();
-    virtual ~AbstractArmyFactory();
+    ArmyFactory();
+    virtual ~ArmyFactory();
 
     virtual Commander* createLeader() = 0;
     virtual Soldier* createSoldier(Soldier::SoldierType soldierType) = 0;
     virtual Officer* createOfficer() = 0;
 };
 
-#endif // ABSTRACTARMYFACTORY_H
+#endif // ARMYFACTORY_H

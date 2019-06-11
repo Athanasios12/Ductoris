@@ -23,7 +23,7 @@ HEADERS += \
     ../Ductoris/src/army/roman/romanarmyfactory.h \
     ../Ductoris/src/army/roman/units/rLeader.h \
     ../Ductoris/src/army/roman/units/rswordsman.h \
-    ../Ductoris/src/army/abstractarmyfactory.h \
+    ../Ductoris/src/army/armyfactory.h \
     ../Ductoris/src/army/acher.h \
     ../Ductoris/src/army/armor.h \
     ../Ductoris/src/army/army.h \
@@ -53,7 +53,7 @@ SOURCES += \
     ../Ductoris/src/army/roman/romanarmyfactory.cpp \
     ../Ductoris/src/army/roman/units/rLeader.cpp \
     ../Ductoris/src/army/roman/units/rswordsman.cpp \
-    ../Ductoris/src/army/abstractarmyfactory.cpp \
+    ../Ductoris/src/army/armyfactory.cpp \
     ../Ductoris/src/army/acher.cpp \
     ../Ductoris/src/army/armor.cpp \
     ../Ductoris/src/army/army.cpp \

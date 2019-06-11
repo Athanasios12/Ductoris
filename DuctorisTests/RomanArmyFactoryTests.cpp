@@ -1,6 +1,6 @@
 #include "RomanArmyFactoryTests.h"
 #include "romanarmyfactory.h"
-#include "abstractarmyfactory.h"
+#include "armyfactory.h"
 #include "commander.h"
 
 void RomanArmyFactoryTests::TestCase_CreateRomanLeader()

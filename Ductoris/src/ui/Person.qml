@@ -28,7 +28,12 @@ Rectangle
     signal positionChanged(int x, int y, int rotation)
 
     //funtion that can be connected to from backend c++ class
-    function setSpriteProperties(spriteType, sourceImg, frameCount, frameWidth, frameHeight, frameRate)
+    function onSetSpeed(speed)
+    {
+        person.speed = speed;
+    }
+
+    function onSetSpriteData(spriteType, sourceImg, frameCount, frameWidth, frameHeight, frameRate)
     {
         var spriteSet = true;
         var sprite = standSprite;
@@ -54,7 +59,7 @@ Rectangle
             sprite.frameRate = frameRate;
         }
     }
-    //Thos two are for testing
+    //Those two are for testing
     onFinished:
     {
         console.log("Person finished walking");
@@ -64,7 +69,7 @@ Rectangle
     {
         //console.log("Position x: " + x + " y: " + y + " angle : " + rotation);
     }
-
+    //qml slot
     function onUpdateMovementData(newX, newY, time, rotation)
     {
         person.newX = newX;

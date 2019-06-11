@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include "skilltree.h"
+#include <globaldata.h>
 
 class Person
 {
@@ -31,13 +32,6 @@ public:
         }
     };
 
-    enum ArmyType
-    {
-        Roman,
-        Macedon,
-        Gallic
-    };
-
     Person();
     Person(const Person &other);
     Person& operator=(const Person &other);
@@ -47,14 +41,23 @@ public:
 
     void setPosition(uint32_t x, uint32_t y);
     std::pair<uint32_t, uint32_t> getPosition() const;
-    ArmyType getPersonArmyType() const;
+    DuctorisTypes::ArmyType getPersonArmyType() const;
 
     virtual bool addExp(uint16_t exp);
     virtual void changeArmor(Armor &&armor);
     virtual void addWeapon(const Weapon &weapon);
+
+    virtual void move(int x, int y);
+    virtual void attack(); //attack locked on enemy
+
+    void setActiveEnemy(std::shared_ptr<Person> &enemyUnit);
+public slots:
+    void onPositionChanged();
+signals:
+    void personStateUpdate(); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
 protected:
     //Type
-    ArmyType m_type;
+    DuctorisTypes::ArmyType m_type;
     std::unique_ptr<SkillTree> m_skillTree{nullptr};
     //Person Stats
     Stats m_stats;
@@ -62,9 +65,10 @@ protected:
     uint8_t m_level{0};
     //equipment
     Armor m_armor;
-    std::vector<Weapon> m_weapons;
+    std::vector<Weapon> m_weapons;    
     //location
     std::pair<uint32_t, uint32_t> m_position;
+    std::weak_ptr<Person> m_lockedOnEnemy;
 };
 
 #endif // PERSON_H

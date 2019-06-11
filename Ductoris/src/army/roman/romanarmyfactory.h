@@ -1,8 +1,8 @@
 #ifndef ROMANARMYFACTORY_H
 #define ROMANARMYFACTORY_H
-#include "abstractarmyfactory.h"
+#include "armyfactory.h"
 
-class RomanArmyFactory : public AbstractArmyFactory
+class RomanArmyFactory : public ArmyFactory
 {
 public:
     RomanArmyFactory();

@@ -1,5 +1,5 @@
 #include "Person.h"
-#include "abstractarmyfactory.h"
+#include "armyfactory.h"
 
 Person::Person()
 {
@@ -76,7 +76,7 @@ std::pair<uint32_t, uint32_t> Person::getPosition() const
     return m_position;
 }
 
-Person::ArmyType Person::getPersonArmyType() const
+DuctorisTypes::ArmyType Person::getPersonArmyType() const
 {
     return m_type;
 }
@@ -108,4 +108,19 @@ void Person::changeArmor(Armor &&armor)
 void Person::addWeapon(const Weapon &weapon)
 {
     m_weapons.push_back(weapon);
+}
+
+void Person::move(int x, int y)
+{
+
+}
+
+void Person::attack()
+{
+
+}
+
+void Person::setActiveEnemy(std::shared_ptr &enemyUnit)
+{
+
 }
