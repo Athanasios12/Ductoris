@@ -12,26 +12,13 @@ Window
     maximumWidth: width
     minimumHeight: height
     minimumWidth: width
+    SystemPalette { id: activePalette }
+
     StackView
     {
         id:stack
         anchors.fill: parent
         initialItem: titleScrComponent
-    }
-    Component
-    {
-        id:battleScrComponent
-        BattleScreen
-        {
-            width: mainWindow.width
-            height: mainWindow.height
-            onBtnGoBackToTitle:
-            {
-                stack.pop();
-                //signal that the game is in exit
-                _ductorisApi.onExitGame();
-            }
-        }
     }
     Component
     {
@@ -42,8 +29,44 @@ Window
             height: mainWindow.height
             onBtnNewGameClicked:
             {
+                stack.push(charcterScrComponent);
+            }
+        }
+    }
+    Component
+    {
+        id:charcterScrComponent
+        ChooseCharacterScreen
+        {
+            width: mainWindow.width
+            height: mainWindow.height
+            onStartGame:
+            {
                 stack.push(battleScrComponent);
+
+            }
+            onExitToTitle:
+            {
+                stack.pop();
+            }
+        }
+    }
+    Component
+    {
+        id:battleScrComponent
+        BattleScreen
+        {
+            width: mainWindow.width
+            height: mainWindow.height
+            onBattleScreenReady:
+            {
                 _ductorisApi.onGameStarted();
+            }
+            onBtnGoBackToTitle:
+            {
+                stack.pop();
+                //signal that the game is in exit
+                _ductorisApi.onExitGame();
             }
         }
     }

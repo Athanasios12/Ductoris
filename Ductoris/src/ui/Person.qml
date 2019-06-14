@@ -20,6 +20,8 @@ Rectangle
     property int rotationSpeed: 5
     property int speed: 5 // 1px/ 5ms
     property int time: 0
+    property int gameCanvasWidth: 0
+    property int gameCanvasHeight: 0
     //id aliases - to access from different file
     property alias personSpriteSequence: personSpriteSequence
     property alias personAnimation: personAnimation
@@ -65,10 +67,21 @@ Rectangle
         console.log("Person finished walking");
     }
 
-    onPositionChanged:
+    onXChanged:
     {
-        //console.log("Position x: " + x + " y: " + y + " angle : " + rotation);
+        positionChanged(person.x, person.y, person.rotation);
     }
+
+    onYChanged:
+    {
+        positionChanged(person.x, person.y, person.rotation);
+    }
+
+    onRotationChanged:
+    {
+        positionChanged(person.x, person.y, person.rotation);
+    }
+
     //qml slot
     function onUpdateMovementData(newX, newY, time, rotation)
     {
@@ -82,13 +95,13 @@ Rectangle
         {
             person.newY = 0;
         }
-        if(person.newX + person.width > gameCanvas.width)
+        if(person.newX + person.width > gameCanvasWidth)
         {
-            person.newX = gameCanvas.width - person.width;
+            person.newX = gameCanvasWidth - person.width;
         }
-        if(person.newY + person.height > gameCanvas.height)
+        if(person.newY + person.height > gameCanvasHeight)
         {
-            person.newY = gameCanvas.height - person.height;
+            person.newY = gameCanvasHeight - person.height;
         }
         person.time = time;
         person.newAngleRotation = rotation;
@@ -99,15 +112,10 @@ Rectangle
         person.personAnimation.start();
     }
 
-    //notify c++ backend about sprite position change
-    onXChanged:
+    function onUpdateMovementStats(speed, rotationSpeed)
     {
-        positionChanged(person.x, person.y, person.rotation);
-    }
-
-    onYChanged:
-    {
-        positionChanged(person.x, person.y, person.rotation);
+        person.speed = speed;
+        person.rotation = rotationSpeed;
     }
 
     SpriteSequence

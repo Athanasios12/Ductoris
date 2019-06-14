@@ -6,7 +6,7 @@ Rectangle
 
     property string text: "Button"
     signal clicked
-
+    color: activePalette.button
     Text
     {
         id: buttonLabel

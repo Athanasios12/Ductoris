@@ -8,9 +8,12 @@
 #include <memory>
 #include "skilltree.h"
 #include <globaldata.h>
+#include <QObject>
+#include <QQuickItem>
 
-class Person
+class Person : public QObject
 {
+    Q_OBJECT
 public:
     struct Stats
     {
@@ -19,7 +22,7 @@ public:
         uint16_t m_attack{0};
         uint16_t m_defence{0};
         uint16_t m_stamina{0};
-        uint16_t m_speed{0};
+        uint16_t m_speed{5};
 
         void addBonus(SkillTree::LevelBonus bonus)
         {
@@ -39,21 +42,30 @@ public:
     Person& operator=(Person &&other);
     virtual ~Person();
 
+    bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);
     void setPosition(uint32_t x, uint32_t y);
-    std::pair<uint32_t, uint32_t> getPosition() const;
+    QPoint getPosition() const;
+    quint16 getWidth() const;
+    quint16 getHeight() const;
     DuctorisTypes::ArmyType getPersonArmyType() const;
 
     virtual bool addExp(uint16_t exp);
-    virtual void changeArmor(Armor &&armor);
+    virtual void changeArmor(Armor &armor);
     virtual void addWeapon(const Weapon &weapon);
 
-    virtual void move(int x, int y);
+    virtual void move(int newX, int newY);
     virtual void attack(); //attack locked on enemy
 
     void setActiveEnemy(std::shared_ptr<Person> &enemyUnit);
+    //when doing tdd for this class add behaviur for solving the being attacked by multiple units
+    //and attacking when being attacked
 public slots:
-    void onPositionChanged();
+    void onPositionChanged(int x, int y, int rotation);
 signals:
+    //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...
+    void setSpriteData(int spriteType, const QString &spriteImgSource, int frameCount, int frameWidth, int frameHeight, int frameRate);
+    void updatePersonMovementStats(QVariant speed, QVariant rotationSpeed);
+    void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);
     void personStateUpdate(); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
 protected:
     //Type
@@ -67,8 +79,14 @@ protected:
     Armor m_armor;
     std::vector<Weapon> m_weapons;    
     //location
-    std::pair<uint32_t, uint32_t> m_position;
+    QPoint m_position;
     std::weak_ptr<Person> m_lockedOnEnemy;
+    //qml uiItem data
+    std::unique_ptr<QQuickItem> m_uiItem{nullptr};
+    bool m_connectedToUi{false};
+    int m_uiItemWidth{0};
+    int m_uiItemHeight{0};
+    int m_rotation{0};
 };
 
 #endif // PERSON_H

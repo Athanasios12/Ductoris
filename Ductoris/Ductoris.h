@@ -33,6 +33,7 @@ private:
     bool m_initialized{false};
     bool m_unitSelected{false};
     std::weak_ptr<Person> m_selectedUnit;
+    std::weak_ptr<Person> m_leaderUnit;
     std::vector<std::shared_ptr<Person>> m_playerUnits;
     std::vector<std::shared_ptr<Person>> m_enemyUnits;
     std::unique_ptr<QQmlApplicationEngine> m_engine{nullptr};

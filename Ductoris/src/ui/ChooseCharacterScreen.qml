@@ -1,58 +1,57 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.2
+import QtQuick 2.0
 
 Rectangle
 {
-    id : titleWindow
+    id : chracterChoiceWindow
+    objectName: "chracterChoiceWindow"
     width: 800
     height: 600
-    color : "blue"
-    signal btnNewGameClicked
-    signal btnLoadGameClicked
-    signal btnExitGameClicked
+    color : "red"
+    signal startGame
+    signal exitToTitle
 
     Button
     {
-        id: btnNewGame
-        objectName: "btnNewGame"
+        id: btnRomanLeader
+        objectName: "btnRomanLeader"
         anchors { horizontalCenter: parent.horizontalCenter;}
         y: Math.floor(parent.height / 4)
         height: 60
         width : 200
-        text: "New Game"
+        text: "Roman Leader"
         onClicked:
         {
-           titleWindow.btnNewGameClicked();
+           _ductorisApi.onChosenLeader(0);
         }
     }
 
     Button
     {
-        id: btnLoadGame
-        objectName: "btnLoadGame"
+        id: btnStartGame
+        objectName: "btnStartGame"
         anchors { horizontalCenter: parent.horizontalCenter;}
         y: Math.floor(parent.height / 2)
         height: 60
         width : 200
-        text: "Load Game"
+        text: "Start Game"
         onClicked:
         {
-           titleWindow.btnLoadGameClicked();
+           chracterChoiceWindow.startGame();
         }
     }
 
     Button
     {
-        id: btnExitGame
-        objectName: "btnExitGame"
+        id: btnExitToTitle
+        objectName: "btnExitToTitle"
         anchors { horizontalCenter: parent.horizontalCenter;}
         y: Math.floor(parent.height * 0.75)
         height: 60
         width : 200
-        text: "Exit Game"
+        text: "Exit"
         onClicked:
         {
-           titleWindow.btnExitGameClicked();
+           chracterChoiceWindow.exitToTitle();
         }
     }
 }

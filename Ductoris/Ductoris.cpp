@@ -4,13 +4,17 @@
 #include <QQmlProperty>
 #include <QQuickItem>
 #include <QQmlContext>
+#include <QQmlComponent>
 #include "armyfactory.h"
 #include "globaldata.h"
 #include "romanarmyfactory.h"
 
 const QString MAIN_QML_SRC_FILENAME = QStringLiteral("qrc:/src/ui/main.qml");
+const QString PERSON_QML_SRC_FILENAME = QStringLiteral("qrc:/src/ui/Person.qml");
+const QString LEADER_CHOICE_SCREEN = QStringLiteral("chracterChoiceWindow");
 const QString BATTLE_SCREEN = QStringLiteral("battleWindowScreen");
 const QString GAME_CANVAS = QStringLiteral("gameCanvas");
+const QString LEADER_CHOICE_BTN = QStringLiteral("btnRomanLeader");
 //singleton init
 Ductoris *Ductoris::m_ductorisGame = nullptr;
 
@@ -38,6 +42,22 @@ qint16 Ductoris::checkIfSelectedAUnit(int x, int y) const
 {
     qint16 personIdx = -1;
     //check if under x, y position a person is present under x, y position
+    qint16 idx = 0;
+    for(auto && unit : m_playerUnits)
+    {
+        auto position = unit->getPosition();
+        auto width = unit->getWidth();
+        auto height = unit->getHeight();
+        if((x >= position.x() - static_cast<int>(width / 2)) && (x <= position.x() + static_cast<int>(width / 2)))
+        {
+            if((y >= position.y() - static_cast<int>(height / 2)) && (y <= position.y() + static_cast<int>(height / 2)))
+            {
+                personIdx = idx;
+                break;
+            }
+        }
+        ++idx;
+    }
     return personIdx;
 }
 
@@ -70,7 +90,7 @@ bool Ductoris::addNewUnit()
 
 void Ductoris::onChosenLeader(int leaderType)
 {
-    std::unique_ptr<ArmyFactory> factory;
+    std::unique_ptr<ArmyFactory> factory{nullptr};
     switch(static_cast<DuctorisTypes::ArmyType>(leaderType))
     {
     case DuctorisTypes::Roman:
@@ -83,8 +103,13 @@ void Ductoris::onChosenLeader(int leaderType)
     default:
         break;
     }
-    std::shared_ptr<Person> leader(factory->createLeader());
-    m_allUnits.push_back(std::move(leader));
+    if(factory)
+    {
+        std::shared_ptr<Person> leader(factory->createLeader());
+        m_leaderUnit = leader;
+        m_playerUnits.push_back(std::move(leader));
+    }
+
 }
 
 void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
@@ -96,9 +121,10 @@ void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
         if(m_unitSelected)
         {
             //move selected unit
-            if(m_selectedUnit.lock()) // make sure not a dangling pointer
+            if(!m_selectedUnit.expired()) // make sure not a dangling pointer
             {
-                m_selectedUnit->move(x, y);
+                auto selectedUnit = m_selectedUnit.lock();
+                selectedUnit->move(x, y);
             }
         }
         else
@@ -106,21 +132,22 @@ void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
             auto personIdx = checkIfSelectedAUnit(x, y);
             if(personIdx >= 0)
             {
-                m_selectedUnit = m_allUnits[personIdx];
+                m_selectedUnit = m_playerUnits[personIdx];
                 m_unitSelected = true;
             }
         }
     }
     else if(mouseBtn == Qt::RightButton) // right button clicked - attack
     {
-        if(m_unitSelected && m_selectedUnit.lock())
+        if(m_unitSelected && !m_selectedUnit.expired())
         {
             //attack
             auto enemyIdx = checkIfEnemyClicked(x, y);
             if(enemyIdx >= 0)
             {
-                m_selectedUnit->setActiveEnemy(m_enemyUnits[enemyIdx]);
-                m_selectedUnit->attack();
+                auto selectedUnit = m_selectedUnit.lock();
+                selectedUnit->setActiveEnemy(m_enemyUnits[enemyIdx]);
+                selectedUnit->attack();
             }
         }
     }
@@ -134,9 +161,21 @@ void Ductoris::onGameStarted()
     {
         std::cout << "\n---Found Battle Screen!---\n" << std::endl;
         auto gameCanvas = window->findChild<QObject*>(GAME_CANVAS);
-        if(gameCanvas)
+        if(gameCanvas && m_leaderUnit.lock())
         {
             std::cout << "\n---Found Game Canvas!---\n" << std::endl;
+            QQmlComponent leaderUiComponent(m_engine.get(), QUrl(PERSON_QML_SRC_FILENAME));
+            if( leaderUiComponent.status() == QQmlComponent::Ready)
+            {
+                std::unique_ptr<QQuickItem> leaderUiItem(qobject_cast<QQuickItem*>(leaderUiComponent.create()));
+                leaderUiItem->setParentItem(qobject_cast<QQuickItem*>(gameCanvas));
+                leaderUiItem->setPosition(QPoint(200,200));
+                leaderUiItem->setSize(QSize(100, 100));
+                QQmlProperty::write(leaderUiItem.get(), "gameCanvasWidth", QQmlProperty::read(gameCanvas, "width"));
+                QQmlProperty::write(leaderUiItem.get(), "gameCanvasHeight", QQmlProperty::read(gameCanvas, "height"));
+                auto leaderUnit = m_leaderUnit.lock();
+                leaderUnit->setUiItem(leaderUiItem);
+            }
         }
     }
 }

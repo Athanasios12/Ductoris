@@ -10,5 +10,6 @@
         <file>src/ui/Person.qml</file>
         <file>src/ui/FpsCounter.qml</file>
         <file>src/ui/Button.qml</file>
+        <file>src/ui/ChooseCharacterScreen.qml</file>
     </qresource>
 </RCC>
