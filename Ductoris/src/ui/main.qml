@@ -65,6 +65,7 @@ Window
             onBtnGoBackToTitle:
             {
                 stack.pop();
+                stack.pop();
                 //signal that the game is in exit
                 _ductorisApi.onExitGame();
             }

@@ -61,11 +61,6 @@ Rectangle
             sprite.frameRate = frameRate;
         }
     }
-    //Those two are for testing
-    onFinished:
-    {
-        console.log("Person finished walking");
-    }
 
     onXChanged:
     {

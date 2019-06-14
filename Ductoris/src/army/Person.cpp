@@ -162,8 +162,8 @@ void Person::move(int newX, int newY)
         auto timeY = static_cast<int>(abs(newY - y) * m_stats.m_speed);
         int time = std::max(timeX, timeY);
         //rotation calculation
-        auto X_g = static_cast<double>(newX); //X in global coordinates
-        auto Y_g = static_cast<double>(newY); //Y in global coordinates
+        auto X_g = static_cast<double>(newX - x); //X in global coordinates
+        auto Y_g = static_cast<double>(newY - y); //Y in global coordinates
         //transform to person coordinate system orientation
         //custom rotation angle calculation for coordinates system with
         // o------> x
@@ -173,6 +173,7 @@ void Person::move(int newX, int newY)
         auto Phi = static_cast<double>(m_rotation);
         auto X_p = ((X_g * cos((Phi / 180) * M_PI)) + (Y_g * sin((Phi / 180) * M_PI))); //x in local coordinates
         auto Y_p = ((-X_g * sin((Phi / 180) * M_PI)) + (Y_g * cos((Phi / 180) * M_PI))); //y in local coordinates
+        //printf("\nFrom C++ backend: Xp = %d, Yp = %d\n", X_p, Y_p);
         int rotationAngle = 0;
         if(X_p >= 0)
         {
@@ -199,7 +200,7 @@ void Person::setActiveEnemy(std::shared_ptr<Person> &enemyUnit)
 
 void Person::onPositionChanged(int x, int y, int rotation)
 {
-    m_position.setX(x - static_cast<int>(m_uiItemWidth / 2));
-    m_position.setY(y - static_cast<int>(m_uiItemHeight / 2));
+    m_position.setX(x);
+    m_position.setY(y);
     m_rotation = rotation;
 }

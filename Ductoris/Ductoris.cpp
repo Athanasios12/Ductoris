@@ -169,12 +169,16 @@ void Ductoris::onGameStarted()
             {
                 std::unique_ptr<QQuickItem> leaderUiItem(qobject_cast<QQuickItem*>(leaderUiComponent.create()));
                 leaderUiItem->setParentItem(qobject_cast<QQuickItem*>(gameCanvas));
-                leaderUiItem->setPosition(QPoint(200,200));
                 leaderUiItem->setSize(QSize(100, 100));
                 QQmlProperty::write(leaderUiItem.get(), "gameCanvasWidth", QQmlProperty::read(gameCanvas, "width"));
                 QQmlProperty::write(leaderUiItem.get(), "gameCanvasHeight", QQmlProperty::read(gameCanvas, "height"));
+                int x = static_cast<int>(QQmlProperty::read(gameCanvas, "width").toInt() / 2) - static_cast<int>(QQmlProperty::read(leaderUiItem.get(), "width").toInt() / 2);
+                int y = static_cast<int>(QQmlProperty::read(gameCanvas, "height").toInt() / 2) - static_cast<int>(QQmlProperty::read(leaderUiItem.get(), "height").toInt() / 2);
+                leaderUiItem->setPosition(QPoint(x, y));
                 auto leaderUnit = m_leaderUnit.lock();
                 leaderUnit->setUiItem(leaderUiItem);
+                m_selectedUnit = m_leaderUnit.lock();
+                m_unitSelected = true;
             }
         }
     }
@@ -182,7 +186,8 @@ void Ductoris::onGameStarted()
 
 void Ductoris::onExitGame()
 {
-
+    m_playerUnits.clear();
+    m_enemyUnits.clear();
 }
 
 
