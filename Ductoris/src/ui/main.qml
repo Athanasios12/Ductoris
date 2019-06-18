@@ -42,15 +42,37 @@ Window
             height: mainWindow.height
             onStartGame:
             {
+                stack.push(campScrComponent);
+
+            }
+            onExitToTitle:
+            {
+                stack.pop(null);
+                _ductorisApi.onExitGame();
+            }
+        }
+    }
+
+    Component
+    {
+        id:campScrComponent
+        CampScreen
+        {
+            width: mainWindow.width
+            height: mainWindow.height
+            onStartBattle:
+            {
                 stack.push(battleScrComponent);
 
             }
             onExitToTitle:
             {
-                stack.pop();
+                stack.pop(null);
+                _ductorisApi.onExitGame();
             }
         }
     }
+
     Component
     {
         id:battleScrComponent
@@ -64,8 +86,7 @@ Window
             }
             onBtnGoBackToTitle:
             {
-                stack.pop();
-                stack.pop();
+                stack.pop(null);
                 //signal that the game is in exit
                 _ductorisApi.onExitGame();
             }

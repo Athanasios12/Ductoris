@@ -58,7 +58,6 @@ Rectangle
                 onClicked:
                 {
                     lstLeaderType.currentIndex = lstLeaderType.indexAt(mouse.x, mouse.y);
-                    //_ductorisApi.onChosenLeader(lstLeaderType.currentIndex);
                 }
             }
         }
@@ -87,6 +86,7 @@ Rectangle
             text: "Start Game"
             onClicked:
             {
+               _ductorisApi.onChosenLeader(lstLeaderType.currentIndex);
                chracterChoiceWindow.startGame();
             }
         }

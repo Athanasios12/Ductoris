@@ -11,5 +11,9 @@
         <file>src/ui/FpsCounter.qml</file>
         <file>src/ui/Button.qml</file>
         <file>src/ui/ChooseCharacterScreen.qml</file>
+        <file>src/ui/LeaderTypeListModel.qml</file>
+        <file>src/ui/CampScreen.qml</file>
+        <file>src/ui/ArmyTent.qml</file>
+        <file>src/ui/images/tent.png</file>
     </qresource>
 </RCC>

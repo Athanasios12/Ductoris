@@ -114,7 +114,6 @@ void Ductoris::onChosenLeader(int leaderType)
 
 void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
 {
-    std::cout << "Game canvas clicked " << std::endl;
     //for now a simple placeholder
     if(mouseBtn == Qt::LeftButton) // left button clicked - select or move
     {
@@ -156,32 +155,27 @@ void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
 void Ductoris::onGameStarted()
 {
     QObject* window = m_engine->rootObjects().first();
-    auto bscreen = window->findChild<QObject*>(BATTLE_SCREEN);
-    if(bscreen)
+    auto gameCanvas = window->findChild<QObject*>(GAME_CANVAS);
+    if(gameCanvas && m_leaderUnit.lock())
     {
-        std::cout << "\n---Found Battle Screen!---\n" << std::endl;
-        auto gameCanvas = window->findChild<QObject*>(GAME_CANVAS);
-        if(gameCanvas && m_leaderUnit.lock())
+        QQmlComponent leaderUiComponent(m_engine.get(), QUrl(PERSON_QML_SRC_FILENAME));
+        if( leaderUiComponent.status() == QQmlComponent::Ready)
         {
-            std::cout << "\n---Found Game Canvas!---\n" << std::endl;
-            QQmlComponent leaderUiComponent(m_engine.get(), QUrl(PERSON_QML_SRC_FILENAME));
-            if( leaderUiComponent.status() == QQmlComponent::Ready)
-            {
-                std::unique_ptr<QQuickItem> leaderUiItem(qobject_cast<QQuickItem*>(leaderUiComponent.create()));
-                leaderUiItem->setParentItem(qobject_cast<QQuickItem*>(gameCanvas));
-                leaderUiItem->setSize(QSize(100, 100));
-                QQmlProperty::write(leaderUiItem.get(), "gameCanvasWidth", QQmlProperty::read(gameCanvas, "width"));
-                QQmlProperty::write(leaderUiItem.get(), "gameCanvasHeight", QQmlProperty::read(gameCanvas, "height"));
-                int x = static_cast<int>(QQmlProperty::read(gameCanvas, "width").toInt() / 2) - static_cast<int>(QQmlProperty::read(leaderUiItem.get(), "width").toInt() / 2);
-                int y = static_cast<int>(QQmlProperty::read(gameCanvas, "height").toInt() / 2) - static_cast<int>(QQmlProperty::read(leaderUiItem.get(), "height").toInt() / 2);
-                leaderUiItem->setPosition(QPoint(x, y));
-                auto leaderUnit = m_leaderUnit.lock();
-                leaderUnit->setUiItem(leaderUiItem);
-                m_selectedUnit = m_leaderUnit.lock();
-                m_unitSelected = true;
-            }
+            std::unique_ptr<QQuickItem> leaderUiItem(qobject_cast<QQuickItem*>(leaderUiComponent.create()));
+            leaderUiItem->setParentItem(qobject_cast<QQuickItem*>(gameCanvas));
+            leaderUiItem->setSize(QSize(100, 100));
+            QQmlProperty::write(leaderUiItem.get(), "gameCanvasWidth", QQmlProperty::read(gameCanvas, "width"));
+            QQmlProperty::write(leaderUiItem.get(), "gameCanvasHeight", QQmlProperty::read(gameCanvas, "height"));
+            int x = static_cast<int>(QQmlProperty::read(gameCanvas, "width").toInt() / 2) - static_cast<int>(QQmlProperty::read(leaderUiItem.get(), "width").toInt() / 2);
+            int y = static_cast<int>(QQmlProperty::read(gameCanvas, "height").toInt() / 2) - static_cast<int>(QQmlProperty::read(leaderUiItem.get(), "height").toInt() / 2);
+            leaderUiItem->setPosition(QPoint(x, y));
+            auto leaderUnit = m_leaderUnit.lock();
+            leaderUnit->setUiItem(leaderUiItem);
+            m_selectedUnit = m_leaderUnit.lock();
+            m_unitSelected = true;
         }
     }
+
 }
 
 void Ductoris::onExitGame()

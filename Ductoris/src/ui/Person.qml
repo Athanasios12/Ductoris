@@ -11,7 +11,6 @@ Rectangle
     x : 0
     y: 0
     color: "#00000000"
-    //color : "red"
     rotation:0
     //animation properties
     property int newX: 0
