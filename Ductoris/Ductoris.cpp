@@ -68,11 +68,6 @@ qint16 Ductoris::checkIfEnemyClicked(int x, int y) const
     return enemyIdx;
 }
 
-Ductoris::~Ductoris()
-{
-
-}
-
 Ductoris *Ductoris::getInstance()
 {
     if(!Ductoris::m_ductorisGame)

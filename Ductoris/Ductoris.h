@@ -11,7 +11,6 @@ class Ductoris : public QObject
 {
     Q_OBJECT
 public:
-    ~Ductoris();
     static Ductoris *getInstance();
     bool addNewUnit();
 public slots:
