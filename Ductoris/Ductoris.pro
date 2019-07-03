@@ -80,7 +80,8 @@ HEADERS += \
     src/army/armyfactory.h \
     globaldata.h
 
-INCLUDEPATH += src/army/ \
+INCLUDEPATH += src/ \
+               src/army/ \
                src/army/roman \
                src/army/roman/units \
                src/army/roman/units/equipment

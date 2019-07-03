@@ -1,4 +1,4 @@
-QT -= gui
+QT += quick
 
 QT += testlib
 
@@ -16,7 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-INCLUDEPATH += ../Ductoris/src/army/ ../Ductoris/src/army/roman/ ../Ductoris/src/army/roman/units
+INCLUDEPATH += ../Ductoris/src/army/ ../Ductoris/src/army/roman/ ../Ductoris/src/army/roman/units ../Ductoris/ ../Ductoris/src
 HEADERS += \
     AbstractArmyFactoryTests.h \
     RomanArmyFactoryTests.h \
@@ -46,6 +46,7 @@ HEADERS += \
     romanleadertests.h \
     persontests.h \
     ../Ductoris/Ductoris.h
+    globaldata.h
 SOURCES += \
     AbstractArmyFactoryTests.cpp \
     RomanArmyFactoryTests.cpp \

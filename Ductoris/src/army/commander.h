@@ -11,16 +11,17 @@ class Commander : public Person
 public:
     Commander();
     virtual ~Commander();
+    Commander(const Commander &other);
+    Commander &operator=(const Commander &other);
     Commander(Commander &&other);
     Commander &operator=(Commander &&other);
 
-    virtual bool addSoldier(Soldier *soldier); //add reference to new soldier in army
+    virtual bool addSoldier(std::shared_ptr<Soldier> &soldier); //add reference to new soldier in army
 private:
-    Commander(const Commander &other) = delete;
-    Commander &operator=(const Commander &other) = delete;
+
 protected:
     uint16_t m_soldierLimit;
-    std::vector<Person*> m_army;
+    std::vector<std::weak_ptr<Person>> m_army;
 };
 
 #endif // COMMANDER_H

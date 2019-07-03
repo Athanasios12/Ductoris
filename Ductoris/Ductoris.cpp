@@ -150,19 +150,19 @@ void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
 void Ductoris::onGameStarted()
 {
     QObject* window = m_engine->rootObjects().first();
-    auto gameCanvas = window->findChild<QObject*>(GAME_CANVAS);
+    auto gameCanvas = window->findChild<QQuickItem*>(GAME_CANVAS);
     if(gameCanvas && m_leaderUnit.lock())
     {
         QQmlComponent leaderUiComponent(m_engine.get(), QUrl(PERSON_QML_SRC_FILENAME));
         if( leaderUiComponent.status() == QQmlComponent::Ready)
         {
             std::unique_ptr<QQuickItem> leaderUiItem(qobject_cast<QQuickItem*>(leaderUiComponent.create()));
-            leaderUiItem->setParentItem(qobject_cast<QQuickItem*>(gameCanvas));
+            leaderUiItem->setParentItem(gameCanvas);
             leaderUiItem->setSize(QSize(100, 100));
-            QQmlProperty::write(leaderUiItem.get(), "gameCanvasWidth", QQmlProperty::read(gameCanvas, "width"));
-            QQmlProperty::write(leaderUiItem.get(), "gameCanvasHeight", QQmlProperty::read(gameCanvas, "height"));
-            int x = static_cast<int>(QQmlProperty::read(gameCanvas, "width").toInt() / 2) - static_cast<int>(QQmlProperty::read(leaderUiItem.get(), "width").toInt() / 2);
-            int y = static_cast<int>(QQmlProperty::read(gameCanvas, "height").toInt() / 2) - static_cast<int>(QQmlProperty::read(leaderUiItem.get(), "height").toInt() / 2);
+            QQmlProperty::write(leaderUiItem.get(), "gameCanvasWidth", gameCanvas->width());
+            QQmlProperty::write(leaderUiItem.get(), "gameCanvasHeight", gameCanvas->height());
+            int x = static_cast<int>(gameCanvas->width() / 2) - static_cast<int>(leaderUiItem->width() / 2);
+            int y = static_cast<int>(gameCanvas->height() / 2) - static_cast<int>(leaderUiItem->height() / 2);
             leaderUiItem->setPosition(QPoint(x, y));
             auto leaderUnit = m_leaderUnit.lock();
             leaderUnit->setUiItem(leaderUiItem);

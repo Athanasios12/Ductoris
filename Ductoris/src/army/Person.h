@@ -7,7 +7,7 @@
 #include <vector>
 #include <memory>
 #include "skilltree.h"
-#include <globaldata.h>
+#include "globaldata.h"
 #include <QObject>
 #include <QQuickItem>
 
@@ -42,12 +42,17 @@ public:
     Person& operator=(Person &&other);
     virtual ~Person();
 
-    bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);
+    bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);    
     void setPosition(uint32_t x, uint32_t y);
+
     QPoint getPosition() const;
     quint16 getWidth() const;
     quint16 getHeight() const;
+    int getRotation() const;
+    uint32_t getExp() const;
+    uint8_t getLevel() const;
     DuctorisTypes::ArmyType getPersonArmyType() const;
+    bool isConnectedToUi() const;
 
     virtual bool addExp(uint16_t exp);
     virtual void changeArmor(Armor &armor);
@@ -79,14 +84,11 @@ protected:
     Armor m_armor;
     std::vector<Weapon> m_weapons;    
     //location
-    QPoint m_position;
+    QPoint m_position{0, 0};
     std::weak_ptr<Person> m_lockedOnEnemy;
     //qml uiItem data
     std::unique_ptr<QQuickItem> m_uiItem{nullptr};
     bool m_connectedToUi{false};
-    int m_uiItemWidth{0};
-    int m_uiItemHeight{0};
-    int m_rotation{0};
 };
 
 #endif // PERSON_H

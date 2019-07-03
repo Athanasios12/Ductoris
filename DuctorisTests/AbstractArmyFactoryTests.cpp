@@ -5,7 +5,7 @@
 
 void AbstractArmyFactoryTests::TestCase_RomanArmyFactoryCreation()
 {
-    std::unique_ptr<AbstractArmyFactory> romanFactory(new RomanArmyFactory);
+    std::unique_ptr<ArmyFactory> romanFactory(new RomanArmyFactory);
 }
 
 void AbstractArmyFactoryTests::TestCase_MacedonArmyFactoryCreation()

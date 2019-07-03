@@ -80,11 +80,6 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
         connect(this, SIGNAL(updatePersonMovementStats(QVariant,QVariant)), m_uiItem.get(), SLOT(onUpdateMovementStats(QVariant, QVariant)));
         connect(m_uiItem.get(), SIGNAL(positionChanged(int, int, int)), this, SLOT(onPositionChanged(int,int,int)));
         //get uiItem properities values
-        m_uiItemWidth = QQmlProperty::read(m_uiItem.get(), "width").toUInt();
-        m_uiItemHeight = QQmlProperty::read(m_uiItem.get(), "height").toUInt();
-        m_rotation = QQmlProperty::read(m_uiItem.get(), "rotation").toInt();
-        m_position.setX(QQmlProperty::read(m_uiItem.get(), "x").toInt());
-        m_position.setY(QQmlProperty::read(m_uiItem.get(), "y").toInt());
         m_connectedToUi = true;
         uiSet = true;
     }
@@ -99,22 +94,62 @@ void Person::setPosition(uint32_t x, uint32_t y)
 
 QPoint Person::getPosition() const
 {
-    return m_position;
+    QPoint pos(0, 0);
+    if(m_uiItem)
+    {
+        pos = m_uiItem->position().toPoint();
+    }
+    return pos;
 }
 
 quint16 Person::getWidth() const
 {
-    return m_uiItemWidth;
+    quint16 width = 0;
+    if(m_uiItem)
+    {
+        width = static_cast<quint16>(m_uiItem->width());
+    }
+    return width;
 }
 
 quint16 Person::getHeight() const
 {
-    return m_uiItemHeight;
+    quint16 height = 0;
+    if(m_uiItem)
+    {
+        height = static_cast<quint16>(m_uiItem->height());
+    }
+    return height;
+}
+
+int Person::getRotation() const
+{
+    quint16 rotation = 0;
+    if(m_uiItem)
+    {
+        rotation = static_cast<quint16>(m_uiItem->rotation());
+    }
+    return rotation;
+}
+
+uint32_t Person::getExp() const
+{
+    return m_exp;
+}
+
+uint8_t Person::getLevel() const
+{
+    return m_level;
 }
 
 DuctorisTypes::ArmyType Person::getPersonArmyType() const
 {
     return m_type;
+}
+
+bool Person::isConnectedToUi() const
+{
+    return m_connectedToUi;
 }
 
 bool Person::addExp(uint16_t exp)
@@ -150,12 +185,12 @@ void Person::move(int newX, int newY)
 {
     if(m_uiItem && m_connectedToUi)
     {
-        auto x = m_position.x();
-        auto y = m_position.y();
+        auto x = m_uiItem->position().toPoint().x();
+        auto y = m_uiItem->position().toPoint().y();
 
-        //get this  - perosn width and height from the property of ui qmlItem
-        newX = newX - static_cast<int>(m_uiItemWidth / 2);
-        newY = newY - static_cast<int>(m_uiItemHeight / 2);
+        //get this  - person width and height from the property of ui qmlItem
+        newX = newX - static_cast<int>(m_uiItem->width() / 2);
+        newY = newY - static_cast<int>(m_uiItem->height() / 2);
 
         //replace with person member items
         auto timeX = static_cast<int>(abs(newX - x) * m_stats.m_speed);
@@ -170,10 +205,10 @@ void Person::move(int newX, int newY)
         // '
         // '
         // v y
-        auto Phi = static_cast<double>(m_rotation);
+        auto Phi = static_cast<double>(m_uiItem->rotation());
         auto X_p = ((X_g * cos((Phi / 180) * M_PI)) + (Y_g * sin((Phi / 180) * M_PI))); //x in local coordinates
         auto Y_p = ((-X_g * sin((Phi / 180) * M_PI)) + (Y_g * cos((Phi / 180) * M_PI))); //y in local coordinates
-        //printf("\nFrom C++ backend: Xp = %d, Yp = %d\n", X_p, Y_p);
+
         int rotationAngle = 0;
         if(X_p >= 0)
         {
@@ -200,7 +235,7 @@ void Person::setActiveEnemy(std::shared_ptr<Person> &enemyUnit)
 
 void Person::onPositionChanged(int x, int y, int rotation)
 {
-    m_position.setX(x);
-    m_position.setY(y);
-    m_rotation = rotation;
+    //check position and handle attacker in range , signal main api to detect
+    //collisions, in range of attack of another person, inform other people of your position
+    //handle later on
 }
