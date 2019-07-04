@@ -142,6 +142,11 @@ uint8_t Person::getLevel() const
     return m_level;
 }
 
+Person::PersonState Person::getCurrentState() const
+{
+    return m_currentState;
+}
+
 DuctorisTypes::ArmyType Person::getPersonArmyType() const
 {
     return m_type;
@@ -219,6 +224,9 @@ void Person::move(int newX, int newY)
             rotationAngle = static_cast<int>(-180 - ((atan2(X_p, Y_p) * 180) / M_PI));
         }
         //signal data change
+        m_destination.setX(newX);
+        m_destination.setY(newY);
+        m_currentState = Moving;
         updatePersonMovementData(newX, newY, time, rotationAngle);
     }
 }
@@ -235,7 +243,8 @@ void Person::setActiveEnemy(std::shared_ptr<Person> &enemyUnit)
 
 void Person::onPositionChanged(int x, int y, int rotation)
 {
-    //check position and handle attacker in range , signal main api to detect
-    //collisions, in range of attack of another person, inform other people of your position
-    //handle later on
+    if(x == m_destination.x() && y == m_destination.y())
+    {
+        m_currentState = Idle;
+    }
 }

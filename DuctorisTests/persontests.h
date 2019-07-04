@@ -25,7 +25,8 @@ private slots:
     //UI Item
     void TestCase_Person_setUiItem_isNullPtr();
     void TestCase_Person_setUiItem_Valid();
-    //action - movement attack
+
+    //movement angle and position tests
     void TestCase_Person_move_Rotation_0();
     void TestCase_Person_move_Rotation_ClockWise_45();
     void TestCase_Person_move_Rotation_ClockWise_90();
@@ -35,22 +36,50 @@ private slots:
     void TestCase_Person_move_Rotation_CounterClockWise_90();
     void TestCase_Person_move_Rotation_CounterClockWise_135();
 
+    //Movement - stamina loss tests
+
+    //Attack - stamina loss tests
+
+    //Attack - charge bonus tests - only for cavalry and shock troops that accelerate at the last phase of attack
+
+    //Defend - morale increase loss, stamina loss when transition from retreating
+
+    //Defend - no additional morale loss when transitioned from idle and facing the enemy, otherwise flanking  and back attack penalties
+
+    //Defend - when intercepted during movement in MovingToAttack on another enemy or normal Moving - additional morale loss and stamina loss for this transition
+    //based on angle of interception - if face on then no charge bonus, automatic changing locked on enemy to interceptor. If interceptor flanks,
+    //bigger penalties then normal flanking stationary target, if back attack then penalties the same as the stationary target
+
+    //
+
+    //Person Battle and movement behaviour state machine tests
+    void TestCase_Person_move_MoveToNewDestination_Idle_To_Moving();
+    void TestCase_Person_move_ReachedDestination_Moving_To_Idle();
+    void TestCase_Person_move_CancelAttack_MovingToAttack_To_Moving();
+
+    void TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAttack();
+    void TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAttack();
+    void TestCase_Person_attack_OponnentInRange_Moving_To_Attacking();
+    void TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attacking();
+    void TestCase_Person_attack_OponnentInRange_Idle_To_Attacking();
+
+    void TestCase_Person_move_DisengageAndRetreat_Attack_To_Retreat();
+    void TestCase_Person_move_InterceptedDuringRetreat_Retreat_To_Defend();
+
+    //Weapon test cases
     void TestCase_Person_onWeaponChange_ChangeToMeleeWeapon();
     void TestCase_Person_onWeaponChange_ChangeToRangedWeapon();
-
-    void TestCase_Person_onAttackPressed_NoOpponentInRange();
-    void TestCase_Person_onAttackPressed_OpponentInRange();
-
-    void TestCase_Person_addExp_EnemyKilled_NoLevelUp();
-    void TestCase_Person_addExp_EnemyKilled_LevelUp();
-
-    void TestCase_Person_ReceivedDamage_DamageNonLethal();
-    void TestCase_Person_ReceivedDamage_DamageLethal();
-
-    void TestCase_Person_changeArmor_newArmorEquipped();
     void TestCase_Person_addWeapon_NewWeaponAdded_FitsInInventory();
     void TestCase_Person_addWeapon_NewWeaponNotFitsInInventory();
     void TestCase_Person_replaceWeapon_FullInventory_MeleeWeapon_1_Replaced();
+
+    //Receiving damage test cases - health loss, stamina, morale
+    void TestCase_Person_ReceivedDamage_DamageNonLethal();
+    void TestCase_Person_ReceivedDamage_DamageLethal();
+
+    //Armor test cases
+    void TestCase_Person_changeArmor_newArmorEquipped();
+
 
     void TestCase_Person_CopyContructor();
     void TestCase_Person_CopyAssignment();

@@ -34,6 +34,15 @@ public:
             m_stamina += bonus.m_stamina;
         }
     };
+    enum PersonState
+    {
+        Idle = 0,
+        Moving,
+        MovingToAttack,
+        Attacking,
+        Defending,
+        Retreating
+    };
 
     Person();
     Person(const Person &other);
@@ -51,6 +60,7 @@ public:
     int getRotation() const;
     uint32_t getExp() const;
     uint8_t getLevel() const;
+    PersonState getCurrentState() const;
     DuctorisTypes::ArmyType getPersonArmyType() const;
     bool isConnectedToUi() const;
 
@@ -80,11 +90,13 @@ protected:
     Stats m_stats;
     uint32_t m_exp{0};
     uint8_t m_level{0};
+    PersonState m_currentState{Idle};
     //equipment
     Armor m_armor;
     std::vector<Weapon> m_weapons;    
     //location
     QPoint m_position{0, 0};
+    QPoint m_destination{0, 0};
     std::weak_ptr<Person> m_lockedOnEnemy;
     //qml uiItem data
     std::unique_ptr<QQuickItem> m_uiItem{nullptr};
