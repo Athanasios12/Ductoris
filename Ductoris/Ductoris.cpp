@@ -140,8 +140,7 @@ void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
             if(enemyIdx >= 0)
             {
                 auto selectedUnit = m_selectedUnit.lock();
-                selectedUnit->setActiveEnemy(m_enemyUnits[enemyIdx]);
-                selectedUnit->attack();
+                selectedUnit->attack(m_enemyUnits[enemyIdx]);
             }
         }
     }

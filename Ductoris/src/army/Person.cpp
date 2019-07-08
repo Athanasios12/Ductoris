@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <QQmlProperty>
+#include <cmath>
 
 Person::Person()
 {
@@ -84,12 +85,6 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
         uiSet = true;
     }
     return uiSet;
-}
-
-void Person::setPosition(uint32_t x, uint32_t y)
-{
-    m_position.setX(x);
-    m_position.setY(y);
 }
 
 QPoint Person::getPosition() const
@@ -226,25 +221,69 @@ void Person::move(int newX, int newY)
         //signal data change
         m_destination.setX(newX);
         m_destination.setY(newY);
-        m_currentState = Moving;
+        m_currentState = PersonState::Moving;
         updatePersonMovementData(newX, newY, time, rotationAngle);
     }
 }
 
-void Person::attack()
+void Person::attack(std::shared_ptr<Person> &enemyUnit)
 {
+    if(m_connectedToUi)
+    {
+        bool newEnemyValid = false;
+        if(m_lockedOnEnemy.use_count() == 0)
+        {
+            newEnemyValid = true;
+        }
+        else
+        {
+            if(enemyUnit.get() != m_lockedOnEnemy.lock().get())
+            {
+                newEnemyValid = true;
+            }
+        }
+        if(newEnemyValid)
+        {
+            if(m_currentState != PersonState::Attacking
+                    && m_currentState != PersonState::Defending
+                    && m_currentState != PersonState::Retreating)
+            {
+                m_lockedOnEnemy = enemyUnit;
+                m_currentState = PersonState::MovingToAttack;
+                //adding actual moving towards enemy until in weapon range later implemented with tests for weapon collision
+                //for now only state change
+                //Check if alredy in attacking range - first weapon enemy collision algorithm has to be created
+//                auto distance = m_uiItem->position().toPoint() - enemyUnit->getPosition();
+//                if(m_weapons.empty())
+//                {
+//                    if(distance.manhattanLength() == 0)
+//                    {
 
+//                    }
+//                }
+//                else
+//                {
+//                    if(distance.manhattanLength() <= m_weapons[m_currentWeaponIdx].getWeaponRange())
+//                    {
+//                        m_currentState = PersonState::Attacking;
+//                    }
+//                    else
+//                    {
+//                        m_currentState = PersonState::MovingToAttack;
+//                    }
+//                }
+
+            }
+        }
+    }
 }
 
-void Person::setActiveEnemy(std::shared_ptr<Person> &enemyUnit)
-{
 
-}
 
 void Person::onPositionChanged(int x, int y, int rotation)
 {
     if(x == m_destination.x() && y == m_destination.y())
     {
-        m_currentState = Idle;
+        m_currentState = PersonState::Idle;
     }
 }

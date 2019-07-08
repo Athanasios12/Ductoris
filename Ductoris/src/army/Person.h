@@ -22,7 +22,7 @@ public:
         uint16_t m_attack{0};
         uint16_t m_defence{0};
         uint16_t m_stamina{0};
-        uint16_t m_speed{5};
+        uint16_t m_speed{0};
 
         void addBonus(SkillTree::LevelBonus bonus)
         {
@@ -52,7 +52,6 @@ public:
     virtual ~Person();
 
     bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);    
-    void setPosition(uint32_t x, uint32_t y);
 
     QPoint getPosition() const;
     quint16 getWidth() const;
@@ -69,11 +68,7 @@ public:
     virtual void addWeapon(const Weapon &weapon);
 
     virtual void move(int newX, int newY);
-    virtual void attack(); //attack locked on enemy
-
-    void setActiveEnemy(std::shared_ptr<Person> &enemyUnit);
-    //when doing tdd for this class add behaviur for solving the being attacked by multiple units
-    //and attacking when being attacked
+    virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
 public slots:
     void onPositionChanged(int x, int y, int rotation);
 signals:
@@ -93,7 +88,8 @@ protected:
     PersonState m_currentState{Idle};
     //equipment
     Armor m_armor;
-    std::vector<Weapon> m_weapons;    
+    std::vector<Weapon> m_weapons;
+    uint8_t m_currentWeaponIdx{0};
     //location
     QPoint m_position{0, 0};
     QPoint m_destination{0, 0};

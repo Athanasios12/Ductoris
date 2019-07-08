@@ -326,17 +326,97 @@ void PersonTests::TestCase_Person_move_ReachedDestination_Moving_To_Idle()
 
 void PersonTests::TestCase_Person_move_CancelAttack_MovingToAttack_To_Moving()
 {
+    Person person;
+    std::shared_ptr<Person> enemy(new Person);
+    //Fake Ui Item
+    std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
+    std::unique_ptr<QQuickItem> enemyUiItem(new QQuickItem);
+    const QPoint personPos(100, 100);
+    const QPoint enemyPos(100, 150);
+    const QSize personSize(10, 10);
+    const qreal personRotation = 0;
 
+    uiItem->setRotation(personRotation);
+    uiItem->setSize(personSize);
+    uiItem->setPosition(personPos);
+    enemyUiItem->setRotation(personRotation);
+    enemyUiItem->setSize(personSize);
+    enemyUiItem->setPosition(enemyPos);
+
+    person.setUiItem(uiItem);
+    enemy->setUiItem(enemyUiItem);
+
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
+    person.attack(enemy);
+    QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
+    int newX = 90;
+    int newY = 110;
+    person.move(newX, newY);
+    QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
 }
 
 void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAttack()
 {
+    Person person;
+    std::shared_ptr<Person> enemy(new Person);
+    //Fake Ui Item
+    std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
+    std::unique_ptr<QQuickItem> enemyUiItem(new QQuickItem);
+    const QPoint personPos(100, 100);
+    const QPoint enemyPos(100, 150);
+    const QSize personSize(10, 10);
+    const qreal personRotation = 0;
 
+    uiItem->setRotation(personRotation);
+    uiItem->setSize(personSize);
+    uiItem->setPosition(personPos);
+    enemyUiItem->setRotation(personRotation);
+    enemyUiItem->setSize(personSize);
+    enemyUiItem->setPosition(enemyPos);
+
+    person.setUiItem(uiItem);
+    enemy->setUiItem(enemyUiItem);
+
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
+    person.attack(enemy);
+    QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
 }
 
 void PersonTests::TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAttack()
 {
+    Person person;
+    std::shared_ptr<Person> enemy(new Person);
+    //Fake Ui Item
+    std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
+    std::unique_ptr<QQuickItem> enemyUiItem(new QQuickItem);
+    const QPoint personPos(100, 100);
+    const QPoint enemyPos(100, 150);
+    const QSize personSize(10, 10);
+    const qreal personRotation = 0;
 
+    uiItem->setRotation(personRotation);
+    uiItem->setSize(personSize);
+    uiItem->setPosition(personPos);
+    enemyUiItem->setRotation(personRotation);
+    enemyUiItem->setSize(personSize);
+    enemyUiItem->setPosition(enemyPos);
+
+    person.setUiItem(uiItem);
+    enemy->setUiItem(enemyUiItem);
+
+    int newX = 90;
+    int newY = 110;
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
+    person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
+    QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
+    person.attack(enemy);
+    QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
 }
 
 void PersonTests::TestCase_Person_attack_OponnentInRange_Moving_To_Attacking()

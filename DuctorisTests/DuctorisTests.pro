@@ -45,7 +45,8 @@ HEADERS += \
     ../Ductoris/src/army/roman/units/rspearman.h \
     romanleadertests.h \
     persontests.h \
-    ../Ductoris/Ductoris.h
+    ../Ductoris/Ductoris.h \
+    WeaponTests.h
     globaldata.h
 SOURCES += \
     AbstractArmyFactoryTests.cpp \
@@ -76,4 +77,5 @@ SOURCES += \
     ../Ductoris/src/army/roman/units/rspearman.cpp \
     romanleadertests.cpp \
     persontests.cpp \
-    ../Ductoris/Ductoris.cpp
+    ../Ductoris/Ductoris.cpp \
+    WeaponTests.cpp
