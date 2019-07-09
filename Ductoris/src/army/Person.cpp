@@ -176,9 +176,9 @@ void Person::changeArmor(Armor &armor)
     m_armor = std::move(armor);
 }
 
-void Person::addWeapon(const Weapon &weapon)
+void Person::addWeapon(std::unique_ptr<Weapon> &weapon)
 {
-    m_weapons.push_back(weapon);
+    m_weapons.push_back(std::move(weapon));
 }
 
 void Person::move(int newX, int newY)
@@ -249,30 +249,17 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
                     && m_currentState != PersonState::Retreating)
             {
                 m_lockedOnEnemy = enemyUnit;
-                m_currentState = PersonState::MovingToAttack;
-                //adding actual moving towards enemy until in weapon range later implemented with tests for weapon collision
-                //for now only state change
-                //Check if alredy in attacking range - first weapon enemy collision algorithm has to be created
-//                auto distance = m_uiItem->position().toPoint() - enemyUnit->getPosition();
-//                if(m_weapons.empty())
-//                {
-//                    if(distance.manhattanLength() == 0)
-//                    {
-
-//                    }
-//                }
-//                else
-//                {
-//                    if(distance.manhattanLength() <= m_weapons[m_currentWeaponIdx].getWeaponRange())
-//                    {
-//                        m_currentState = PersonState::Attacking;
-//                    }
-//                    else
-//                    {
-//                        m_currentState = PersonState::MovingToAttack;
-//                    }
-//                }
-
+                if(m_weapons[m_currentWeaponIdx]->checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
+                {
+                    m_currentState = PersonState::Attacking;
+                    //do attacking stuff - damage, animation and so on
+                }
+                else
+                {
+                    m_currentState = PersonState::MovingToAttack;
+                    move(enemyUnit->getPosition().x(), enemyUnit->getPosition().y());
+                    //do moving towards the enemy, and check every position update if he didnt move and call move again
+                }
             }
         }
     }
@@ -282,8 +269,59 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
 
 void Person::onPositionChanged(int x, int y, int rotation)
 {
-    if(x == m_destination.x() && y == m_destination.y())
+    switch(m_currentState)
     {
-        m_currentState = PersonState::Idle;
+    case Idle:
+        break;
+    case Moving:
+        if(x == m_destination.x() && y == m_destination.y())
+        {
+            m_currentState = PersonState::Idle;
+            //send stop to uiItem
+        }
+        break;
+    case MovingToAttack:
+        if(!m_lockedOnEnemy.expired())
+        {
+            auto enemyUnit = m_lockedOnEnemy.lock();
+            if(m_weapons[m_currentWeaponIdx]->checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
+            {
+                m_currentState = PersonState::Attacking;
+                //do attacking stuff - damage, animation and so on
+            }
+            else
+            {
+                if(m_destination.x() != enemyUnit->getPosition().x() || m_destination.y() != enemyUnit->getPosition().y())
+                {
+                    move(enemyUnit->getPosition().x(), enemyUnit->getPosition().y());
+                    //do moving towards the enemy, and check every position update if he didnt move and call move again
+                }
+            }
+        }
+        else
+        {
+            //locked on enemy died or run away
+            m_currentState = PersonState::Idle;
+            //send stop to uiItem
+        }
+        break;
+    case Attacking:
+        if(m_lockedOnEnemy.expired())
+        {
+            //locked on enemy died or run away
+            m_currentState = PersonState::Idle;
+            //send stop to uiItem
+        }
+        else
+        {
+            //else still do attacking stuff
+        }
+        break;
+    case Retreating:
+        break;
+    case Defending:
+        break;
+    default:
+        break;
     }
 }

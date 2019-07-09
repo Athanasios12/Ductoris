@@ -65,7 +65,7 @@ public:
 
     virtual bool addExp(uint16_t exp);
     virtual void changeArmor(Armor &armor);
-    virtual void addWeapon(const Weapon &weapon);
+    virtual void addWeapon(std::unique_ptr<Weapon> &weapon);
 
     virtual void move(int newX, int newY);
     virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
@@ -73,7 +73,8 @@ public slots:
     void onPositionChanged(int x, int y, int rotation);
 signals:
     //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...
-    void setSpriteData(int spriteType, const QString &spriteImgSource, int frameCount, int frameWidth, int frameHeight, int frameRate);
+    void setSpriteData(int spriteType, const QString &spriteImgSource, int frameCount,
+                       int frameWidth, int frameHeight, int frameRate);
     void updatePersonMovementStats(QVariant speed, QVariant rotationSpeed);
     void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);
     void personStateUpdate(); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
@@ -88,10 +89,9 @@ protected:
     PersonState m_currentState{Idle};
     //equipment
     Armor m_armor;
-    std::vector<Weapon> m_weapons;
+    std::vector<std::unique_ptr<Weapon>> m_weapons;
     uint8_t m_currentWeaponIdx{0};
     //location
-    QPoint m_position{0, 0};
     QPoint m_destination{0, 0};
     std::weak_ptr<Person> m_lockedOnEnemy;
     //qml uiItem data

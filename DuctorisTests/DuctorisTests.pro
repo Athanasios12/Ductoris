@@ -46,8 +46,8 @@ HEADERS += \
     romanleadertests.h \
     persontests.h \
     ../Ductoris/Ductoris.h \
-    WeaponTests.h
-    globaldata.h
+    WeaponTests.h \
+    ../Ductoris/globaldata.h
 SOURCES += \
     AbstractArmyFactoryTests.cpp \
     RomanArmyFactoryTests.cpp \
@@ -79,3 +79,6 @@ SOURCES += \
     persontests.cpp \
     ../Ductoris/Ductoris.cpp \
     WeaponTests.cpp
+
+RESOURCES += \
+    ../Ductoris/qml.qrc
