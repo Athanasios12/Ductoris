@@ -69,12 +69,17 @@ public:
 
     virtual void move(int newX, int newY);
     virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
+protected:
+    bool checkIfEnemyInWeaponRange(const QQuickItem &enemy) const;
 public slots:
     void onPositionChanged(int x, int y, int rotation);
 signals:
     //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...
     void setSpriteData(int spriteType, const QString &spriteImgSource, int frameCount,
                        int frameWidth, int frameHeight, int frameRate);
+    void setPrimaryWeaponSprite();
+    void setSecondaryWeaponSprite();
+    void setArmorSprite();
     void updatePersonMovementStats(QVariant speed, QVariant rotationSpeed);
     void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);
     void personStateUpdate(); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
@@ -94,8 +99,10 @@ protected:
     //location
     QPoint m_destination{0, 0};
     std::weak_ptr<Person> m_lockedOnEnemy;
-    //qml uiItem data
+    //qml uiItem data    
     std::unique_ptr<QQuickItem> m_uiItem{nullptr};
+    QPoint m_weaponAnchorPoint{0, 0}; // defined in sprite design, weapon is a subitem of person sprite anchors to its hand sprite subitem
+    // has defined a static anchor point in person coordinates system
     bool m_connectedToUi{false};
 };
 

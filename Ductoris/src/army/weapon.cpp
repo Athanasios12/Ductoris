@@ -24,11 +24,6 @@ Weapon::Weapon(const Weapon &other):
     m_staminaDrain(other.m_staminaDrain),
     m_speed(other.m_speed)
 {
-    if(other.m_uiItem)
-    {
-        m_uiItem.reset(new QQuickItem);
-        //add coping manually properties of others uiWidget later on - sprite size , frame count and so on and
-    }
 }
 
 Weapon::Weapon(Weapon &&other):
@@ -43,10 +38,6 @@ Weapon::Weapon(Weapon &&other):
     other.m_defenceBonus = 0;
     other.m_staminaDrain = 0;
     other.m_speed = 0;
-    if(other.m_uiItem)
-    {
-        m_uiItem = std::move(other.m_uiItem);
-    }
 }
 
 Weapon& Weapon::operator=(const Weapon &other)
@@ -58,10 +49,6 @@ Weapon& Weapon::operator=(const Weapon &other)
         m_defenceBonus = other.m_defenceBonus;
         m_staminaDrain = other.m_staminaDrain;
         m_speed = other.m_speed;
-        if(other.m_uiItem)
-        {
-            m_uiItem.reset(new QQuickItem);
-        }
     }
     return *this;
 }
@@ -75,10 +62,6 @@ Weapon& Weapon::operator=(Weapon &&other)
         other.m_defenceBonus = 0;
         other.m_staminaDrain = 0;
         other.m_speed = 0;
-        if(other.m_uiItem)
-        {
-            m_uiItem = std::move(other.m_uiItem);
-        }
     }
     return *this;
 }
@@ -88,17 +71,49 @@ Weapon::~Weapon()
 
 }
 
-bool Weapon::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
+QSize Weapon::getSize() const
 {
-    if(uiItem)
-    {
-        m_uiItem = std::move(uiItem);
-    }
+    return m_weaponSize;
+}
+
+QString Weapon::getSpriteImgSource() const
+{
+    return m_spriteImgSource;
+}
+
+uint16_t Weapon::getLevelCap() const
+{
+    return m_level;
+}
+
+uint16_t Weapon::getAttackBonus() const
+{
+    return m_attackBonus;
+}
+
+uint16_t Weapon::getDefenceBonus() const
+{
+    return m_defenceBonus;
+}
+
+uint16_t Weapon::getStaminaDrain() const
+{
+    return m_staminaDrain;
+}
+
+uint16_t Weapon::getSpeed() const
+{
+    return m_speed;
+}
+
+bool Weapon::isRanged() const
+{
+    return m_isRanged;
 }
 
 bool Weapon::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) const
 {
-    if(m_uiItem && enemyUiItem)
+    if(!m_uiItem.expired() && enemyUiItem)
     {
         uint16_t weaponWidth = static_cast<uint16_t>(m_uiItem->width());
         uint16_t weaponHeight = static_cast<uint16_t>(m_uiItem->height());

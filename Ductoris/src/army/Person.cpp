@@ -15,10 +15,17 @@ Person::Person(const Person &other):
     m_stats(other.m_stats),
     m_exp(other.m_exp),
     m_level(other.m_level),
-    m_armor(other.m_armor),
-    m_weapons(other.m_weapons)
+    m_armor(other.m_armor)
 {
     //add m_skillTree copying - skillTree factory or skill tree builder
+    for(auto && weapon : other.m_weapons)
+    {
+        if(weapon)
+        {
+            std::unique_ptr<Weapon> weaponCopy(new Weapon(*(weapon.get())));
+            m_weapons.push_back(std::move(weaponCopy));
+        }
+    }
 }
 
 Person &Person::operator=(const Person &other)
@@ -30,7 +37,14 @@ Person &Person::operator=(const Person &other)
         m_exp = other.m_exp;
         m_level = other.m_level;
         m_armor = other.m_armor;
-        m_weapons = other.m_weapons;
+        for(auto && weapon : other.m_weapons)
+        {
+            if(weapon)
+            {
+                std::unique_ptr<Weapon> weaponCopy(new Weapon(*(weapon.get())));
+                m_weapons.push_back(std::move(weaponCopy));
+            }
+        }
     }
     return *this;
 }
@@ -80,7 +94,8 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
         connect(this, SIGNAL(updatePersonMovementData(QVariant, QVariant, QVariant, QVariant)), m_uiItem.get(), SLOT(onUpdateMovementData(QVariant, QVariant, QVariant, QVariant)));
         connect(this, SIGNAL(updatePersonMovementStats(QVariant,QVariant)), m_uiItem.get(), SLOT(onUpdateMovementStats(QVariant, QVariant)));
         connect(m_uiItem.get(), SIGNAL(positionChanged(int, int, int)), this, SLOT(onPositionChanged(int,int,int)));
-        //get uiItem properities values
+        //get uiItem weapon anchor point
+        m_weaponAnchorPoint = QQmlProperty::read(qobject_cast<QObject>(m_uiItem), "PrimaryWeaponAnchorPoint").toPoint();
         m_connectedToUi = true;
         uiSet = true;
     }
@@ -249,7 +264,7 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
                     && m_currentState != PersonState::Retreating)
             {
                 m_lockedOnEnemy = enemyUnit;
-                if(m_weapons[m_currentWeaponIdx]->checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
+                if(checkIfEnemyInWeaponRange(enemyUnit.get()))
                 {
                     m_currentState = PersonState::Attacking;
                     //do attacking stuff - damage, animation and so on
@@ -265,7 +280,33 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
     }
 }
 
+//added melee weapon handling, add the ranged also
+//add rotating weapon sprite with the person sprite, along person center
+bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) const
+{
+    if(m_uiItem && enemyUiItem)
+    {
+        auto currentWeapon = m_weapons[m_currentWeaponIdx];
+        if(currentWeapon)
+        {
+            int weaponWidth = currentWeapon->getSize().width();
+            int weaponHeight = currentWeapon->getSize().height();
 
+            for(int x_weapon = m_weaponAnchorPoint; x_weapon < weaponWidth; x_weapon++)
+            {
+                for(int y_weapon = m_weaponAnchorPoint; y_weapon < weaponHeight; y_weapon++)
+                {
+                    auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
+                    if(enemyUiItem->contains(weaponPosInEnemyCoords))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
 
 void Person::onPositionChanged(int x, int y, int rotation)
 {
@@ -284,7 +325,7 @@ void Person::onPositionChanged(int x, int y, int rotation)
         if(!m_lockedOnEnemy.expired())
         {
             auto enemyUnit = m_lockedOnEnemy.lock();
-            if(m_weapons[m_currentWeaponIdx]->checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
+            if(checkIfEnemyInWeaponRange(enemyUnit.get()))
             {
                 m_currentState = PersonState::Attacking;
                 //do attacking stuff - damage, animation and so on

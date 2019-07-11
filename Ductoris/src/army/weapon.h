@@ -1,12 +1,11 @@
 #ifndef WEAPON_H
 #define WEAPON_H
-#include <QObject>
-#include <QQuickItem>
+#include <QString>
+#include <QSize>
 #include <memory>
 
-class Weapon : public QObject
+class Weapon
 {
-    Q_OBJECT
 public:   
     Weapon();
     Weapon(uint8_t level,
@@ -20,18 +19,24 @@ public:
     Weapon& operator=(Weapon &&other);
     ~Weapon();
 
-    bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);
-    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) const;
-signals:
-    void setSpriteData(int spriteType, const QString &spriteImgSource, int frameCount,
-                       int frameWidth, int frameHeight, int frameRate);
-private:
+    QSize getSize() const;
+    QString getSpriteImgSource() const;
+    uint16_t getLevelCap() const;
+    uint16_t getAttackBonus() const;
+    uint16_t getDefenceBonus() const;
+    uint16_t getStaminaDrain() const;
+    uint16_t getSpeed() const;
+    bool isRanged() const;
+
+protected:
     uint8_t m_level{1};
     uint16_t m_attackBonus{0};
     uint16_t m_defenceBonus{0};
     uint16_t m_staminaDrain{0};
     uint16_t m_speed{0};
-    std::unique_ptr<QQuickItem> m_uiItem{nullptr};
+    bool m_isRanged{false};
+    QString m_spriteImgSource;
+    QSize m_weaponSize{0, 0};
 };
 
 #endif // WEAPON_H

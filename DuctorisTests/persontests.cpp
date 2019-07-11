@@ -364,9 +364,12 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
     //Fake Ui Item
     std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
     std::unique_ptr<QQuickItem> enemyUiItem(new QQuickItem);
+
     const QPoint personPos(100, 100);
     const QPoint enemyPos(100, 150);
+    //person range depends on his size and the size of his currently held weapon
     const QSize personSize(10, 10);
+    const QSize weaponSize(2, 4);
     const qreal personRotation = 0;
 
     uiItem->setRotation(personRotation);
@@ -378,6 +381,8 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
 
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
+
+    //set person weapon , make it primary
 
     QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
     QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
