@@ -67,19 +67,23 @@ public:
     virtual void changeArmor(Armor &armor);
     virtual void addWeapon(std::unique_ptr<Weapon> &weapon);
 
+
     virtual void move(int newX, int newY);
     virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
 protected:
-    bool checkIfEnemyInWeaponRange(const QQuickItem &enemy) const;
+    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) const;
 public slots:
     void onPositionChanged(int x, int y, int rotation);
 signals:
     //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...
-    void setSpriteData(int spriteType, const QString &spriteImgSource, int frameCount,
+    void setPersonBodySprite(int spriteType, const QString &spriteImgSource, int frameCount,
                        int frameWidth, int frameHeight, int frameRate);
-    void setPrimaryWeaponSprite();
-    void setSecondaryWeaponSprite();
-    void setArmorSprite();
+    void setPrimaryWeaponSprite(const QString &spriteImgSource, int frameCount,
+                                int frameWidth, int frameHeight, int frameRate); //main weapon
+    void setSecondaryWeaponSprite(const QString &spriteImgSource, int frameCount,
+                                  int frameWidth, int frameHeight, int frameRate); //weapon or shield in other hand
+    void setArmorSprite(const QString &spriteImgSource, int frameCount,
+                        int frameWidth, int frameHeight, int frameRate);
     void updatePersonMovementStats(QVariant speed, QVariant rotationSpeed);
     void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);
     void personStateUpdate(); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
@@ -102,7 +106,7 @@ protected:
     //qml uiItem data    
     std::unique_ptr<QQuickItem> m_uiItem{nullptr};
     QPoint m_weaponAnchorPoint{0, 0}; // defined in sprite design, weapon is a subitem of person sprite anchors to its hand sprite subitem
-    // has defined a static anchor point in person coordinates system
+    // has defined a static anchor point in person coordinates system from which the range of attack is calculated - most extended position in stabbing animation
     bool m_connectedToUi{false};
 };
 

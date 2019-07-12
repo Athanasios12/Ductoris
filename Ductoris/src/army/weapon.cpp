@@ -110,26 +110,3 @@ bool Weapon::isRanged() const
 {
     return m_isRanged;
 }
-
-bool Weapon::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) const
-{
-    if(!m_uiItem.expired() && enemyUiItem)
-    {
-        uint16_t weaponWidth = static_cast<uint16_t>(m_uiItem->width());
-        uint16_t weaponHeight = static_cast<uint16_t>(m_uiItem->height());
-
-        for(int x_weapon = 0; x_weapon < weaponWidth; x_weapon++)
-        {
-            for(int y_weapon = 0; y_weapon < weaponHeight; y_weapon++)
-            {
-                auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
-                if(enemyUiItem->contains(weaponPosInEnemyCoords))
-                {
-                    return true;
-                }
-            }
-        }
-
-    }
-    return false;
-}

@@ -7,7 +7,7 @@ class WeaponTests: public QObject
      Q_OBJECT
 private slots:
     //Tests
-    void TestCase_Weapon_DeafultContructor();
+    void TestCase_Weapon_DeafultConstructor();
 
     //UI Item
     void TestCase_Weapon_setUiItem_isNullPtr();

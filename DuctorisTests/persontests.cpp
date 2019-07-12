@@ -6,6 +6,45 @@
 #include <QQmlComponent>
 #include <QQmlApplicationEngine>
 
+class PersonTestChild : public Person
+{
+public:
+    PersonTestChild();
+    PersonTestChild();
+
+    void setWeaponAchorPoint(const QPoint &position)
+    {
+        m_weaponAnchorPoint = position;
+    }//use this to set the parent variable
+
+    bool heckIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
+    {
+        if(m_uiItem && enemyUiItem)
+        {
+            auto currentWeapon = m_weapons[m_currentWeaponIdx];
+            if(currentWeapon)
+            {
+                int weaponWidth = currentWeapon->getSize().width();
+                int weaponHeight = currentWeapon->getSize().height();
+                const int x0 = m_weaponAnchorPoint.x();
+                const int y0 = m_weaponAnchorPoint.y();
+                for(int x_weapon = x0; x_weapon < weaponWidth + x0; x_weapon++)
+                {
+                    for(int y_weapon = y0; y_weapon < weaponHeight + y0; y_weapon++)
+                    {
+                        auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
+                        if(enemyUiItem->contains(weaponPosInEnemyCoords))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+};
+
 void PersonTests::TestCase_Person_DeafultContructor()
 {
     Person person;
@@ -356,21 +395,37 @@ void PersonTests::TestCase_Person_move_CancelAttack_MovingToAttack_To_Moving()
     person.move(newX, newY);
     QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
 }
-
+//dokończyć ten test case - dodać dodanie broni do person
 void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAttack()
 {
-    Person person;
+    PersonTestChild person;
     std::shared_ptr<Person> enemy(new Person);
     //Fake Ui Item
     std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
     std::unique_ptr<QQuickItem> enemyUiItem(new QQuickItem);
 
-    const QPoint personPos(100, 100);
+    const QPoint personPos(100, 100); //person position in global coordinates
     const QPoint enemyPos(100, 150);
     //person range depends on his size and the size of his currently held weapon
     const QSize personSize(10, 10);
-    const QSize weaponSize(2, 4);
     const qreal personRotation = 0;
+    const QPoint personArmPosition(8, 8); // arm position in person coordinates system
+    const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSize weaponSize(2, 6);
+    // in person's arm local coordinates system - its centered so that it fits evenly
+    const QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
+                                    personArmSize.height());
+    //transform it to person coordinates system
+    weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
+    weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
+
+
+    //Crete primary weapon - normally would be done with Weapon support classes that load specs from config files and
+    // based on that load a specific sprite with stats defined in weapon config file
+    //Weapon id is determined by specific person config - every person object has a config file which stores the
+    //weapon ids that this person owns. During equipment shopping in Camp new weapons are added to specific units,
+    //among other equipment. For specified units types - roman hastati has specified config file that is his base and holds
+    //info about his equipment - those ids that are used to find the coresponding config file for weapon or armor.
 
     uiItem->setRotation(personRotation);
     uiItem->setSize(personSize);
@@ -381,6 +436,10 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
 
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
+    person.setWeaponAchorPoint(weaponPersonAnchor); // for tests set it manually
+    //normally when weapon pulled out or changed the signal is sent to ui to change the sprite, then on sprite change
+    //the anchor point is recalculated to correctly position the weapon(size change trigger).
+    //then the anchor point is read using QQmlProperty::read when checkIfInWeaponRange() method is called
 
     //set person weapon , make it primary
 

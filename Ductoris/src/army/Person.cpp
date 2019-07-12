@@ -282,7 +282,7 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
 
 //added melee weapon handling, add the ranged also
 //add rotating weapon sprite with the person sprite, along person center
-bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) const
+bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
 {
     if(m_uiItem && enemyUiItem)
     {
@@ -291,10 +291,12 @@ bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) const
         {
             int weaponWidth = currentWeapon->getSize().width();
             int weaponHeight = currentWeapon->getSize().height();
-
-            for(int x_weapon = m_weaponAnchorPoint; x_weapon < weaponWidth; x_weapon++)
+            m_weaponAnchorPoint = QQmlProperty::read(qobject_cast<QObject>(m_uiItem), "PrimaryWeaponAnchorPoint").toPoint();
+            const int x0 = m_weaponAnchorPoint.x();
+            const int y0 = m_weaponAnchorPoint.y();
+            for(int x_weapon = x0; x_weapon < weaponWidth + x0; x_weapon++)
             {
-                for(int y_weapon = m_weaponAnchorPoint; y_weapon < weaponHeight; y_weapon++)
+                for(int y_weapon = y0; y_weapon < weaponHeight + y0; y_weapon++)
                 {
                     auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
                     if(enemyUiItem->contains(weaponPosInEnemyCoords))
