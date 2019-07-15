@@ -9,33 +9,39 @@
 class PersonTestChild : public Person
 {
 public:
-    PersonTestChild();
-    PersonTestChild();
+    PersonTestChild() = default;
+    ~PersonTestChild()
+    {
+
+    }
 
     void setWeaponAchorPoint(const QPoint &position)
     {
         m_weaponAnchorPoint = position;
     }//use this to set the parent variable
 
-    bool heckIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
+    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override
     {
         if(m_uiItem && enemyUiItem)
         {
-            auto currentWeapon = m_weapons[m_currentWeaponIdx];
-            if(currentWeapon)
+            if(!m_weapons.empty())
             {
-                int weaponWidth = currentWeapon->getSize().width();
-                int weaponHeight = currentWeapon->getSize().height();
-                const int x0 = m_weaponAnchorPoint.x();
-                const int y0 = m_weaponAnchorPoint.y();
-                for(int x_weapon = x0; x_weapon < weaponWidth + x0; x_weapon++)
+                auto &currentWeapon = m_weapons[m_currentWeaponIdx];
+                if(currentWeapon)
                 {
-                    for(int y_weapon = y0; y_weapon < weaponHeight + y0; y_weapon++)
+                    int weaponWidth = currentWeapon->getSize().width();
+                    int weaponHeight = currentWeapon->getSize().height();
+                    const int x0 = m_weaponAnchorPoint.x();
+                    const int y0 = m_weaponAnchorPoint.y();
+                    for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)
                     {
-                        auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
-                        if(enemyUiItem->contains(weaponPosInEnemyCoords))
+                        for(int y_weapon = y0; y_weapon <= weaponHeight + y0; y_weapon++)
                         {
-                            return true;
+                            auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
+                            if(enemyUiItem->contains(weaponPosInEnemyCoords))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -322,9 +328,7 @@ void PersonTests::TestCase_Person_move_MoveToNewDestination_Idle_To_Moving()
     std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
     const QPoint personPos(100, 100);
     const QSize personSize(10, 10);
-    const qreal personRotation = 0;
 
-    uiItem->setRotation(personRotation);
     uiItem->setSize(personSize);
     uiItem->setPosition(personPos);
     person.setUiItem(uiItem);
@@ -344,9 +348,7 @@ void PersonTests::TestCase_Person_move_ReachedDestination_Moving_To_Idle()
     std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
     const QPoint personPos(100, 100);
     const QSize personSize(10, 10);
-    const qreal personRotation = 0;
 
-    uiItem->setRotation(personRotation);
     uiItem->setSize(personSize);
     uiItem->setPosition(personPos);
     person.setUiItem(uiItem);
@@ -365,7 +367,7 @@ void PersonTests::TestCase_Person_move_ReachedDestination_Moving_To_Idle()
 
 void PersonTests::TestCase_Person_move_CancelAttack_MovingToAttack_To_Moving()
 {
-    Person person;
+    PersonTestChild person;
     std::shared_ptr<Person> enemy(new Person);
     //Fake Ui Item
     std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
@@ -373,15 +375,16 @@ void PersonTests::TestCase_Person_move_CancelAttack_MovingToAttack_To_Moving()
     const QPoint personPos(100, 100);
     const QPoint enemyPos(100, 150);
     const QSize personSize(10, 10);
-    const qreal personRotation = 0;
 
-    uiItem->setRotation(personRotation);
     uiItem->setSize(personSize);
     uiItem->setPosition(personPos);
-    enemyUiItem->setRotation(personRotation);
     enemyUiItem->setSize(personSize);
     enemyUiItem->setPosition(enemyPos);
 
+    //create weapon, for tests manually a placeholder with no specified type, later on has to be done
+    //from Weapon factory class, based on external config files holding the weapon parameters - attack, defence, speed, etc...
+    std::unique_ptr<Weapon> weapon(new Weapon);
+    person.addWeapon(weapon);
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
 
@@ -408,17 +411,19 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
     const QPoint enemyPos(100, 150);
     //person range depends on his size and the size of his currently held weapon
     const QSize personSize(10, 10);
-    const qreal personRotation = 0;
     const QPoint personArmPosition(8, 8); // arm position in person coordinates system
     const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
     const QSize weaponSize(2, 6);
     // in person's arm local coordinates system - its centered so that it fits evenly
-    const QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
                                     personArmSize.height());
     //transform it to person coordinates system
     weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
     weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
 
+    std::unique_ptr<Weapon> weapon(new Weapon);
+    weapon->setSize(weaponSize);
+    person.addWeapon(weapon);
 
     //Crete primary weapon - normally would be done with Weapon support classes that load specs from config files and
     // based on that load a specific sprite with stats defined in weapon config file
@@ -426,11 +431,8 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
     //weapon ids that this person owns. During equipment shopping in Camp new weapons are added to specific units,
     //among other equipment. For specified units types - roman hastati has specified config file that is his base and holds
     //info about his equipment - those ids that are used to find the coresponding config file for weapon or armor.
-
-    uiItem->setRotation(personRotation);
     uiItem->setSize(personSize);
     uiItem->setPosition(personPos);
-    enemyUiItem->setRotation(personRotation);
     enemyUiItem->setSize(personSize);
     enemyUiItem->setPosition(enemyPos);
 
@@ -452,25 +454,38 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
 
 void PersonTests::TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAttack()
 {
-    Person person;
+    PersonTestChild person;
     std::shared_ptr<Person> enemy(new Person);
     //Fake Ui Item
     std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
     std::unique_ptr<QQuickItem> enemyUiItem(new QQuickItem);
-    const QPoint personPos(100, 100);
-    const QPoint enemyPos(100, 150);
-    const QSize personSize(10, 10);
-    const qreal personRotation = 0;
 
-    uiItem->setRotation(personRotation);
+    const QPoint personPos(100, 100); //person position in global coordinates
+    const QPoint enemyPos(100, 150);
+    //person range depends on his size and the size of his currently held weapon
+    const QSize personSize(10, 10);
+    const QPoint personArmPosition(8, 8); // arm position in person coordinates system
+    const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSize weaponSize(2, 6);
+    // in person's arm local coordinates system - its centered so that it fits evenly
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
+                                    personArmSize.height());
+    //transform it to person coordinates system
+    weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
+    weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
+
+    std::unique_ptr<Weapon> weapon(new Weapon);
+    weapon->setSize(weaponSize);
+    person.addWeapon(weapon);
+
     uiItem->setSize(personSize);
     uiItem->setPosition(personPos);
-    enemyUiItem->setRotation(personRotation);
     enemyUiItem->setSize(personSize);
     enemyUiItem->setPosition(enemyPos);
 
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
+    person.setWeaponAchorPoint(weaponPersonAnchor);
 
     int newX = 90;
     int newY = 110;
@@ -485,12 +500,99 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAt
 
 void PersonTests::TestCase_Person_attack_OponnentInRange_Moving_To_Attacking()
 {
+    PersonTestChild person;
+    std::shared_ptr<Person> enemy(new Person);
+    //Fake Ui Item
+    std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
+    std::unique_ptr<QQuickItem> enemyUiItem(new QQuickItem);
 
+    const QPoint personPos(100, 100); //person position in global coordinates
+
+    //person range depends on his size and the size of his currently held weapon
+    const QSize personSize(10, 10);
+    const QPoint personArmPosition(8, 8); // arm position in person coordinates system
+    const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSize weaponSize(2, 6);
+    // in person's arm local coordinates system - its centered so that it fits evenly
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
+                                    personArmSize.height());
+    //transform it to person coordinates system
+    weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
+    weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
+
+    std::unique_ptr<Weapon> weapon(new Weapon);
+    weapon->setSize(weaponSize);
+    person.addWeapon(weapon);
+
+    const QPoint enemyPos(personPos.x(), weaponPersonAnchor.y() + weaponSize.height() + personPos.y());
+
+    uiItem->setSize(personSize);
+    uiItem->setPosition(personPos);
+    enemyUiItem->setSize(personSize);
+    enemyUiItem->setPosition(enemyPos);
+
+    person.setUiItem(uiItem);
+    enemy->setUiItem(enemyUiItem);
+    person.setWeaponAchorPoint(weaponPersonAnchor);
+
+    int newX = 90;
+    int newY = 110;
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
+    person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
+    QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
+    person.attack(enemy);
+    QVERIFY(person.getCurrentState() == Person::PersonState::Attacking);
 }
 
 void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attacking()
 {
+    PersonTestChild person;
+    std::shared_ptr<Person> enemy(new Person);
+    //Fake Ui Item
+    std::unique_ptr<QQuickItem> uiItem(new QQuickItem);
+    std::unique_ptr<QQuickItem> enemyUiItem(new QQuickItem);
 
+    const QPoint personPos(100, 80); //person position in global coordinates
+
+    //person range depends on his size and the size of his currently held weapon
+    const QSize personSize(10, 10);
+    const QPoint personArmPosition(8, 8); // arm position in person coordinates system
+    const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSize weaponSize(2, 6);
+    // in person's arm local coordinates system - its centered so that it fits evenly
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
+                                    personArmSize.height());
+    //transform it to person coordinates system
+    weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
+    weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
+
+    std::unique_ptr<Weapon> weapon(new Weapon);
+    weapon->setSize(weaponSize);
+    person.addWeapon(weapon);
+
+    const int yDiff = 20;
+    const QPoint enemyPos(personPos.x(), weaponPersonAnchor.y() + weaponSize.height() + personPos.y() + yDiff);
+
+
+    uiItem->setSize(personSize);
+    uiItem->setPosition(personPos);
+    enemyUiItem->setSize(personSize);
+    enemyUiItem->setPosition(enemyPos);
+
+    person.setUiItem(uiItem);
+    enemy->setUiItem(enemyUiItem);
+    person.setWeaponAchorPoint(weaponPersonAnchor);
+
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
+    person.attack(enemy);
+    QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
+    //signal reaching destination
+    positionChanged(personPos.x(), personPos.y() + yDiff, 0);
+    QVERIFY(person.getCurrentState() == Person::PersonState::Attacking);
 }
 
 void PersonTests::TestCase_Person_attack_OponnentInRange_Idle_To_Attacking()

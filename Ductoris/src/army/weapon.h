@@ -19,6 +19,8 @@ public:
     Weapon& operator=(Weapon &&other);
     ~Weapon();
 
+    void setSize(const QSize &size);
+
     QSize getSize() const;
     QString getSpriteImgSource() const;
     uint16_t getLevelCap() const;

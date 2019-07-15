@@ -71,6 +71,11 @@ Weapon::~Weapon()
 
 }
 
+void Weapon::setSize(const QSize &size)
+{
+    m_weaponSize = size;
+}
+
 QSize Weapon::getSize() const
 {
     return m_weaponSize;

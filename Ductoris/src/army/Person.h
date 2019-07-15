@@ -71,7 +71,7 @@ public:
     virtual void move(int newX, int newY);
     virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
 protected:
-    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) const;
+    virtual bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem);
 public slots:
     void onPositionChanged(int x, int y, int rotation);
 signals:

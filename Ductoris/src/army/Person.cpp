@@ -95,7 +95,7 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
         connect(this, SIGNAL(updatePersonMovementStats(QVariant,QVariant)), m_uiItem.get(), SLOT(onUpdateMovementStats(QVariant, QVariant)));
         connect(m_uiItem.get(), SIGNAL(positionChanged(int, int, int)), this, SLOT(onPositionChanged(int,int,int)));
         //get uiItem weapon anchor point
-        m_weaponAnchorPoint = QQmlProperty::read(qobject_cast<QObject>(m_uiItem), "PrimaryWeaponAnchorPoint").toPoint();
+        m_weaponAnchorPoint = QQmlProperty::read(m_uiItem.get(), "PrimaryWeaponAnchorPoint").toPoint();
         m_connectedToUi = true;
         uiSet = true;
     }
@@ -264,15 +264,15 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
                     && m_currentState != PersonState::Retreating)
             {
                 m_lockedOnEnemy = enemyUnit;
-                if(checkIfEnemyInWeaponRange(enemyUnit.get()))
+                if(checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
                 {
                     m_currentState = PersonState::Attacking;
                     //do attacking stuff - damage, animation and so on
                 }
                 else
                 {
-                    m_currentState = PersonState::MovingToAttack;
                     move(enemyUnit->getPosition().x(), enemyUnit->getPosition().y());
+                    m_currentState = PersonState::MovingToAttack;                    
                     //do moving towards the enemy, and check every position update if he didnt move and call move again
                 }
             }
@@ -286,22 +286,25 @@ bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
 {
     if(m_uiItem && enemyUiItem)
     {
-        auto currentWeapon = m_weapons[m_currentWeaponIdx];
-        if(currentWeapon)
+        if(!m_weapons.empty())
         {
-            int weaponWidth = currentWeapon->getSize().width();
-            int weaponHeight = currentWeapon->getSize().height();
-            m_weaponAnchorPoint = QQmlProperty::read(qobject_cast<QObject>(m_uiItem), "PrimaryWeaponAnchorPoint").toPoint();
-            const int x0 = m_weaponAnchorPoint.x();
-            const int y0 = m_weaponAnchorPoint.y();
-            for(int x_weapon = x0; x_weapon < weaponWidth + x0; x_weapon++)
+            auto &currentWeapon = m_weapons[m_currentWeaponIdx];
+            if(currentWeapon)
             {
-                for(int y_weapon = y0; y_weapon < weaponHeight + y0; y_weapon++)
+                int weaponWidth = currentWeapon->getSize().width();
+                int weaponHeight = currentWeapon->getSize().height();
+                m_weaponAnchorPoint = QQmlProperty::read(qobject_cast<QObject*>(m_uiItem.get()), "PrimaryWeaponAnchorPoint").toPoint();
+                const int x0 = m_weaponAnchorPoint.x();
+                const int y0 = m_weaponAnchorPoint.y();
+                for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)
                 {
-                    auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
-                    if(enemyUiItem->contains(weaponPosInEnemyCoords))
+                    for(int y_weapon = y0; y_weapon <= weaponHeight + y0; y_weapon++)
                     {
-                        return true;
+                        auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
+                        if(enemyUiItem->contains(weaponPosInEnemyCoords))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -327,7 +330,7 @@ void Person::onPositionChanged(int x, int y, int rotation)
         if(!m_lockedOnEnemy.expired())
         {
             auto enemyUnit = m_lockedOnEnemy.lock();
-            if(checkIfEnemyInWeaponRange(enemyUnit.get()))
+            if(checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
             {
                 m_currentState = PersonState::Attacking;
                 //do attacking stuff - damage, animation and so on
