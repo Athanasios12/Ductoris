@@ -1,6 +1,6 @@
 #ifndef RSWORDSMAN_H
 #define RSWORDSMAN_H
-#include "soldier.h"
+#include "Soldier.h"
 
 class RSwordsman : public Soldier
 {

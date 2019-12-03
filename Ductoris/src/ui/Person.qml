@@ -51,7 +51,7 @@ Rectangle
             break;
         //add another sprites for attack, defence and so on
         }
-        if(spriteSet)
+        if (spriteSet)
         {
             sprite.source = sourceImg;
             sprite.frameCount = frameCount;
@@ -81,25 +81,25 @@ Rectangle
     {
         person.newX = newX;
         person.newY = newY;
-        if(person.newX < 0)
+        if (person.newX < 0)
         {
             person.newX = 0;
         }
-        if(person.newY < 0)
+        if (person.newY < 0)
         {
             person.newY = 0;
         }
-        if(person.newX + person.width > gameCanvasWidth)
+        if (person.newX + person.width > gameCanvasWidth)
         {
             person.newX = gameCanvasWidth - person.width;
         }
-        if(person.newY + person.height > gameCanvasHeight)
+        if (person.newY + person.height > gameCanvasHeight)
         {
             person.newY = gameCanvasHeight - person.height;
         }
         person.time = time;
         person.newAngleRotation = rotation;
-        if(person.personAnimation.running)
+        if (person.personAnimation.running)
         {
             person.personAnimation.stop();
         }

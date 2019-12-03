@@ -42,7 +42,7 @@ Weapon::Weapon(Weapon &&other):
 
 Weapon& Weapon::operator=(const Weapon &other)
 {
-    if(this != &other)
+    if (this != &other)
     {
         m_level = other.m_level;
         m_attackBonus = other.m_attackBonus;
@@ -55,7 +55,7 @@ Weapon& Weapon::operator=(const Weapon &other)
 
 Weapon& Weapon::operator=(Weapon &&other)
 {
-    if(this != &other)
+    if (this != &other)
     {
         other.m_level = 0;
         other.m_attackBonus = 0;

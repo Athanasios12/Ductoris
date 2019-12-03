@@ -28,7 +28,7 @@ void Ductoris::initilize()
     Ductoris::m_ductorisGame = new Ductoris();
     std::unique_ptr<QQmlApplicationEngine> engine(new QQmlApplicationEngine());
     engine->load(QUrl(MAIN_QML_SRC_FILENAME));
-    if(!engine->rootObjects().empty())
+    if (!engine->rootObjects().empty())
     {
         QObject* window = engine->rootObjects().first();
         //expose object as api to qml
@@ -48,9 +48,9 @@ qint16 Ductoris::checkIfSelectedAUnit(int x, int y) const
         auto position = unit->getPosition();
         auto width = unit->getWidth();
         auto height = unit->getHeight();
-        if((x >= position.x() - static_cast<int>(width / 2)) && (x <= position.x() + static_cast<int>(width / 2)))
+        if ((x >= position.x() - static_cast<int>(width / 2)) && (x <= position.x() + static_cast<int>(width / 2)))
         {
-            if((y >= position.y() - static_cast<int>(height / 2)) && (y <= position.y() + static_cast<int>(height / 2)))
+            if ((y >= position.y() - static_cast<int>(height / 2)) && (y <= position.y() + static_cast<int>(height / 2)))
             {
                 personIdx = idx;
                 break;
@@ -70,7 +70,7 @@ qint16 Ductoris::checkIfEnemyClicked(int x, int y) const
 
 Ductoris *Ductoris::getInstance()
 {
-    if(!Ductoris::m_ductorisGame)
+    if (!Ductoris::m_ductorisGame)
     {
         //initialize game
         Ductoris::m_ductorisGame->initilize();
@@ -98,7 +98,7 @@ void Ductoris::onChosenLeader(int leaderType)
     default:
         break;
     }
-    if(factory)
+    if (factory)
     {
         std::shared_ptr<Person> leader(factory->createLeader());
         m_leaderUnit = leader;
@@ -110,12 +110,12 @@ void Ductoris::onChosenLeader(int leaderType)
 void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
 {
     //for now a simple placeholder
-    if(mouseBtn == Qt::LeftButton) // left button clicked - select or move
+    if (mouseBtn == Qt::LeftButton) // left button clicked - select or move
     {
-        if(m_unitSelected)
+        if (m_unitSelected)
         {
             //move selected unit
-            if(!m_selectedUnit.expired()) // make sure not a dangling pointer
+            if (!m_selectedUnit.expired()) // make sure not a dangling pointer
             {
                 auto selectedUnit = m_selectedUnit.lock();
                 selectedUnit->move(x, y);
@@ -124,20 +124,20 @@ void Ductoris::onGameCanvasClicked(int x, int y, int mouseBtn)
         else
         {
             auto personIdx = checkIfSelectedAUnit(x, y);
-            if(personIdx >= 0)
+            if (personIdx >= 0)
             {
                 m_selectedUnit = m_playerUnits[personIdx];
                 m_unitSelected = true;
             }
         }
     }
-    else if(mouseBtn == Qt::RightButton) // right button clicked - attack
+    else if (mouseBtn == Qt::RightButton) // right button clicked - attack
     {
-        if(m_unitSelected && !m_selectedUnit.expired())
+        if (m_unitSelected && !m_selectedUnit.expired())
         {
             //attack
             auto enemyIdx = checkIfEnemyClicked(x, y);
-            if(enemyIdx >= 0)
+            if (enemyIdx >= 0)
             {
                 auto selectedUnit = m_selectedUnit.lock();
                 selectedUnit->attack(m_enemyUnits[enemyIdx]);
@@ -150,10 +150,10 @@ void Ductoris::onGameStarted()
 {
     QObject* window = m_engine->rootObjects().first();
     auto gameCanvas = window->findChild<QQuickItem*>(GAME_CANVAS);
-    if(gameCanvas && m_leaderUnit.lock())
+    if (gameCanvas && m_leaderUnit.lock())
     {
         QQmlComponent leaderUiComponent(m_engine.get(), QUrl(PERSON_QML_SRC_FILENAME));
-        if( leaderUiComponent.status() == QQmlComponent::Ready)
+        if ( leaderUiComponent.status() == QQmlComponent::Ready)
         {
             std::unique_ptr<QQuickItem> leaderUiItem(qobject_cast<QQuickItem*>(leaderUiComponent.create()));
             leaderUiItem->setParentItem(gameCanvas);

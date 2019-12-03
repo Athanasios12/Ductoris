@@ -21,7 +21,7 @@ Commander::Commander(const Commander &other):
 
 Commander& Commander::operator=(const Commander &other)
 {
-    if(this != &other)
+    if (this != &other)
     {
         Person::operator =(other);
         m_soldierLimit = other.m_soldierLimit;
@@ -40,7 +40,7 @@ Commander::Commander(Commander &&other):
 
 Commander& Commander::operator=(Commander &&other)
 {
-    if(this != &other)
+    if (this != &other)
     {
         Person::operator =(std::forward<Commander&&>(other));
         m_soldierLimit = other.m_soldierLimit;
@@ -53,11 +53,11 @@ Commander& Commander::operator=(Commander &&other)
 bool Commander::addSoldier(std::shared_ptr<Soldier> &soldier)
 {
     bool added = false;
-    if(soldier)
+    if (soldier)
     {
-        if(m_type == soldier->getPersonArmyType())
+        if (m_type == soldier->getPersonArmyType())
         {
-            if(m_army.size() < m_soldierLimit)
+            if (m_army.size() < m_soldierLimit)
             {
                 m_army.push_back(soldier);
                 added = true;

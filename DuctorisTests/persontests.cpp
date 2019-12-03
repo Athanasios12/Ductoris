@@ -1,55 +1,9 @@
 #include "persontests.h"
-#include "Person.h"
 #include <QQmlProperty>
 #include <QQuickItem>
 #include <QQmlContext>
 #include <QQmlComponent>
 #include <QQmlApplicationEngine>
-
-class PersonTestChild : public Person
-{
-public:
-    PersonTestChild() = default;
-    ~PersonTestChild()
-    {
-
-    }
-
-    void setWeaponAchorPoint(const QPoint &position)
-    {
-        m_weaponAnchorPoint = position;
-    }//use this to set the parent variable
-
-    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override
-    {
-        if(m_uiItem && enemyUiItem)
-        {
-            if(!m_weapons.empty())
-            {
-                auto &currentWeapon = m_weapons[m_currentWeaponIdx];
-                if(currentWeapon)
-                {
-                    int weaponWidth = currentWeapon->getSize().width();
-                    int weaponHeight = currentWeapon->getSize().height();
-                    const int x0 = m_weaponAnchorPoint.x();
-                    const int y0 = m_weaponAnchorPoint.y();
-                    for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)
-                    {
-                        for(int y_weapon = y0; y_weapon <= weaponHeight + y0; y_weapon++)
-                        {
-                            auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
-                            if(enemyUiItem->contains(weaponPosInEnemyCoords))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-};
 
 void PersonTests::TestCase_Person_DeafultContructor()
 {
@@ -122,7 +76,7 @@ void PersonTests::TestCase_Person_move_Rotation_0()
     int newY = 90;
     const int newRotation = 0;
     const int rotationTolerance = 1;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
 
     QVERIFY(person.isConnectedToUi());
@@ -149,7 +103,7 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_45()
     int newY = 90;
     const int newRotation = 45;
     const int rotationTolerance = 1;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
 
     QVERIFY(person.isConnectedToUi());
@@ -176,7 +130,7 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_90()
     int newY = 100;
     const int newRotation = 90;
     const int rotationTolerance = 1;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
 
     QVERIFY(person.isConnectedToUi());
@@ -203,7 +157,7 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_135()
     int newY = 110;
     const int newRotation = 135;
     const int rotationTolerance = 1;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
 
     QVERIFY(person.isConnectedToUi());
@@ -230,7 +184,7 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_180()
     int newY = 110;
     const int newRotation = 180;
     const int rotationTolerance = 1;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
 
     QVERIFY(person.isConnectedToUi());
@@ -257,7 +211,7 @@ void PersonTests::TestCase_Person_move_Rotation_CounterClockWise_45()
     int newY = 90;
     const int newRotation = -45;
     const int rotationTolerance = 1;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
 
     QVERIFY(person.isConnectedToUi());
@@ -284,7 +238,7 @@ void PersonTests::TestCase_Person_move_Rotation_CounterClockWise_90()
     int newY = 100;
     const int newRotation = -90;
     const int rotationTolerance = 1;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
 
     QVERIFY(person.isConnectedToUi());
@@ -311,7 +265,7 @@ void PersonTests::TestCase_Person_move_Rotation_CounterClockWise_135()
     int newY = 110;
     const int newRotation = -135;
     const int rotationTolerance = 1;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
 
     QVERIFY(person.isConnectedToUi());
@@ -335,7 +289,7 @@ void PersonTests::TestCase_Person_move_MoveToNewDestination_Idle_To_Moving()
 
     int newX = 90;
     int newY = 110;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
     QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
@@ -355,8 +309,8 @@ void PersonTests::TestCase_Person_move_ReachedDestination_Moving_To_Idle()
 
     int newX = 90;
     int newY = 110;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
-    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
+    QObject::connect(this, &PersonTests::positionChanged, &person, &Person::onPositionChanged);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
     QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
@@ -388,8 +342,8 @@ void PersonTests::TestCase_Person_move_CancelAttack_MovingToAttack_To_Moving()
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
 
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
-    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
+    QObject::connect(this, &PersonTests::positionChanged, &person, &Person::onPositionChanged);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.attack(enemy);
     QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
@@ -398,7 +352,7 @@ void PersonTests::TestCase_Person_move_CancelAttack_MovingToAttack_To_Moving()
     person.move(newX, newY);
     QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
 }
-//dokończyć ten test case - dodać dodanie broni do person
+
 void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAttack()
 {
     PersonTestChild person;
@@ -415,8 +369,9 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
     const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
     const QSize weaponSize(2, 6);
     // in person's arm local coordinates system - its centered so that it fits evenly
-    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
-                                    personArmSize.height());
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+                              static_cast<int>(weaponSize.width() / 2),
+                              personArmSize.height());
     //transform it to person coordinates system
     weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
     weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
@@ -426,7 +381,7 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
     person.addWeapon(weapon);
 
     //Crete primary weapon - normally would be done with Weapon support classes that load specs from config files and
-    // based on that load a specific sprite with stats defined in weapon config file
+    //based on that load a specific sprite with stats defined in weapon config file
     //Weapon id is determined by specific person config - every person object has a config file which stores the
     //weapon ids that this person owns. During equipment shopping in Camp new weapons are added to specific units,
     //among other equipment. For specified units types - roman hastati has specified config file that is his base and holds
@@ -445,8 +400,8 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
 
     //set person weapon , make it primary
 
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
-    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
+    QObject::connect(this, &PersonTests::positionChanged, &person, &Person::onPositionChanged);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.attack(enemy);
     QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
@@ -489,8 +444,8 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAt
 
     int newX = 90;
     int newY = 110;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
-    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
+    QObject::connect(this, &PersonTests::positionChanged, &person, &Person::onPositionChanged);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
     QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
@@ -537,8 +492,8 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_Moving_To_Attacking()
 
     int newX = 90;
     int newY = 110;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
-    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
+    QObject::connect(this, &PersonTests::positionChanged, &person, &Person::onPositionChanged);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
     QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
@@ -562,8 +517,9 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
     const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
     const QSize weaponSize(2, 6);
     // in person's arm local coordinates system - its centered so that it fits evenly
-    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
-                                    personArmSize.height());
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+                              static_cast<int>(weaponSize.width() / 2),
+                              personArmSize.height());
     //transform it to person coordinates system
     weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
     weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
@@ -573,7 +529,8 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
     person.addWeapon(weapon);
 
     const int yDiff = 20;
-    const QPoint enemyPos(personPos.x(), weaponPersonAnchor.y() + weaponSize.height() + personPos.y() + yDiff);
+    const QPoint enemyPos(personPos.x(), weaponPersonAnchor.y() +
+                          weaponSize.height() + personPos.y() + yDiff);
 
 
     uiItem->setSize(personSize);
@@ -585,16 +542,26 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
     enemy->setUiItem(enemyUiItem);
     person.setWeaponAchorPoint(weaponPersonAnchor);
 
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &onUpdateMovementData);
-    QObject::connect(this, &positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData,
+                     this, &PersonTests::onUpdateMovementData);
+
+    QObject::connect(this, &PersonTests::positionChanged, &person,
+                     &Person::onPositionChanged);
+
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.attack(enemy);
     QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
     //signal reaching destination
+    person.setWeaponAchorPoint(weaponPersonAnchor +
+                               QPoint{0, yDiff});
     positionChanged(personPos.x(), personPos.y() + yDiff, 0);
     QVERIFY(person.getCurrentState() == Person::PersonState::Attacking);
 }
 
+//TODO :transform from weapon 2 person 2 enemy coordinatesd system,
+//to check if enemy is in range of the weapon, simple iteration of coordinates
+//that is applied now in "checkIfEnemyInWeaponRange" is invalid.
+//Test it for different orientation in global coordinates system
 void PersonTests::TestCase_Person_attack_OponnentInRange_Idle_To_Attacking()
 {
 

@@ -20,7 +20,7 @@ Person::Person(const Person &other):
     //add m_skillTree copying - skillTree factory or skill tree builder
     for(auto && weapon : other.m_weapons)
     {
-        if(weapon)
+        if (weapon)
         {
             std::unique_ptr<Weapon> weaponCopy(new Weapon(*(weapon.get())));
             m_weapons.push_back(std::move(weaponCopy));
@@ -30,7 +30,7 @@ Person::Person(const Person &other):
 
 Person &Person::operator=(const Person &other)
 {
-    if(this != &other)
+    if (this != &other)
     {
         m_type = other.m_type,
         m_stats = other.m_stats;
@@ -39,7 +39,7 @@ Person &Person::operator=(const Person &other)
         m_armor = other.m_armor;
         for(auto && weapon : other.m_weapons)
         {
-            if(weapon)
+            if (weapon)
             {
                 std::unique_ptr<Weapon> weaponCopy(new Weapon(*(weapon.get())));
                 m_weapons.push_back(std::move(weaponCopy));
@@ -64,9 +64,9 @@ Person::Person(Person &&other):
 
 Person &Person::operator=(Person &&other)
 {
-    if(this != &other)
+    if (this != &other)
     {
-        m_type = other.m_type,
+        m_type = other.m_type;
         m_stats = other.m_stats;
         m_exp = other.m_exp;
         m_level = other.m_level;
@@ -87,7 +87,7 @@ Person::~Person()
 bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
 {
     bool uiSet = false;
-    if(uiItem)
+    if (uiItem)
     {
         m_uiItem = std::move(uiItem);
         //connect to signals and slots of ui component
@@ -105,7 +105,7 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
 QPoint Person::getPosition() const
 {
     QPoint pos(0, 0);
-    if(m_uiItem)
+    if (m_uiItem)
     {
         pos = m_uiItem->position().toPoint();
     }
@@ -115,7 +115,7 @@ QPoint Person::getPosition() const
 quint16 Person::getWidth() const
 {
     quint16 width = 0;
-    if(m_uiItem)
+    if (m_uiItem)
     {
         width = static_cast<quint16>(m_uiItem->width());
     }
@@ -125,7 +125,7 @@ quint16 Person::getWidth() const
 quint16 Person::getHeight() const
 {
     quint16 height = 0;
-    if(m_uiItem)
+    if (m_uiItem)
     {
         height = static_cast<quint16>(m_uiItem->height());
     }
@@ -135,7 +135,7 @@ quint16 Person::getHeight() const
 int Person::getRotation() const
 {
     quint16 rotation = 0;
-    if(m_uiItem)
+    if (m_uiItem)
     {
         rotation = static_cast<quint16>(m_uiItem->rotation());
     }
@@ -171,12 +171,12 @@ bool Person::addExp(uint16_t exp)
 {
     bool levelUp = false;
     //later on add perk check for
-    if(m_skillTree)
+    if (m_skillTree)
     {
-        if(m_level < m_skillTree->getMaxLevel())
+        if (m_level < m_skillTree->getMaxLevel())
         {
             m_exp += exp;
-            if(m_skillTree->checkIfThresholdReached(m_exp))
+            if (m_skillTree->checkIfThresholdReached(m_exp))
             {
                 m_stats.addBonus(m_skillTree->getLevelBonus(++m_level));
                 levelUp = true;
@@ -198,7 +198,7 @@ void Person::addWeapon(std::unique_ptr<Weapon> &weapon)
 
 void Person::move(int newX, int newY)
 {
-    if(m_uiItem && m_connectedToUi)
+    if (m_uiItem && m_connectedToUi)
     {
         auto x = m_uiItem->position().toPoint().x();
         auto y = m_uiItem->position().toPoint().y();
@@ -208,9 +208,8 @@ void Person::move(int newX, int newY)
         newY = newY - static_cast<int>(m_uiItem->height() / 2);
 
         //replace with person member items
-        auto timeX = static_cast<int>(abs(newX - x) * m_stats.m_speed);
-        auto timeY = static_cast<int>(abs(newY - y) * m_stats.m_speed);
-        int time = std::max(timeX, timeY);
+        auto time = static_cast<int>(sqrt(pow(abs(newX - x), 2)
+            + pow(abs(newY - y), 2)) * m_stats.m_speed);
         //rotation calculation
         auto X_g = static_cast<double>(newX - x); //X in global coordinates
         auto Y_g = static_cast<double>(newY - y); //Y in global coordinates
@@ -225,7 +224,7 @@ void Person::move(int newX, int newY)
         auto Y_p = ((-X_g * sin((Phi / 180) * M_PI)) + (Y_g * cos((Phi / 180) * M_PI))); //y in local coordinates
 
         int rotationAngle = 0;
-        if(X_p >= 0)
+        if (X_p >= 0)
         {
             rotationAngle = static_cast<int>(180 - ((atan2(X_p, Y_p) * 180) / M_PI));
         }
@@ -243,28 +242,28 @@ void Person::move(int newX, int newY)
 
 void Person::attack(std::shared_ptr<Person> &enemyUnit)
 {
-    if(m_connectedToUi)
+    if (m_connectedToUi)
     {
         bool newEnemyValid = false;
-        if(m_lockedOnEnemy.use_count() == 0)
+        if (m_lockedOnEnemy.use_count() == 0)
         {
             newEnemyValid = true;
         }
         else
         {
-            if(enemyUnit.get() != m_lockedOnEnemy.lock().get())
+            if (enemyUnit.get() != m_lockedOnEnemy.lock().get())
             {
                 newEnemyValid = true;
             }
         }
-        if(newEnemyValid)
+        if (newEnemyValid)
         {
-            if(m_currentState != PersonState::Attacking
-                    && m_currentState != PersonState::Defending
-                    && m_currentState != PersonState::Retreating)
+            if (m_currentState != PersonState::Attacking &&
+                m_currentState != PersonState::Defending &&
+                m_currentState != PersonState::Retreating)
             {
                 m_lockedOnEnemy = enemyUnit;
-                if(checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
+                if (checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
                 {
                     m_currentState = PersonState::Attacking;
                     //do attacking stuff - damage, animation and so on
@@ -284,24 +283,33 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
 //add rotating weapon sprite with the person sprite, along person center
 bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
 {
-    if(m_uiItem && enemyUiItem)
+    if (m_uiItem && enemyUiItem)
     {
-        if(!m_weapons.empty())
+        if (!m_weapons.empty())
         {
             auto &currentWeapon = m_weapons[m_currentWeaponIdx];
-            if(currentWeapon)
+            if (currentWeapon)
             {
                 int weaponWidth = currentWeapon->getSize().width();
                 int weaponHeight = currentWeapon->getSize().height();
-                m_weaponAnchorPoint = QQmlProperty::read(qobject_cast<QObject*>(m_uiItem.get()), "PrimaryWeaponAnchorPoint").toPoint();
-                const int x0 = m_weaponAnchorPoint.x();
-                const int y0 = m_weaponAnchorPoint.y();
-                for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)
+                QPointF weaponAnchorGlobal = QQmlProperty::read(
+                            qobject_cast<QObject*>(m_uiItem.get()),
+                            "PrimaryWeaponAnchorPoint").toPointF();
+                m_weaponAnchorPoint = weaponAnchorGlobal.toPoint();
+                //Assume that anchor is in weapon coordinates system
+                //otherwise transform it to weapon - orientation has
+                // such that increasing x and y is in weapon coordinates system
+                QPoint weaponAchorLocal = m_uiItem->mapFromGlobal(
+                                          weaponAnchorGlobal).toPoint();
+                for(int x_weapon = weaponAchorLocal.x();
+                    x_weapon <= weaponWidth + weaponAchorLocal.x(); x_weapon++)
                 {
-                    for(int y_weapon = y0; y_weapon <= weaponHeight + y0; y_weapon++)
+                    for(int y_weapon = weaponAchorLocal.y();
+                        y_weapon <= weaponHeight + weaponAchorLocal.y(); y_weapon++)
                     {
-                        auto weaponPosInEnemyCoords = m_uiItem->mapToItem(enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
-                        if(enemyUiItem->contains(weaponPosInEnemyCoords))
+                        auto weaponPosInEnemyCoords = m_uiItem->mapToItem(
+                            enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
+                        if (enemyUiItem->contains(weaponPosInEnemyCoords))
                         {
                             return true;
                         }
@@ -320,24 +328,24 @@ void Person::onPositionChanged(int x, int y, int rotation)
     case Idle:
         break;
     case Moving:
-        if(x == m_destination.x() && y == m_destination.y())
+        if (x == m_destination.x() && y == m_destination.y())
         {
             m_currentState = PersonState::Idle;
             //send stop to uiItem
         }
         break;
     case MovingToAttack:
-        if(!m_lockedOnEnemy.expired())
+        if (!m_lockedOnEnemy.expired())
         {
             auto enemyUnit = m_lockedOnEnemy.lock();
-            if(checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
+            if (checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
             {
                 m_currentState = PersonState::Attacking;
                 //do attacking stuff - damage, animation and so on
             }
             else
             {
-                if(m_destination.x() != enemyUnit->getPosition().x() || m_destination.y() != enemyUnit->getPosition().y())
+                if (m_destination.x() != enemyUnit->getPosition().x() || m_destination.y() != enemyUnit->getPosition().y())
                 {
                     move(enemyUnit->getPosition().x(), enemyUnit->getPosition().y());
                     //do moving towards the enemy, and check every position update if he didnt move and call move again
@@ -352,7 +360,7 @@ void Person::onPositionChanged(int x, int y, int rotation)
         }
         break;
     case Attacking:
-        if(m_lockedOnEnemy.expired())
+        if (m_lockedOnEnemy.expired())
         {
             //locked on enemy died or run away
             m_currentState = PersonState::Idle;

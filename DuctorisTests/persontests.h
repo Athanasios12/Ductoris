@@ -1,6 +1,7 @@
 #ifndef PERSONTESTS_H
 #define PERSONTESTS_H
 #include <QTest>
+#include "Person.h"
 
 class PersonTests : public QObject
 {
@@ -86,6 +87,49 @@ private slots:
     void TestCase_Person_MoveContructor();
     void TestCase_Person_MoveAssignment();
 private:
+    class PersonTestChild : public Person
+    {
+    public:
+        PersonTestChild() = default;
+        void setWeaponAchorPoint(const QPoint &position)
+        {
+            m_weaponAnchorPoint = position;
+        }//use this to set the parent variable
+
+        bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override
+        {
+            if (m_uiItem && enemyUiItem)
+            {
+                if (!m_weapons.empty())
+                {
+                    auto &currentWeapon = m_weapons[m_currentWeaponIdx];
+                    if (currentWeapon)
+                    {
+                        int weaponWidth = currentWeapon->getSize().width();
+                        int weaponHeight = currentWeapon->getSize().height();
+                        const int x0 = m_weaponAnchorPoint.x();
+                        const int y0 = m_weaponAnchorPoint.y();
+                        for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)
+                        {
+                            for(int y_weapon = y0; y_weapon <= weaponHeight + y0; y_weapon++)
+                            {
+                                auto weaponPosInEnemyCoords = m_uiItem->
+                                    mapToItem(
+                                        enemyUiItem,
+                                        QPoint{x_weapon, y_weapon}).toPoint();
+                                if (enemyUiItem->contains(weaponPosInEnemyCoords))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+    };
+
     QPoint _newPos{0, 0};
     int _newTime{0};
     int _newRotation{0};

@@ -1,7 +1,7 @@
 #include "romanarmyfactory.h"
 #include "rLeader.h"
 #include "rofficer.h"
-#include "soldier.h"
+#include "Soldier.h"
 #include "rspearman.h"
 #include "rarcher.h"
 #include "rskirmisher.h"
