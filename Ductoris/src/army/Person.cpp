@@ -32,7 +32,7 @@ Person &Person::operator=(const Person &other)
 {
     if (this != &other)
     {
-        m_type = other.m_type,
+        m_type = other.m_type;
         m_stats = other.m_stats;
         m_exp = other.m_exp;
         m_level = other.m_level;
@@ -91,9 +91,12 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
     {
         m_uiItem = std::move(uiItem);
         //connect to signals and slots of ui component
-        connect(this, SIGNAL(updatePersonMovementData(QVariant, QVariant, QVariant, QVariant)), m_uiItem.get(), SLOT(onUpdateMovementData(QVariant, QVariant, QVariant, QVariant)));
-        connect(this, SIGNAL(updatePersonMovementStats(QVariant,QVariant)), m_uiItem.get(), SLOT(onUpdateMovementStats(QVariant, QVariant)));
-        connect(m_uiItem.get(), SIGNAL(positionChanged(int, int, int)), this, SLOT(onPositionChanged(int,int,int)));
+        connect(this, SIGNAL(updatePersonMovementData(QVariant, QVariant, QVariant, QVariant)),
+                m_uiItem.get(), SLOT(onUpdateMovementData(QVariant, QVariant, QVariant, QVariant)));
+        connect(this, SIGNAL(updatePersonMovementStats(QVariant,QVariant)), m_uiItem.get(),
+                SLOT(onUpdateMovementStats(QVariant, QVariant)));
+        connect(m_uiItem.get(), SIGNAL(positionChanged(int, int, int)), this,
+                SLOT(onPositionChanged(int,int,int)));
         //get uiItem weapon anchor point
         m_weaponAnchorPoint = QQmlProperty::read(m_uiItem.get(), "PrimaryWeaponAnchorPoint").toPoint();
         m_connectedToUi = true;

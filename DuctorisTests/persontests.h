@@ -91,11 +91,17 @@ private:
     {
     public:
         PersonTestChild() = default;
-        void setWeaponAchorPoint(const QPoint &position)
+        void tst_setWeaponAchorPoint(const QPoint &position)
         {
             m_weaponAnchorPoint = position;
         }//use this to set the parent variable
-
+        void tst_setUiItemPosition(const QPoint& pos)
+        {
+            if (m_uiItem)
+            {
+                m_uiItem->setPosition(pos);
+            }
+        }
         bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override
         {
             if (m_uiItem && enemyUiItem)
@@ -107,6 +113,10 @@ private:
                     {
                         int weaponWidth = currentWeapon->getSize().width();
                         int weaponHeight = currentWeapon->getSize().height();
+                        //Weapon achor point is its bottom left corner and
+                        //its position is in person coordinates system
+                        //Normally the anchor is read from QML property
+                        //for testing this is set manually with "setWeaponAchorPoint"
                         const int x0 = m_weaponAnchorPoint.x();
                         const int y0 = m_weaponAnchorPoint.y();
                         for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)

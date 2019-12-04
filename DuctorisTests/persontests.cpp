@@ -393,7 +393,7 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
 
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
-    person.setWeaponAchorPoint(weaponPersonAnchor); // for tests set it manually
+    person.tst_setWeaponAchorPoint(weaponPersonAnchor); // for tests set it manually
     //normally when weapon pulled out or changed the signal is sent to ui to change the sprite, then on sprite change
     //the anchor point is recalculated to correctly position the weapon(size change trigger).
     //then the anchor point is read using QQmlProperty::read when checkIfInWeaponRange() method is called
@@ -440,7 +440,7 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAt
 
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
-    person.setWeaponAchorPoint(weaponPersonAnchor);
+    person.tst_setWeaponAchorPoint(weaponPersonAnchor);
 
     int newX = 90;
     int newY = 110;
@@ -488,7 +488,7 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_Moving_To_Attacking()
 
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
-    person.setWeaponAchorPoint(weaponPersonAnchor);
+    person.tst_setWeaponAchorPoint(weaponPersonAnchor);
 
     int newX = 90;
     int newY = 110;
@@ -517,6 +517,10 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
     const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
     const QSize weaponSize(2, 6);
     // in person's arm local coordinates system - its centered so that it fits evenly
+    //Weapon anchor is considered left botom corner of weapon ui item and its attached to
+    //Top of person arm. Used in that way so in calculating if enemy is in range
+    //of the weapon we use the anchor as 0,0 point of weapon coordinates system and increase
+    // it to its height and width - top right corner of weapon to and transform in
     QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
                               static_cast<int>(weaponSize.width() / 2),
                               personArmSize.height());
@@ -532,7 +536,6 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
     const QPoint enemyPos(personPos.x(), weaponPersonAnchor.y() +
                           weaponSize.height() + personPos.y() + yDiff);
 
-
     uiItem->setSize(personSize);
     uiItem->setPosition(personPos);
     enemyUiItem->setSize(personSize);
@@ -540,7 +543,7 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
 
     person.setUiItem(uiItem);
     enemy->setUiItem(enemyUiItem);
-    person.setWeaponAchorPoint(weaponPersonAnchor);
+    person.tst_setWeaponAchorPoint(weaponPersonAnchor);
 
     QObject::connect(&person, &Person::updatePersonMovementData,
                      this, &PersonTests::onUpdateMovementData);
@@ -551,17 +554,13 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.attack(enemy);
     QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
-    //signal reaching destination
-    person.setWeaponAchorPoint(weaponPersonAnchor +
-                               QPoint{0, yDiff});
+    //simulate moving a person to new position
+    person.tst_setUiItemPosition(personPos + QPoint{0, yDiff});
+    //send signal that person moved
     positionChanged(personPos.x(), personPos.y() + yDiff, 0);
     QVERIFY(person.getCurrentState() == Person::PersonState::Attacking);
 }
 
-//TODO :transform from weapon 2 person 2 enemy coordinatesd system,
-//to check if enemy is in range of the weapon, simple iteration of coordinates
-//that is applied now in "checkIfEnemyInWeaponRange" is invalid.
-//Test it for different orientation in global coordinates system
 void PersonTests::TestCase_Person_attack_OponnentInRange_Idle_To_Attacking()
 {
 
