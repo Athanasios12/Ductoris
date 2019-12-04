@@ -295,20 +295,16 @@ bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
             {
                 int weaponWidth = currentWeapon->getSize().width();
                 int weaponHeight = currentWeapon->getSize().height();
-                QPointF weaponAnchorGlobal = QQmlProperty::read(
+                m_weaponAnchorPoint = QQmlProperty::read(
                             qobject_cast<QObject*>(m_uiItem.get()),
-                            "PrimaryWeaponAnchorPoint").toPointF();
-                m_weaponAnchorPoint = weaponAnchorGlobal.toPoint();
-                //Assume that anchor is in weapon coordinates system
-                //otherwise transform it to weapon - orientation has
-                // such that increasing x and y is in weapon coordinates system
-                QPoint weaponAchorLocal = m_uiItem->mapFromGlobal(
-                                          weaponAnchorGlobal).toPoint();
-                for(int x_weapon = weaponAchorLocal.x();
-                    x_weapon <= weaponWidth + weaponAchorLocal.x(); x_weapon++)
+                            "PrimaryWeaponAnchorPoint").toPoint();
+                //Weapon achor is in persons coordinates system,
+                //the anchor point is weapons bottom left corner
+                for(int x_weapon = m_weaponAnchorPoint.x();
+                    x_weapon <= weaponWidth + m_weaponAnchorPoint.x(); x_weapon++)
                 {
-                    for(int y_weapon = weaponAchorLocal.y();
-                        y_weapon <= weaponHeight + weaponAchorLocal.y(); y_weapon++)
+                    for(int y_weapon = m_weaponAnchorPoint.y();
+                        y_weapon <= weaponHeight + m_weaponAnchorPoint.y(); y_weapon++)
                     {
                         auto weaponPosInEnemyCoords = m_uiItem->mapToItem(
                             enemyUiItem, QPoint{x_weapon, y_weapon}).toPoint();
