@@ -61,8 +61,33 @@ private slots:
     void TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAttack();
     void TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAttack();
     void TestCase_Person_attack_OponnentInRange_Moving_To_Attacking();
-    void TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attacking();
-    void TestCase_Person_attack_OponnentInRange_Idle_To_Attacking();
+    void TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attacking();    
+
+    void TestCase_Person_onAttackedByEnemy_Idle_To_Defending();
+    void TestCase_Person_onAttackedByEnemy_Defending_To_Retreat();
+    void TestCase_Person_onAttackedByEnemy_Attacking_To_Retreat();
+    //Interceptions during movement
+    void TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Defending();
+    void TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Defending();
+    void TestCase_Person_onAttackedByEnemy_RearIntercept_Moving_To_Defending();
+    void TestCase_Person_onAttackedByEnemy_FrontIntercept_MovingToAttack_To_Defending();
+    void TestCase_Person_onAttackedByEnemy_FlankIntercept_MovingToAttack_To_Defending();
+    void TestCase_Person_onAttackedByEnemy_RearIntercept_MovingToAttack_To_Defending();
+    //Flanked or/and reared during attack - think how the squad or single unit
+    //should behave when attacked from rear -
+    //1.Change the enemy if single unit and turn on current enemy
+    //2.If unit is part of squad then assign new enemy if not directly engaged with frontal attack
+    // - back ranks. Have to introduce a difference between individual or part of
+    //the squad. If part of the squad, only the front fights first, the back ranks wait
+    //unitl they die to step in or if unit organized as roman legion type behaviour
+    //the front is changed cyclicly based on stamina and health loss - new line steps in
+    //when current first line exausts itself enough or receives to much damage.
+    //For phalanx does not apply or less trained units.
+    //This class represents just a person, so only a basic behaviour should be considered
+    // - person is a single unit. For specific classes that are squadrons then
+    // test for different behaviour should be considered as mentioned before.
+    void TestCase_Person_onAttackedByEnemy_Flanked_During_Attack();
+    void TestCase_Person_onAttackedByEnemy_Reared_During_Attack();
 
     void TestCase_Person_move_DisengageAndRetreat_Attack_To_Retreat();
     void TestCase_Person_move_InterceptedDuringRetreat_Retreat_To_Defend();

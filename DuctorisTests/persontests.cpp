@@ -561,7 +561,51 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
     QVERIFY(person.getCurrentState() == Person::PersonState::Attacking);
 }
 
-void PersonTests::TestCase_Person_attack_OponnentInRange_Idle_To_Attacking()
+//Attacked by enemy - slot onAttackedByEnemy() was called because
+//of signal attackedEnemy() send by enemy
+void PersonTests::TestCase_Person_onAttackedByEnemy_Idle_To_Defending()
+{
+    PersonTestChild person;
+    std::shared_ptr<Person> enemy(new Person);
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_Defending_To_Retreat()
+{
+
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_Attacking_To_Retreat()
+{
+
+}
+
+//Interceptions during movement
+void PersonTests::TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Defending()
+{
+
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Defending()
+{
+
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_RearIntercept_Moving_To_Defending()
+{
+
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_FrontIntercept_MovingToAttack_To_Defending()
+{
+
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_MovingToAttack_To_Defending()
+{
+
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_RearIntercept_MovingToAttack_To_Defending()
 {
 
 }

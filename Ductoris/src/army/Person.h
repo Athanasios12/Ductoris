@@ -87,6 +87,8 @@ signals:
     void updatePersonMovementStats(QVariant speed, QVariant rotationSpeed);
     void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);
     void personStateUpdate(); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
+    void attackedEnemy(); // inform enemy that it was attacked - change its state, calculate damage, stamina, morale loss based
+    // on the attacker parameters
 protected:
     //Type
     DuctorisTypes::ArmyType m_type;
