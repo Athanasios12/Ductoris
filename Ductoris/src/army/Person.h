@@ -15,7 +15,7 @@ class Person : public QObject
 {
     Q_OBJECT
 public:
-    struct Stats
+    struct UnitStats
     {
         uint16_t m_health{0};
         uint16_t m_morale{0};
@@ -74,6 +74,7 @@ protected:
     virtual bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem);
 public slots:
     void onPositionChanged(int x, int y, int rotation);
+    void onAttackedByEnemy();
 signals:
     //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...
     void setPersonBodySprite(int spriteType, const QString &spriteImgSource, int frameCount,
@@ -94,7 +95,7 @@ protected:
     DuctorisTypes::ArmyType m_type;
     std::unique_ptr<SkillTree> m_skillTree{nullptr};
     //Person Stats
-    Stats m_stats;
+    UnitStats m_stats;
     uint32_t m_exp{0};
     uint8_t m_level{0};
     PersonState m_currentState{Idle};

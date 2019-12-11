@@ -55,7 +55,7 @@ Person::Person(Person &&other):
     m_exp(other.m_exp),
     m_level(other.m_level)
 {
-    other.m_stats = Stats();
+    other.m_stats = UnitStats();
     other.m_exp = 0;
     other.m_level = 0;
     m_armor = std::move(other.m_armor);
@@ -70,7 +70,7 @@ Person &Person::operator=(Person &&other)
         m_stats = other.m_stats;
         m_exp = other.m_exp;
         m_level = other.m_level;
-        other.m_stats = Stats();
+        other.m_stats = UnitStats();
         other.m_exp = 0;
         other.m_level = 0;
         m_armor = std::move(other.m_armor);
@@ -377,4 +377,9 @@ void Person::onPositionChanged(int x, int y, int rotation)
     default:
         break;
     }
+}
+
+void Person::onAttackedByEnemy()
+{
+
 }

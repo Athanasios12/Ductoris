@@ -61,7 +61,14 @@ private slots:
     void TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAttack();
     void TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAttack();
     void TestCase_Person_attack_OponnentInRange_Moving_To_Attacking();
-    void TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attacking();    
+    void TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attacking();
+    //this transitions occurs if enemy moved out of our attacking range -
+    //disenaged or retreating. Unit will automaticly pursue enemy if
+    //that was ordered or unit type is not disciplined
+    void TestCase_Person_attack_OponnentInRange_Attacking_To_MovingToAttack();
+    //Killed engaged unit or the unit ran away and the person is disciplined
+    //and was ordered not too pursue the fleeing enemy.
+    void TestCase_Person_attack_OponnentInRange_Attacking_To_Idle();
 
     void TestCase_Person_onAttackedByEnemy_Idle_To_Defending();
     void TestCase_Person_onAttackedByEnemy_Defending_To_Retreat();
@@ -111,60 +118,7 @@ private slots:
     void TestCase_Person_CopyAssignment();
     void TestCase_Person_MoveContructor();
     void TestCase_Person_MoveAssignment();
-private:
-    class PersonTestChild : public Person
-    {
-    public:
-        PersonTestChild() = default;
-        void tst_setWeaponAchorPoint(const QPoint &position)
-        {
-            m_weaponAnchorPoint = position;
-        }//use this to set the parent variable
-        void tst_setUiItemPosition(const QPoint& pos)
-        {
-            if (m_uiItem)
-            {
-                m_uiItem->setPosition(pos);
-            }
-        }
-        bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override
-        {
-            if (m_uiItem && enemyUiItem)
-            {
-                if (!m_weapons.empty())
-                {
-                    auto &currentWeapon = m_weapons[m_currentWeaponIdx];
-                    if (currentWeapon)
-                    {
-                        int weaponWidth = currentWeapon->getSize().width();
-                        int weaponHeight = currentWeapon->getSize().height();
-                        //Weapon achor point is its bottom left corner and
-                        //its position is in person coordinates system
-                        //Normally the anchor is read from QML property
-                        //for testing this is set manually with "setWeaponAchorPoint"
-                        const int x0 = m_weaponAnchorPoint.x();
-                        const int y0 = m_weaponAnchorPoint.y();
-                        for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)
-                        {
-                            for(int y_weapon = y0; y_weapon <= weaponHeight + y0; y_weapon++)
-                            {
-                                auto weaponPosInEnemyCoords = m_uiItem->
-                                    mapToItem(
-                                        enemyUiItem,
-                                        QPoint{x_weapon, y_weapon}).toPoint();
-                                if (enemyUiItem->contains(weaponPosInEnemyCoords))
-                                {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-    };
-
+private:    
     QPoint _newPos{0, 0};
     int _newTime{0};
     int _newRotation{0};
