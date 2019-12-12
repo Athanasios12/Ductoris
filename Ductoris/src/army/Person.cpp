@@ -12,7 +12,7 @@ Person::Person()
 
 Person::Person(const Person &other):
     m_type(other.m_type),
-    m_stats(other.m_stats),
+    m_currentStats(other.m_currentStats),
     m_exp(other.m_exp),
     m_level(other.m_level),
     m_armor(other.m_armor)
@@ -33,7 +33,7 @@ Person &Person::operator=(const Person &other)
     if (this != &other)
     {
         m_type = other.m_type;
-        m_stats = other.m_stats;
+        m_currentStats = other.m_currentStats;
         m_exp = other.m_exp;
         m_level = other.m_level;
         m_armor = other.m_armor;
@@ -51,11 +51,11 @@ Person &Person::operator=(const Person &other)
 
 Person::Person(Person &&other):
     m_type(other.m_type),
-    m_stats(other.m_stats),
+    m_currentStats(other.m_currentStats),
     m_exp(other.m_exp),
     m_level(other.m_level)
 {
-    other.m_stats = UnitStats();
+    other.m_currentStats = SkillTree::UnitStats();
     other.m_exp = 0;
     other.m_level = 0;
     m_armor = std::move(other.m_armor);
@@ -67,10 +67,10 @@ Person &Person::operator=(Person &&other)
     if (this != &other)
     {
         m_type = other.m_type;
-        m_stats = other.m_stats;
+        m_currentStats = other.m_currentStats;
         m_exp = other.m_exp;
         m_level = other.m_level;
-        other.m_stats = UnitStats();
+        other.m_currentStats = SkillTree::UnitStats();
         other.m_exp = 0;
         other.m_level = 0;
         m_armor = std::move(other.m_armor);
@@ -103,6 +103,11 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
         uiSet = true;
     }
     return uiSet;
+}
+
+uint32_t Person::getId() const
+{
+    return m_id;
 }
 
 QPoint Person::getPosition() const
@@ -179,9 +184,10 @@ bool Person::addExp(uint16_t exp)
         if (m_level < m_skillTree->getMaxLevel())
         {
             m_exp += exp;
-            if (m_skillTree->checkIfThresholdReached(m_exp))
+            if (m_skillTree->checkIfLevelThresholdReached(m_exp))
             {
-                m_stats.addBonus(m_skillTree->getLevelBonus(++m_level));
+                //leveled up - max stats increased, new skills, perks unlocked
+                //Select skills and perks
                 levelUp = true;
             }
         }
@@ -212,7 +218,7 @@ void Person::move(int newX, int newY)
 
         //replace with person member items
         auto time = static_cast<int>(sqrt(pow(abs(newX - x), 2)
-            + pow(abs(newY - y), 2)) * m_stats.m_speed);
+            + pow(abs(newY - y), 2)) * m_currentStats.m_speed);
         //rotation calculation
         auto X_g = static_cast<double>(newX - x); //X in global coordinates
         auto Y_g = static_cast<double>(newY - y); //Y in global coordinates
@@ -320,6 +326,21 @@ bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
     return false;
 }
 
+bool Person::calculateDamageResults(int damage)
+{
+    return true;
+}
+
+bool Person::moraleCheck() const
+{
+    if (m_currentStats.m_morale < m_skillTree->
+        getMoraleRetreatThreshold(m_level))
+    {
+        return false;
+    }
+    return true;
+}
+
 void Person::onPositionChanged(int x, int y, int rotation)
 {
     switch(m_currentState)
@@ -344,7 +365,8 @@ void Person::onPositionChanged(int x, int y, int rotation)
             }
             else
             {
-                if (m_destination.x() != enemyUnit->getPosition().x() || m_destination.y() != enemyUnit->getPosition().y())
+                if (m_destination.x() != enemyUnit->getPosition().x() ||
+                    m_destination.y() != enemyUnit->getPosition().y())
                 {
                     move(enemyUnit->getPosition().x(), enemyUnit->getPosition().y());
                     //do moving towards the enemy, and check every position update if he didnt move and call move again
@@ -379,7 +401,56 @@ void Person::onPositionChanged(int x, int y, int rotation)
     }
 }
 
-void Person::onAttackedByEnemy()
+void Person::onAttackedByEnemy(uint32_t person_id, uint16_t damage)
 {
-
+    //calculate received damage
+    bool stillAlive = calculateDamageResults(damage); //damage modificators -
+    //are already calculated on attacker side - takes into accoutn their parameters
+    //target state, orientation(target is attacked from side rear or front
+    if (stillAlive)
+    {
+        //update unit state
+        if (!moraleCheck())
+        {
+            if (Retreating != m_currentState)
+            {
+                //unit morale too low, flee
+                m_currentState = Retreating;
+                emit personStateUpdate(Retreating);
+            }
+        }
+        else
+        {
+            if (Attacking != m_currentState)
+            {
+                //Depending on attack type - ranged or melee the move to
+                //defending state will be dependent on unit skills and
+                //unit will still move to locked on target while being under
+                //enemy fire
+                m_currentState = Defending;
+                emit personStateUpdate(Defending);
+            }
+            else
+            {
+                //if is in attacking state then check if attacked
+                //by another not engaged oponent
+                if (person_id != m_lockedOnEnemy.lock()->getId())
+                {
+                    //new enemy - encircled, flanked reared, handle new enemy
+                }
+                else
+                {
+                    //blow exchange with current enemy no special behaviour
+                }
+            }
+        }
+    }
+    else
+    {
+        //Unit died after attacked
+        //send signal to ui - animte death, show corpse sprite,
+        //signal the owner of this unit to destroy it to free memory
+        //If unit is part of squadm inform squad members od its death,
+        //lower the morale
+    }
 }

@@ -689,6 +689,7 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Defending_To_Retreat()
 
     QSignalSpy attackedSpy(attacker.get(), &TestStub_Person::attackedEnemy);
 
+    //Initialize
     static_cast<TestStub_Person*>(attacker.get())->tst_setPersonState(
         Person::PersonState::Attacking);
     static_cast<TestStub_Person*>(defender.get())->tst_setPersonState(

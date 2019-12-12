@@ -15,25 +15,6 @@ class Person : public QObject
 {
     Q_OBJECT
 public:
-    struct UnitStats
-    {
-        uint16_t m_health{0};
-        uint16_t m_morale{0};
-        uint16_t m_attack{0};
-        uint16_t m_defence{0};
-        uint16_t m_stamina{0};
-        uint16_t m_speed{0};
-
-        void addBonus(SkillTree::LevelBonus bonus)
-        {
-            m_health += bonus.m_healthBonus;
-            m_defence += bonus.m_defenceBonus;
-            m_attack += bonus.m_attackBonus;
-            m_morale += bonus.m_moraleBonus;
-            m_speed += bonus.m_speedBonus;
-            m_stamina += bonus.m_stamina;
-        }
-    };
     enum PersonState
     {
         Idle = 0,
@@ -53,6 +34,7 @@ public:
 
     bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);    
 
+    uint32_t getId() const;
     QPoint getPosition() const;
     quint16 getWidth() const;
     quint16 getHeight() const;
@@ -72,10 +54,13 @@ public:
     virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
 protected:
     virtual bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem);
+    virtual bool calculateDamageResults(int damage);
+    virtual bool moraleCheck() const;
 public slots:
     void onPositionChanged(int x, int y, int rotation);
-    void onAttackedByEnemy();
+    void onAttackedByEnemy(uint32_t person_id, uint16_t damage);
 signals:
+    //Signals to UI
     //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...
     void setPersonBodySprite(int spriteType, const QString &spriteImgSource, int frameCount,
                        int frameWidth, int frameHeight, int frameRate);
@@ -86,16 +71,18 @@ signals:
     void setArmorSprite(const QString &spriteImgSource, int frameCount,
                         int frameWidth, int frameHeight, int frameRate);
     void updatePersonMovementStats(QVariant speed, QVariant rotationSpeed);
-    void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);
-    void personStateUpdate(); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
+    void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);    
+    void personStateUpdate(QVariant newState); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
+
     void attackedEnemy(); // inform enemy that it was attacked - change its state, calculate damage, stamina, morale loss based
     // on the attacker parameters
 protected:
     //Type
+    uint32_t m_id{0};
     DuctorisTypes::ArmyType m_type;
     std::unique_ptr<SkillTree> m_skillTree{nullptr};
     //Person Stats
-    UnitStats m_stats;
+    SkillTree::UnitStats m_currentStats;
     uint32_t m_exp{0};
     uint8_t m_level{0};
     PersonState m_currentState{Idle};

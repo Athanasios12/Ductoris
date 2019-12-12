@@ -18,6 +18,21 @@ void TestStub_Person::tst_setPersonState(const Person::PersonState state)
     m_currentState = state;
 }
 
+void TestStub_Person::tst_setPersonMoraleCheck(bool moraleCheckReturn)
+{
+    m_tst_moraleCheckReturn = moraleCheckReturn;
+}
+
+void TestStub_Person::tst_setCalculateDamageResults(bool calculateDamageResultsReturn)
+{
+    m_tst_calculateDamageResultsReturn = calculateDamageResultsReturn;
+}
+
+bool TestStub_Person::moraleCheck() const
+{
+    return m_tst_moraleCheckReturn;
+}
+
 bool TestStub_Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
 {
     if (m_uiItem && enemyUiItem)
@@ -53,4 +68,9 @@ bool TestStub_Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
         }
     }
     return false;
+}
+
+bool TestStub_Person::calculateDamageResults(int damage)
+{
+    return m_tst_calculateDamageResultsReturn;
 }

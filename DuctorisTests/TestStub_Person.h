@@ -11,8 +11,15 @@ public:
     void tst_setUiItemPosition(const QPoint& pos);
     void tst_setPersonState(const PersonState state);
 
-    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override;
+    void tst_setPersonMoraleCheck(bool moraleCheckReturn);
+    void tst_setCalculateDamageResults(bool calculateDamageResultsReturn);
 
+    bool moraleCheck() const override;
+    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override;
+    bool calculateDamageResults(int damage) override;
+private:
+    bool m_tst_moraleCheckReturn{false};
+    bool m_tst_calculateDamageResultsReturn{false};
 };
 
 #endif // TESTSTUB_PERSON_H
