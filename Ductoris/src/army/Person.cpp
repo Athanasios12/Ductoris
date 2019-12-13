@@ -105,7 +105,7 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
     return uiSet;
 }
 
-uint32_t Person::getId() const
+quint32 Person::getId() const
 {
     return m_id;
 }
@@ -150,12 +150,12 @@ int Person::getRotation() const
     return rotation;
 }
 
-uint32_t Person::getExp() const
+quint32 Person::getExp() const
 {
     return m_exp;
 }
 
-uint8_t Person::getLevel() const
+quint8 Person::getLevel() const
 {
     return m_level;
 }
@@ -175,7 +175,7 @@ bool Person::isConnectedToUi() const
     return m_connectedToUi;
 }
 
-bool Person::addExp(uint16_t exp)
+bool Person::addExp(quint16 exp)
 {
     bool levelUp = false;
     //later on add perk check for
@@ -251,37 +251,49 @@ void Person::move(int newX, int newY)
 
 void Person::attack(std::shared_ptr<Person> &enemyUnit)
 {
-    if (m_connectedToUi)
+    if (m_connectedToUi && enemyUnit)
     {
-        bool newEnemyValid = false;
-        if (m_lockedOnEnemy.use_count() == 0)
+        bool validEnemy = false;
+        //can try attacking only if is not retreating
+        if (m_currentState != PersonState::Retreating &&
+            m_currentState != PersonState::Dead)
         {
-            newEnemyValid = true;
-        }
-        else
-        {
-            if (enemyUnit.get() != m_lockedOnEnemy.lock().get())
+            if ((m_lockedOnEnemy.use_count() == 0) ||
+                (enemyUnit.get() != m_lockedOnEnemy.lock().get()))
             {
-                newEnemyValid = true;
+                //Unit is not engaged or new enemy unit and is not attacking,
+                // or defending
+                if (m_currentState != PersonState::Attacking &&
+                    m_currentState != PersonState::Defending)
+                {
+                    m_lockedOnEnemy = enemyUnit;
+                    validEnemy = true;
+                }
             }
-        }
-        if (newEnemyValid)
-        {
-            if (m_currentState != PersonState::Attacking &&
-                m_currentState != PersonState::Defending &&
-                m_currentState != PersonState::Retreating)
+            else
             {
-                m_lockedOnEnemy = enemyUnit;
+                //attacking currently locked on enemy
+                validEnemy = true;
+            }
+            if (validEnemy)
+            {
                 if (checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
                 {
                     m_currentState = PersonState::Attacking;
                     //do attacking stuff - damage, animation and so on
+                    quint16 damage = calculateAttackDamage();
+                    //Signal target about received damage
+                    emit attackedEnemy(m_id, damage);
+                    //Inform Ui
+                    emit personStateUpdate(m_currentState);
                 }
                 else
                 {
-                    move(enemyUnit->getPosition().x(), enemyUnit->getPosition().y());
-                    m_currentState = PersonState::MovingToAttack;                    
-                    //do moving towards the enemy, and check every position update if he didnt move and call move again
+                    move(enemyUnit->getPosition().x(),
+                         enemyUnit->getPosition().y());
+                    m_currentState = PersonState::MovingToAttack;
+                    //do moving towards the enemy, and check every position update
+                    //if he didnt move and call move again
                 }
             }
         }
@@ -341,6 +353,13 @@ bool Person::moraleCheck() const
     return true;
 }
 
+quint16 Person::calculateAttackDamage() const
+{
+//    return (m_currentStats.m_attack * m_skillTree->staminaAttackCoeff(m_currentStats.m_stamina)) +
+//    m_skillTree->stanceAttackModifier(m_currentState) + m_skillTree->skillModifier() +
+//    m_skillTree->perkModifier() + defenderOrientetionModifier();
+}
+
 void Person::onPositionChanged(int x, int y, int rotation)
 {
     switch(m_currentState)
@@ -369,7 +388,8 @@ void Person::onPositionChanged(int x, int y, int rotation)
                     m_destination.y() != enemyUnit->getPosition().y())
                 {
                     move(enemyUnit->getPosition().x(), enemyUnit->getPosition().y());
-                    //do moving towards the enemy, and check every position update if he didnt move and call move again
+                    //do moving towards the enemy, and check every position update
+                    //if he didnt move and call move again
                 }
             }
         }
@@ -401,7 +421,7 @@ void Person::onPositionChanged(int x, int y, int rotation)
     }
 }
 
-void Person::onAttackedByEnemy(uint32_t person_id, uint16_t damage)
+void Person::onAttackedByEnemy(quint32 person_id, quint16 damage)
 {
     //calculate received damage
     bool stillAlive = calculateDamageResults(damage); //damage modificators -
@@ -452,5 +472,7 @@ void Person::onAttackedByEnemy(uint32_t person_id, uint16_t damage)
         //signal the owner of this unit to destroy it to free memory
         //If unit is part of squadm inform squad members od its death,
         //lower the morale
+        m_currentState = Dead;
+        emit personStateUpdate(Dead);
     }
 }

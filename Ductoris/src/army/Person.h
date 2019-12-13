@@ -22,7 +22,8 @@ public:
         MovingToAttack,
         Attacking,
         Defending,
-        Retreating
+        Retreating,
+        Dead
     };
 
     Person();
@@ -32,15 +33,15 @@ public:
     Person& operator=(Person &&other);
     virtual ~Person();
 
-    bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);    
+    bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);
 
-    uint32_t getId() const;
+    quint32 getId() const;
     QPoint getPosition() const;
     quint16 getWidth() const;
     quint16 getHeight() const;
     int getRotation() const;
-    uint32_t getExp() const;
-    uint8_t getLevel() const;
+    quint32 getExp() const;
+    quint8 getLevel() const;
     PersonState getCurrentState() const;
     DuctorisTypes::ArmyType getPersonArmyType() const;
     bool isConnectedToUi() const;
@@ -56,9 +57,10 @@ protected:
     virtual bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem);
     virtual bool calculateDamageResults(int damage);
     virtual bool moraleCheck() const;
+    virtual quint16 calculateAttackDamage() const;
 public slots:
     void onPositionChanged(int x, int y, int rotation);
-    void onAttackedByEnemy(uint32_t person_id, uint16_t damage);
+    void onAttackedByEnemy(quint32 person_id, quint16 damage);
 signals:
     //Signals to UI
     //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...
@@ -71,29 +73,29 @@ signals:
     void setArmorSprite(const QString &spriteImgSource, int frameCount,
                         int frameWidth, int frameHeight, int frameRate);
     void updatePersonMovementStats(QVariant speed, QVariant rotationSpeed);
-    void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);    
+    void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);
     void personStateUpdate(QVariant newState); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
 
-    void attackedEnemy(); // inform enemy that it was attacked - change its state, calculate damage, stamina, morale loss based
+    void attackedEnemy(quint32 id, quint16 damage); // inform enemy that it was attacked - change its state, calculate damage, stamina, morale loss based
     // on the attacker parameters
 protected:
     //Type
-    uint32_t m_id{0};
+    quint32 m_id{0};
     DuctorisTypes::ArmyType m_type;
     std::unique_ptr<SkillTree> m_skillTree{nullptr};
     //Person Stats
     SkillTree::UnitStats m_currentStats;
-    uint32_t m_exp{0};
-    uint8_t m_level{0};
+    quint32 m_exp{0};
+    quint8 m_level{0};
     PersonState m_currentState{Idle};
     //equipment
     Armor m_armor;
     std::vector<std::unique_ptr<Weapon>> m_weapons;
-    uint8_t m_currentWeaponIdx{0};
+    quint8 m_currentWeaponIdx{0};
     //location
     QPoint m_destination{0, 0};
     std::weak_ptr<Person> m_lockedOnEnemy;
-    //qml uiItem data    
+    //qml uiItem data
     std::unique_ptr<QQuickItem> m_uiItem{nullptr};
     QPoint m_weaponAnchorPoint{0, 0}; // defined in sprite design, weapon is a subitem of person sprite anchors to its hand sprite subitem
     // has defined a static anchor point in person coordinates system from which the range of attack is calculated - most extended position in stabbing animation

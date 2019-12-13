@@ -6,7 +6,7 @@
 
 class Weapon
 {
-public:   
+public:
     Weapon();
     Weapon(uint8_t level,
            uint16_t attackBonus,

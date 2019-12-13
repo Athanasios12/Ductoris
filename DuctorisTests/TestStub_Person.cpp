@@ -18,19 +18,42 @@ void TestStub_Person::tst_setPersonState(const Person::PersonState state)
     m_currentState = state;
 }
 
-void TestStub_Person::tst_setPersonMoraleCheck(bool moraleCheckReturn)
+void TestStub_Person::tst_set_moraleCheck_Return(bool moraleCheckReturn)
 {
-    m_tst_moraleCheckReturn = moraleCheckReturn;
+    m_tst_moraleCheck_ReturnVal = moraleCheckReturn;
 }
 
-void TestStub_Person::tst_setCalculateDamageResults(bool calculateDamageResultsReturn)
+void TestStub_Person::tst_set_calculateDamageResults_Return(
+    bool calculateDamageResultsReturn)
 {
-    m_tst_calculateDamageResultsReturn = calculateDamageResultsReturn;
+    m_tst_calculateDamageResults_ReturnVal = calculateDamageResultsReturn;
+}
+
+void TestStub_Person::tst_set_calculateAttackDamage_Return(uint16_t calculateDamageResultsReturn)
+{
+    m_tst_calculateAttackDamage_ReturnVal = calculateDamageResultsReturn;
+}
+
+void TestStub_Person::tst_set_moraleCheck_UseStub(bool useStub)
+{
+    m_tst_useStub_moraleCheck = useStub;
+}
+
+void TestStub_Person::tst_set_calculateAttackDamage_UseStub(bool useStub)
+{
+    m_tst_useStub_calculateDamageResults = useStub;
 }
 
 bool TestStub_Person::moraleCheck() const
 {
-    return m_tst_moraleCheckReturn;
+    if (m_tst_useStub_moraleCheck)
+    {
+        return m_tst_moraleCheck_ReturnVal;
+    }
+    else
+    {
+        return Person::moraleCheck();
+    }
 }
 
 bool TestStub_Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
@@ -72,5 +95,24 @@ bool TestStub_Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
 
 bool TestStub_Person::calculateDamageResults(int damage)
 {
-    return m_tst_calculateDamageResultsReturn;
+    if (m_tst_useStub_calculateDamageResults)
+    {
+        return m_tst_calculateDamageResults_ReturnVal;
+    }
+    else
+    {
+        return Person::calculateDamageResults(damage);
+    }
+}
+
+uint16_t TestStub_Person::calculateAttackDamage() const
+{
+    if (m_tst_useStub_calculateAttackDamage)
+    {
+        return m_tst_calculateAttackDamage_ReturnVal;
+    }
+    else
+    {
+        return Person::calculateAttackDamage();
+    }
 }

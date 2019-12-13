@@ -73,6 +73,8 @@ private slots:
     void TestCase_Person_onAttackedByEnemy_Idle_To_Defending();
     void TestCase_Person_onAttackedByEnemy_Defending_To_Retreat();
     void TestCase_Person_onAttackedByEnemy_Attacking_To_Retreat();
+    void TestCase_Person_onAttackedByEnemy_Death();
+
     //Interceptions during movement
     void TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Defending();
     void TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Defending();
@@ -118,7 +120,7 @@ private slots:
     void TestCase_Person_CopyAssignment();
     void TestCase_Person_MoveContructor();
     void TestCase_Person_MoveAssignment();
-private:    
+private:
     QPoint _newPos{0, 0};
     int _newTime{0};
     int _newRotation{0};

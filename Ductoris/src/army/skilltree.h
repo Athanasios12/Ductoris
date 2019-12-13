@@ -47,7 +47,7 @@ protected:
 protected:
     UnitStats m_unitStartStats;
     UnitStats m_levelUpBonus;
-    std::vector<Perk> m_perks;    
+    std::vector<Perk> m_perks;
     std::vector<uint32_t> m_levelThresholds;
     std::vector<uint8_t> m_moraleThresholds;
 };

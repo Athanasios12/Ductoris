@@ -11,15 +11,30 @@ public:
     void tst_setUiItemPosition(const QPoint& pos);
     void tst_setPersonState(const PersonState state);
 
-    void tst_setPersonMoraleCheck(bool moraleCheckReturn);
-    void tst_setCalculateDamageResults(bool calculateDamageResultsReturn);
+    //set stub return
+    void tst_set_moraleCheck_Return(bool moraleCheckReturn);
+    void tst_set_calculateDamageResults_Return(bool calculateDamageResultsReturn);
+    void tst_set_calculateAttackDamage_Return(uint16_t calculateDamageResultsReturn);
 
+    //disable, enable stubbed method
+    void tst_set_moraleCheck_UseStub(bool useStub);
+    void tst_set_calculateDamageResults_UseStub(bool useStub);
+    void tst_set_calculateAttackDamage_UseStub(bool useStub);
+
+    //method stubs
     bool moraleCheck() const override;
-    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override;
     bool calculateDamageResults(int damage) override;
+    uint16_t calculateAttackDamage() const override;
+
+    //fakes - not stubs but a override to remove Ui dependency
+    bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem) override;
 private:
-    bool m_tst_moraleCheckReturn{false};
-    bool m_tst_calculateDamageResultsReturn{false};
+    bool m_tst_moraleCheck_ReturnVal{false};
+    bool m_tst_calculateDamageResults_ReturnVal{false};
+    bool m_tst_useStub_moraleCheck{false};
+    bool m_tst_useStub_calculateDamageResults{false};
+    bool m_tst_useStub_calculateAttackDamage{false};
+    uint16_t m_tst_calculateAttackDamage_ReturnVal{0};
 };
 
 #endif // TESTSTUB_PERSON_H

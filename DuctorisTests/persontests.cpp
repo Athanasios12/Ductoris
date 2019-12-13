@@ -402,8 +402,10 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Idle_To_MovingToAtta
 
     //set person weapon , make it primary
 
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
-    QObject::connect(this, &PersonTests::positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData, this,
+                     &PersonTests::onUpdateMovementData);
+    QObject::connect(this, &PersonTests::positionChanged, &person,
+                     &Person::onPositionChanged);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
     person.attack(enemy);
     QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
@@ -425,8 +427,8 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAt
     const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
     const QSize weaponSize(2, 6);
     // in person's arm local coordinates system - its centered so that it fits evenly
-    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
-                                    personArmSize.height());
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+        static_cast<int>(weaponSize.width() / 2), personArmSize.height());
     //transform it to person coordinates system
     weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
     weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
@@ -446,10 +448,13 @@ void PersonTests::TestCase_Person_attack_OponnentNotInRange_Moving_To_MovingToAt
 
     int newX = 90;
     int newY = 110;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
-    QObject::connect(this, &PersonTests::positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData, this,
+                     &PersonTests::onUpdateMovementData);
+    QObject::connect(this, &PersonTests::positionChanged, &person,
+                     &Person::onPositionChanged);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
-    person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
+    person.move(newX + static_cast<int>(personSize.width() / 2), newY +
+                static_cast<int>(personSize.height() / 2));
     QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
     person.attack(enemy);
     QVERIFY(person.getCurrentState() == Person::PersonState::MovingToAttack);
@@ -471,8 +476,8 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_Moving_To_Attacking()
     const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
     const QSize weaponSize(2, 6);
     // in person's arm local coordinates system - its centered so that it fits evenly
-    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) - static_cast<int>(weaponSize.width() / 2),
-                                    personArmSize.height());
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+        static_cast<int>(weaponSize.width() / 2), personArmSize.height());
     //transform it to person coordinates system
     weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
     weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
@@ -481,7 +486,8 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_Moving_To_Attacking()
     weapon->setSize(weaponSize);
     person.addWeapon(weapon);
 
-    const QPoint enemyPos(personPos.x(), weaponPersonAnchor.y() + weaponSize.height() + personPos.y());
+    const QPoint enemyPos(personPos.x(), weaponPersonAnchor.y() +
+                          weaponSize.height() + personPos.y());
 
     uiItem->setSize(personSize);
     uiItem->setPosition(personPos);
@@ -494,10 +500,13 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_Moving_To_Attacking()
 
     int newX = 90;
     int newY = 110;
-    QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
-    QObject::connect(this, &PersonTests::positionChanged, &person, &Person::onPositionChanged);
+    QObject::connect(&person, &Person::updatePersonMovementData, this,
+                     &PersonTests::onUpdateMovementData);
+    QObject::connect(this, &PersonTests::positionChanged, &person,
+                     &Person::onPositionChanged);
     QVERIFY(person.getCurrentState() == Person::PersonState::Idle);
-    person.move(newX + static_cast<int>(personSize.width() / 2), newY + static_cast<int>(personSize.height() / 2));
+    person.move(newX + static_cast<int>(personSize.width() / 2), newY +
+                static_cast<int>(personSize.height() / 2));
     QVERIFY(person.getCurrentState() == Person::PersonState::Moving);
     person.attack(enemy);
     QVERIFY(person.getCurrentState() == Person::PersonState::Attacking);
@@ -625,15 +634,25 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Idle_To_Defending()
                      defender.get(), &TestStub_Person::onAttackedByEnemy);
 
     QSignalSpy attackedSpy(attacker.get(), &TestStub_Person::attackedEnemy);
+    QSignalSpy attackerStateUpdateSpy(attacker.get(),
+                                      &TestStub_Person::personStateUpdate);
+    QSignalSpy defenderStateUpdateSpy(defender.get(),
+                                      &TestStub_Person::personStateUpdate);
 
     static_cast<TestStub_Person*>(attacker.get())->tst_setPersonState(
         Person::PersonState::MovingToAttack);
     static_cast<TestStub_Person*>(defender.get())->tst_setPersonState(
         Person::PersonState::Idle);
 
+    //stub morale check - defended
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(true);
+
     attacker->attack(defender);
 
     QCOMPARE(attackedSpy.count(), 1u);
+    QCOMPARE(defenderStateUpdateSpy.count(), 1u);
+    QCOMPARE(attackerStateUpdateSpy.count(), 1u);
     QVERIFY(Person::PersonState::Defending == defender->getCurrentState());
     QVERIFY(Person::PersonState::Attacking == attacker->getCurrentState());
 }
@@ -688,21 +707,33 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Defending_To_Retreat()
                      defender.get(), &TestStub_Person::onAttackedByEnemy);
 
     QSignalSpy attackedSpy(attacker.get(), &TestStub_Person::attackedEnemy);
+    QSignalSpy defenderStateUpdateSpy(defender.get(),
+                                      &TestStub_Person::personStateUpdate);
 
     //Initialize
     static_cast<TestStub_Person*>(attacker.get())->tst_setPersonState(
-        Person::PersonState::Attacking);
+        Person::PersonState::MovingToAttack);
     static_cast<TestStub_Person*>(defender.get())->tst_setPersonState(
         Person::PersonState::Defending);
+
+    //stub morale check - flee
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(false);
 
     attacker->attack(defender);
 
     QCOMPARE(attackedSpy.count(), 1u);
+    QCOMPARE(defenderStateUpdateSpy.count(), 1u);
     QVERIFY(Person::PersonState::Retreating == defender->getCurrentState());
     QVERIFY(Person::PersonState::Attacking == attacker->getCurrentState());
 }
 
 void PersonTests::TestCase_Person_onAttackedByEnemy_Attacking_To_Retreat()
+{
+
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_Death()
 {
 
 }
