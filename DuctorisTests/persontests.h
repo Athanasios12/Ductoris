@@ -82,6 +82,20 @@ private slots:
     void TestCase_Person_onAttackedByEnemy_FrontIntercept_MovingToAttack_To_Defending();
     void TestCase_Person_onAttackedByEnemy_FlankIntercept_MovingToAttack_To_Defending();
     void TestCase_Person_onAttackedByEnemy_RearIntercept_MovingToAttack_To_Defending();
+    //Damage result calculation: update health and morale based on attack
+    //orientation, type(ranged or melee), damage, defence, armor, perks, skills.
+    void TestCase_Person_defender_calculateDamageResults_Frontal_Melee_Attack();
+    void TestCase_Person_defender_calculateDamageResults_Flanking_Melee_Attack();
+    void TestCase_Person_defender_calculateDamageResults_Rear_Melee_Attack();
+    void TestCase_Person_defender_calculateDamageResults_Frontal_Ranged_Attack();
+    void TestCase_Person_defender_calculateDamageResults_Flanking_Ranged_Attack();
+    void TestCase_Person_defender_calculateDamageResults_Rear_Ranged_Attack();
+    //Calculate damage value based on base attack, weapon, skills, perks and attack
+    //orientation
+    void TestCase_Person_attacker_calculateAttackDamage_Frontal_Attack();
+    void TestCase_Person_attacker_calculateAttackDamage_Flanking_Attack();
+    void TestCase_Person_attacker_calculateAttackDamage_Rear_Attack();
+
     //Flanked or/and reared during attack - think how the squad or single unit
     //should behave when attacked from rear -
     //1.Change the enemy if single unit and turn on current enemy

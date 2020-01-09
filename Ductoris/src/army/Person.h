@@ -25,6 +25,17 @@ public:
         Retreating,
         Dead
     };
+    //Defines types of orientation when attacking
+    //enemy. Proposed limits need to be tested.
+    //Information needed both on attacker and defender side - calculating
+    //damage modificator on attacker side
+    enum AttackOrientation
+    {
+        Frontal = 0, // <140; 220> degrees related to orientation of target
+        Flank,       // <40; 140) u (220; 320>
+        Rear         // (320; 40)
+    };
+    Q_ENUM(AttackOrientation)
 
     Person();
     Person(const Person &other);
@@ -55,12 +66,16 @@ public:
     virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
 protected:
     virtual bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem);
-    virtual bool calculateDamageResults(int damage);
+    virtual bool calculateDamageResults(quint16 damage,
+                                        AttackOrientation orientation,
+                                        Weapon::WeaponType weaponType);
     virtual bool moraleCheck() const;
     virtual quint16 calculateAttackDamage() const;
 public slots:
     void onPositionChanged(int x, int y, int rotation);
-    void onAttackedByEnemy(quint32 person_id, quint16 damage);
+    void onAttackedByEnemy(quint32 person_id, quint16 damage,
+                           AttackOrientation orientation,
+                           Weapon::WeaponType weaponType);
 signals:
     //Signals to UI
     //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...

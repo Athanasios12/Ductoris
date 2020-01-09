@@ -283,7 +283,9 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
                     //do attacking stuff - damage, animation and so on
                     quint16 damage = calculateAttackDamage();
                     //Signal target about received damage
-                    emit attackedEnemy(m_id, damage);
+                    AttackOrientation orientation;
+                    emit attackedEnemy(m_id, damage, orientation,
+                        m_weapons[m_currentWeaponIdx]->getWeaponType());
                     //Inform Ui
                     emit personStateUpdate(m_currentState);
                 }
@@ -421,7 +423,9 @@ void Person::onPositionChanged(int x, int y, int rotation)
     }
 }
 
-void Person::onAttackedByEnemy(quint32 person_id, quint16 damage)
+void Person::onAttackedByEnemy(quint32 person_id, quint16 damage,
+                               AttackOrientation orientation,
+                               Weapon::WeaponType weaponType)
 {
     //calculate received damage
     bool stillAlive = calculateDamageResults(damage); //damage modificators -

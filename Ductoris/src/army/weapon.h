@@ -1,12 +1,22 @@
 #ifndef WEAPON_H
 #define WEAPON_H
+#include <QObject>
 #include <QString>
 #include <QSize>
 #include <memory>
 
-class Weapon
+class Weapon : public QObject
 {
+    Q_OBJECT
 public:
+    //Maybe will add more variety in future - slashing(swords, axes), bashing(clubs), piercing(spears),
+    //ranged normal(arroraws), ranged armor piercing(javelin)
+    enum WeaponType
+    {
+        Melee = 0,
+        Ranged
+    };
+    Q_ENUM(WeaponType)
     Weapon();
     Weapon(uint8_t level,
            uint16_t attackBonus,
@@ -28,17 +38,17 @@ public:
     uint16_t getDefenceBonus() const;
     uint16_t getStaminaDrain() const;
     uint16_t getSpeed() const;
-    bool isRanged() const;
+    WeaponType getWeaponType() const;
 
-protected:
-    uint8_t m_level{1};
+protected:        
+    QString m_spriteImgSource;
+    QSize m_weaponSize{0, 0};    
     uint16_t m_attackBonus{0};
     uint16_t m_defenceBonus{0};
     uint16_t m_staminaDrain{0};
     uint16_t m_speed{0};
-    bool m_isRanged{false};
-    QString m_spriteImgSource;
-    QSize m_weaponSize{0, 0};
+    WeaponType m_weaponType;
+    uint8_t m_level{1};
 };
 
 #endif // WEAPON_H

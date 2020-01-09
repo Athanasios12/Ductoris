@@ -44,6 +44,7 @@ HEADERS += \
     ../Ductoris/src/army/roman/units/rskirmisher.h \
     ../Ductoris/src/army/roman/units/rspearman.h \
     TestStub_Person.h \
+    TestStub_Weapon.h \
     romanleadertests.h \
     persontests.h \
     ../Ductoris/Ductoris.h \
@@ -53,6 +54,7 @@ SOURCES += \
     AbstractArmyFactoryTests.cpp \
     RomanArmyFactoryTests.cpp \
     TestStub_Person.cpp \
+    TestStub_Weapon.cpp \
     main.cpp \
     ../Ductoris/src/army/roman/romanarmyfactory.cpp \
     ../Ductoris/src/army/roman/units/rLeader.cpp \

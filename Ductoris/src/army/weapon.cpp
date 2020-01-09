@@ -111,7 +111,7 @@ uint16_t Weapon::getSpeed() const
     return m_speed;
 }
 
-bool Weapon::isRanged() const
+Weapon::WeaponType Weapon::getWeaponType() const
 {
-    return m_isRanged;
+    return m_weaponType;
 }
