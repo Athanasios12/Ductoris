@@ -8,7 +8,6 @@ public:
     TestStub_Weapon() = default;
 
     void tst_setWeaponType(const WeaponType weaponType);
-
 };
 
 #endif // TESTSTUB_WEAPON_H

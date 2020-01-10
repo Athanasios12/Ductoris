@@ -39,6 +39,11 @@ void TestStub_Person::tst_set_moraleCheck_UseStub(bool useStub)
     m_tst_useStub_moraleCheck = useStub;
 }
 
+void TestStub_Person::tst_set_calculateDamageResults_UseStub(bool useStub)
+{
+    m_tst_useStub_calculateDamageResults = useStub;
+}
+
 void TestStub_Person::tst_set_calculateAttackDamage_UseStub(bool useStub)
 {
     m_tst_useStub_calculateDamageResults = useStub;
@@ -53,6 +58,20 @@ bool TestStub_Person::moraleCheck() const
     else
     {
         return Person::moraleCheck();
+    }
+}
+
+bool TestStub_Person::calculateDamageResults(quint16 damage,
+                                             Person::AttackOrientation orientation,
+                                             Weapon::WeaponType weaponType)
+{
+    if (m_tst_useStub_calculateDamageResults)
+    {
+        return m_tst_calculateDamageResults_ReturnVal;
+    }
+    else
+    {
+        return Person::calculateDamageResults(damage, orientation, weaponType);
     }
 }
 
@@ -93,18 +112,6 @@ bool TestStub_Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
     return false;
 }
 
-bool TestStub_Person::calculateDamageResults(int damage)
-{
-    if (m_tst_useStub_calculateDamageResults)
-    {
-        return m_tst_calculateDamageResults_ReturnVal;
-    }
-    else
-    {
-        return Person::calculateDamageResults(damage);
-    }
-}
-
 uint16_t TestStub_Person::calculateAttackDamage() const
 {
     if (m_tst_useStub_calculateAttackDamage)
@@ -115,4 +122,9 @@ uint16_t TestStub_Person::calculateAttackDamage() const
     {
         return Person::calculateAttackDamage();
     }
+}
+
+Person::AttackOrientation TestStub_Person::getAttackOrientation() const
+{
+
 }

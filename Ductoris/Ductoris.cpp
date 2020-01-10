@@ -158,11 +158,45 @@ void Ductoris::onGameStarted()
             std::unique_ptr<QQuickItem> leaderUiItem(qobject_cast<QQuickItem*>(leaderUiComponent.create()));
             leaderUiItem->setParentItem(gameCanvas);
             leaderUiItem->setSize(QSize(100, 100));
+
+            QQuickItem* personRotated_90 = qobject_cast<QQuickItem*>(leaderUiComponent.create());
+            personRotated_90->setParentItem(gameCanvas);
+            personRotated_90->setSize(QSize(100, 100));
+
+            QQuickItem* personRotated_180 = qobject_cast<QQuickItem*>(leaderUiComponent.create());
+            personRotated_180->setParentItem(gameCanvas);
+            personRotated_180->setSize(QSize(100, 100));
+
+            QQuickItem* personRotated_270 = qobject_cast<QQuickItem*>(leaderUiComponent.create());
+            personRotated_270->setParentItem(gameCanvas);
+            personRotated_270->setSize(QSize(100, 100));
+
+            QQuickItem* personRotated_355 = qobject_cast<QQuickItem*>(leaderUiComponent.create());
+            personRotated_355->setParentItem(gameCanvas);
+            personRotated_355->setSize(QSize(100, 100));
+
             QQmlProperty::write(leaderUiItem.get(), "gameCanvasWidth", gameCanvas->width());
             QQmlProperty::write(leaderUiItem.get(), "gameCanvasHeight", gameCanvas->height());
+            QQmlProperty::write(personRotated_90, "gameCanvasWidth", gameCanvas->width());
+            QQmlProperty::write(personRotated_90, "gameCanvasHeight", gameCanvas->height());
+            QQmlProperty::write(personRotated_180, "gameCanvasWidth", gameCanvas->width());
+            QQmlProperty::write(personRotated_180, "gameCanvasHeight", gameCanvas->height());
+            QQmlProperty::write(personRotated_270, "gameCanvasWidth", gameCanvas->width());
+            QQmlProperty::write(personRotated_270, "gameCanvasHeight", gameCanvas->height());
+            QQmlProperty::write(personRotated_355, "gameCanvasWidth", gameCanvas->width());
+            QQmlProperty::write(personRotated_355, "gameCanvasHeight", gameCanvas->height());
+
             int x = static_cast<int>(gameCanvas->width() / 2) - static_cast<int>(leaderUiItem->width() / 2);
             int y = static_cast<int>(gameCanvas->height() / 2) - static_cast<int>(leaderUiItem->height() / 2);
             leaderUiItem->setPosition(QPoint(x, y));
+            personRotated_90->setPosition((QPoint(x + 100, y)));
+            personRotated_180->setPosition((QPoint(x, y + 100)));
+            personRotated_270->setPosition((QPoint(x + 100, y + 100)));
+            personRotated_355->setPosition((QPoint(x + 200, y)));
+            personRotated_90->setRotation(90);
+            personRotated_180->setRotation(180);
+            personRotated_270->setRotation(270);
+            personRotated_355->setRotation(355);
             auto leaderUnit = m_leaderUnit.lock();
             leaderUnit->setUiItem(leaderUiItem);
             m_selectedUnit = m_leaderUnit.lock();

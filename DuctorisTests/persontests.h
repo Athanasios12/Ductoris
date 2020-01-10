@@ -21,6 +21,7 @@ public slots:
 signals:
     void positionChanged(int x, int y, int rotation);
 private slots:
+    void initTestCase();
     void TestCase_Person_DeafultContructor();
 
     //UI Item

@@ -47,7 +47,7 @@ protected:
     uint16_t m_defenceBonus{0};
     uint16_t m_staminaDrain{0};
     uint16_t m_speed{0};
-    WeaponType m_weaponType;
+    WeaponType m_weaponType{Melee};
     uint8_t m_level{1};
 };
 

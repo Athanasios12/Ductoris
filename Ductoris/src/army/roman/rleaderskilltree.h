@@ -9,7 +9,7 @@ public:
     ~RLeaderSkillTree();
 
     bool checkIfThresholdReached(uint32_t exp) const;
-    LevelBonus getLevelBonus(uint8_t levelNumber) const;
+    UnitStats getLevelBonus(uint8_t levelNumber) const;
 };
 
 #endif // RLEADERSKILLTREE_H

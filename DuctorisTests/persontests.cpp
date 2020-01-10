@@ -7,6 +7,12 @@
 #include <QQmlApplicationEngine>
 #include <QSignalSpy>
 
+void PersonTests::initTestCase()
+{
+   qRegisterMetaType<Person::AttackOrientation>();
+   qRegisterMetaType<Weapon::WeaponType>();
+}
+
 void PersonTests::TestCase_Person_DeafultContructor()
 {
     Person person;
@@ -629,10 +635,6 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Idle_To_Defending()
     static_cast<TestStub_Person*>(attacker.get())->
         tst_setWeaponAchorPoint(weaponPersonAnchor);
 
-    //Connect attacker to defender
-    QObject::connect(attacker.get(), &TestStub_Person::attackedEnemy,
-                     defender.get(), &TestStub_Person::onAttackedByEnemy);
-
     QSignalSpy attackedSpy(attacker.get(), &TestStub_Person::attackedEnemy);
     QSignalSpy attackerStateUpdateSpy(attacker.get(),
                                       &TestStub_Person::personStateUpdate);
@@ -702,10 +704,6 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Defending_To_Retreat()
     static_cast<TestStub_Person*>(attacker.get())->
         tst_setWeaponAchorPoint(weaponPersonAnchor);
 
-    //Connect attacker to defender
-    QObject::connect(attacker.get(), &TestStub_Person::attackedEnemy,
-                     defender.get(), &TestStub_Person::onAttackedByEnemy);
-
     QSignalSpy attackedSpy(attacker.get(), &TestStub_Person::attackedEnemy);
     QSignalSpy defenderStateUpdateSpy(defender.get(),
                                       &TestStub_Person::personStateUpdate);
@@ -731,16 +729,84 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Defending_To_Retreat()
 void PersonTests::TestCase_Person_onAttackedByEnemy_Attacking_To_Retreat()
 {
     std::shared_ptr<Person> attacker(new TestStub_Person);
-    std::shared_ptr<Person> defender(new TestStub_Person);
     std::shared_ptr<Person> flanker(new TestStub_Person);
 
     //Fake Ui Item
     std::unique_ptr<QQuickItem> flankerUiItem(new QQuickItem);
     std::unique_ptr<QQuickItem> attackerUiItem(new QQuickItem);
-    std::unique_ptr<QQuickItem> defenderUiItem(new QQuickItem);
 
-    const QPoint flankerPos(100, 90); //person position in global coordinates
-    const QPoint defenderPos(100, 110);
+    const QPoint flankerPos(100, 100); //person position in global coordinates
+    const QPoint attackerPos(100, 110);
+    //person range depends on his size and the size of his currently held weapon
+    const QSize personSize(10, 10);
+    const QPoint personArmPosition(8, 8); // arm position in person coordinates system
+    const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSize weaponSize(2, 6);
+    // in person's arm local coordinates system - its centered so that it fits evenly
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+                              static_cast<int>(weaponSize.width() / 2),
+                              personArmSize.height());
+    //transform it to person coordinates system
+    weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
+    weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
+
+    std::unique_ptr<Weapon> flankerWeapon(new Weapon);
+    std::unique_ptr<Weapon> attackerWeapon(new Weapon);
+
+    flankerWeapon->setSize(weaponSize);
+    flanker->addWeapon(flankerWeapon);
+    attackerWeapon->setSize(weaponSize);
+    attacker->addWeapon(attackerWeapon);
+
+    flankerUiItem->setSize(personSize);
+    flankerUiItem->setPosition(flankerPos);
+    attackerUiItem->setSize(personSize);
+    attackerUiItem->setPosition(attackerPos);
+
+    flanker->setUiItem(flankerUiItem);
+    attacker->setUiItem(attackerUiItem);
+    //Set weapon achors for tests manually, normaly read from qml property
+    static_cast<TestStub_Person*>(flanker.get())->
+        tst_setWeaponAchorPoint(weaponPersonAnchor);
+    static_cast<TestStub_Person*>(attacker.get())->
+        tst_setWeaponAchorPoint(weaponPersonAnchor);
+
+    //Connect flanker to attacker
+    QObject::connect(flanker.get(), &TestStub_Person::attackedEnemy,
+                     attacker.get(), &TestStub_Person::onAttackedByEnemy);
+
+    QSignalSpy attackedSpy(flanker.get(), &TestStub_Person::attackedEnemy);
+    QSignalSpy attackerStateUpdateSpy(attacker.get(),
+                                      &TestStub_Person::personStateUpdate);
+
+    //Initialize
+    static_cast<TestStub_Person*>(attacker.get())->tst_setPersonState(
+        Person::PersonState::Attacking);
+    static_cast<TestStub_Person*>(flanker.get())->tst_setPersonState(
+        Person::PersonState::MovingToAttack);
+
+    //stub morale check - flee
+    static_cast<TestStub_Person*>(attacker.get())->tst_set_moraleCheck_UseStub(true);
+    static_cast<TestStub_Person*>(attacker.get())->tst_set_moraleCheck_Return(false);
+
+    flanker->attack(attacker);
+
+    QCOMPARE(attackedSpy.count(), 1u);
+    QCOMPARE(attackerStateUpdateSpy.count(), 1u);
+    QVERIFY(Person::PersonState::Attacking == flanker->getCurrentState());
+    QVERIFY(Person::PersonState::Retreating == attacker->getCurrentState());
+}
+
+void PersonTests::TestCase_Person_onAttackedByEnemy_Death()
+{
+    std::shared_ptr<Person> defender(new TestStub_Person);
+    std::shared_ptr<Person> attacker(new TestStub_Person);
+
+    //Fake Ui Item
+    std::unique_ptr<QQuickItem> defenderUiItem(new QQuickItem);
+    std::unique_ptr<QQuickItem> attackerUiItem(new QQuickItem);
+
+    const QPoint defenderPos(100, 110); //person position in global coordinates
     const QPoint attackerPos(100, 100);
     //person range depends on his size and the size of his currently held weapon
     const QSize personSize(10, 10);
@@ -761,50 +827,47 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Attacking_To_Retreat()
     attackerWeapon->setSize(weaponSize);
     attacker->addWeapon(attackerWeapon);
     defenderWeapon->setSize(weaponSize);
-    flanker->addWeapon(defenderWeapon);
+    defender->addWeapon(defenderWeapon);
 
-    flankerUiItem->setSize(personSize);
-    flankerUiItem->setPosition(flankerPos);
+    defenderUiItem->setSize(personSize);
+    defenderUiItem->setPosition(defenderPos);
     attackerUiItem->setSize(personSize);
     attackerUiItem->setPosition(attackerPos);
 
-    flanker->setUiItem(flankerUiItem);
+    defender->setUiItem(defenderUiItem);
     attacker->setUiItem(attackerUiItem);
     //Set weapon achors for tests manually, normaly read from qml property
-    static_cast<TestStub_Person*>(flanker.get())->
+    static_cast<TestStub_Person*>(defender.get())->
         tst_setWeaponAchorPoint(weaponPersonAnchor);
     static_cast<TestStub_Person*>(attacker.get())->
         tst_setWeaponAchorPoint(weaponPersonAnchor);
 
-    //Connect attacker to defender
-    QObject::connect(flanker.get(), &TestStub_Person::attackedEnemy,
-                     attacker.get(), &TestStub_Person::onAttackedByEnemy);
-
     QSignalSpy attackedSpy(attacker.get(), &TestStub_Person::attackedEnemy);
     QSignalSpy attackerStateUpdateSpy(attacker.get(),
                                       &TestStub_Person::personStateUpdate);
+    QSignalSpy defenderStateUpdateSpy(defender.get(),
+                                      &TestStub_Person::personStateUpdate);
+    QSignalSpy defenderDiedSpy(defender.get(), &TestStub_Person::personDied);
 
-    //Initialize
     static_cast<TestStub_Person*>(attacker.get())->tst_setPersonState(
-        Person::PersonState::Attacking);
-    static_cast<TestStub_Person*>(flanker.get())->tst_setPersonState(
         Person::PersonState::MovingToAttack);
+    static_cast<TestStub_Person*>(defender.get())->tst_setPersonState(
+        Person::PersonState::Defending);
 
-    //stub morale check - flee
+    //stub morale check - defended
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
-    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(false);
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(true);
+    static_cast<TestStub_Person*>(defender.get())->tst_set_calculateDamageResults_UseStub(true);
+    static_cast<TestStub_Person*>(defender.get())->tst_set_calculateDamageResults_Return(false);
 
-    flanker->attack(attacker);
+    attacker->attack(defender);
 
     QCOMPARE(attackedSpy.count(), 1u);
+    QCOMPARE(defenderStateUpdateSpy.count(), 1u);
     QCOMPARE(attackerStateUpdateSpy.count(), 1u);
-    QVERIFY(Person::PersonState::Retreating == flanker->getCurrentState());
-    QVERIFY(Person::PersonState::Attacking == attacker->getCurrentState());
-}
-
-void PersonTests::TestCase_Person_onAttackedByEnemy_Death()
-{
-
+    QCOMPARE(defenderDiedSpy.count(), 1u);
+    QVERIFY(Person::PersonState::Dead == defender->getCurrentState());
+    QVERIFY(Person::PersonState::Idle == attacker->getCurrentState());
 }
 
 //Interceptions during movement
@@ -834,6 +897,51 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_MovingToAttac
 }
 
 void PersonTests::TestCase_Person_onAttackedByEnemy_RearIntercept_MovingToAttack_To_Defending()
+{
+
+}
+
+void PersonTests::TestCase_Person_defender_calculateDamageResults_Frontal_Melee_Attack()
+{
+
+}
+
+void PersonTests::TestCase_Person_defender_calculateDamageResults_Flanking_Melee_Attack()
+{
+
+}
+
+void PersonTests::TestCase_Person_defender_calculateDamageResults_Rear_Melee_Attack()
+{
+
+}
+
+void PersonTests::TestCase_Person_defender_calculateDamageResults_Frontal_Ranged_Attack()
+{
+
+}
+
+void PersonTests::TestCase_Person_defender_calculateDamageResults_Flanking_Ranged_Attack()
+{
+
+}
+
+void PersonTests::TestCase_Person_defender_calculateDamageResults_Rear_Ranged_Attack()
+{
+
+}
+
+void PersonTests::TestCase_Person_attacker_calculateAttackDamage_Frontal_Attack()
+{
+
+}
+
+void PersonTests::TestCase_Person_attacker_calculateAttackDamage_Flanking_Attack()
+{
+
+}
+
+void PersonTests::TestCase_Person_attacker_calculateAttackDamage_Rear_Attack()
 {
 
 }

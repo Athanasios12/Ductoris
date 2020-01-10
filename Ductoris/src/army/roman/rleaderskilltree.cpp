@@ -16,8 +16,8 @@ bool RLeaderSkillTree::checkIfThresholdReached(uint32_t exp) const
     return true;
 }
 
-SkillTree::LevelBonus RLeaderSkillTree::getLevelBonus(uint8_t levelNumber) const
+SkillTree::UnitStats RLeaderSkillTree::getLevelBonus(uint8_t levelNumber) const
 {
     //placeholder
-    return LevelBonus();
+    return SkillTree::UnitStats();
 }

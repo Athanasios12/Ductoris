@@ -48,9 +48,9 @@ public:
 
     quint32 getId() const;
     QPoint getPosition() const;
+    quint16 getRotation() const;
     quint16 getWidth() const;
     quint16 getHeight() const;
-    int getRotation() const;
     quint32 getExp() const;
     quint8 getLevel() const;
     PersonState getCurrentState() const;
@@ -70,17 +70,23 @@ protected:
                                         AttackOrientation orientation,
                                         Weapon::WeaponType weaponType);
     virtual bool moraleCheck() const;
+    //for attacking and moving add later on a gradual lose of stamina
+    //based on unit state - Idle - resting, increasing or not decreasing
+    //other, decreasing. Stamina should be used when calculating unit morale
+    //when attacked by enemy
     virtual quint16 calculateAttackDamage() const;
+    virtual AttackOrientation getAttackOrientation() const;
 public slots:
     void onPositionChanged(int x, int y, int rotation);
     void onAttackedByEnemy(quint32 person_id, quint16 damage,
                            AttackOrientation orientation,
                            Weapon::WeaponType weaponType);
+    void onLockedOnEnemyDied();
 signals:
     //Signals to UI
     //sets the source and parameters of specific person sprite - roman swordsman, macedon spearman, etc...
     void setPersonBodySprite(int spriteType, const QString &spriteImgSource, int frameCount,
-                       int frameWidth, int frameHeight, int frameRate);
+                             int frameWidth, int frameHeight, int frameRate);
     void setPrimaryWeaponSprite(const QString &spriteImgSource, int frameCount,
                                 int frameWidth, int frameHeight, int frameRate); //main weapon
     void setSecondaryWeaponSprite(const QString &spriteImgSource, int frameCount,
@@ -91,8 +97,11 @@ signals:
     void updatePersonMovementData(QVariant newX, QVariant newY, QVariant time, QVariant rotationAngle);
     void personStateUpdate(QVariant newState); // indicates movement, attack, decrease in stamina, etc.. - switch between attack,move animation
 
-    void attackedEnemy(quint32 id, quint16 damage); // inform enemy that it was attacked - change its state, calculate damage, stamina, morale loss based
+    void attackedEnemy(quint32 id, quint16 damage,
+                       Person::AttackOrientation orientation,
+                       Weapon::WeaponType weaponType); // inform enemy that it was attacked - change its state, calculate damage, stamina, morale loss based
     // on the attacker parameters
+    void personDied();
 protected:
     //Type
     quint32 m_id{0};

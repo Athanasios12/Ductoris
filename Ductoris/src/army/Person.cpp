@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <QQmlProperty>
 #include <cmath>
+#include <iostream>
 
 Person::Person()
 {
@@ -120,6 +121,16 @@ QPoint Person::getPosition() const
     return pos;
 }
 
+quint16 Person::getRotation() const
+{
+    quint16 rotation = 0;
+    if (m_uiItem)
+    {
+        rotation = static_cast<quint16>(m_uiItem->rotation()) % 360u;
+    }
+    return rotation;
+}
+
 quint16 Person::getWidth() const
 {
     quint16 width = 0;
@@ -138,16 +149,6 @@ quint16 Person::getHeight() const
         height = static_cast<quint16>(m_uiItem->height());
     }
     return height;
-}
-
-int Person::getRotation() const
-{
-    quint16 rotation = 0;
-    if (m_uiItem)
-    {
-        rotation = static_cast<quint16>(m_uiItem->rotation());
-    }
-    return rotation;
 }
 
 quint32 Person::getExp() const
@@ -267,23 +268,27 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
                     m_currentState != PersonState::Defending)
                 {
                     m_lockedOnEnemy = enemyUnit;
+                    connect(this, &Person::attackedEnemy,
+                            m_lockedOnEnemy.lock().get(), &Person::onAttackedByEnemy);
+                    connect(m_lockedOnEnemy.lock().get(), &Person::personDied,
+                            this, &Person::onLockedOnEnemyDied);
                     validEnemy = true;
                 }
             }
             else
             {
                 //attacking currently locked on enemy
-                validEnemy = true;
+                validEnemy = true;                
             }
             if (validEnemy)
-            {
+            {                
                 if (checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
                 {
                     m_currentState = PersonState::Attacking;
                     //do attacking stuff - damage, animation and so on
                     quint16 damage = calculateAttackDamage();
                     //Signal target about received damage
-                    AttackOrientation orientation;
+                    AttackOrientation orientation = getAttackOrientation();
                     emit attackedEnemy(m_id, damage, orientation,
                         m_weapons[m_currentWeaponIdx]->getWeaponType());
                     //Inform Ui
@@ -340,17 +345,22 @@ bool Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
     return false;
 }
 
-bool Person::calculateDamageResults(int damage)
+bool Person::calculateDamageResults(quint16 damage,
+                                    Person::AttackOrientation orientation,
+                                    Weapon::WeaponType weaponType)
 {
     return true;
 }
 
 bool Person::moraleCheck() const
 {
-    if (m_currentStats.m_morale < m_skillTree->
-        getMoraleRetreatThreshold(m_level))
+    if (m_skillTree)
     {
-        return false;
+        if (m_currentStats.m_morale < m_skillTree->
+            getMoraleRetreatThreshold(m_level))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -359,7 +369,22 @@ quint16 Person::calculateAttackDamage() const
 {
 //    return (m_currentStats.m_attack * m_skillTree->staminaAttackCoeff(m_currentStats.m_stamina)) +
 //    m_skillTree->stanceAttackModifier(m_currentState) + m_skillTree->skillModifier() +
-//    m_skillTree->perkModifier() + defenderOrientetionModifier();
+    //    m_skillTree->perkModifier() + defenderOrientetionModifier();
+    return 0;
+}
+
+Person::AttackOrientation Person::getAttackOrientation() const
+{
+    AttackOrientation orientation = AttackOrientation::Frontal;
+    if (!m_lockedOnEnemy.expired())
+    {
+        quint16 rotation = m_lockedOnEnemy.lock()->getRotation();
+        if (rotation)
+        {
+
+        }
+    }
+    return orientation;
 }
 
 void Person::onPositionChanged(int x, int y, int rotation)
@@ -428,7 +453,7 @@ void Person::onAttackedByEnemy(quint32 person_id, quint16 damage,
                                Weapon::WeaponType weaponType)
 {
     //calculate received damage
-    bool stillAlive = calculateDamageResults(damage); //damage modificators -
+    bool stillAlive = calculateDamageResults(damage, orientation, weaponType); //damage modificators -
     //are already calculated on attacker side - takes into accoutn their parameters
     //target state, orientation(target is attacked from side rear or front
     if (stillAlive)
@@ -477,6 +502,16 @@ void Person::onAttackedByEnemy(quint32 person_id, quint16 damage,
         //If unit is part of squadm inform squad members od its death,
         //lower the morale
         m_currentState = Dead;
+        emit personDied();
         emit personStateUpdate(Dead);
+    }
+}
+
+void Person::onLockedOnEnemyDied()
+{
+    if (!m_lockedOnEnemy.expired())
+    {
+        disconnect(this, nullptr, m_lockedOnEnemy.lock().get(), nullptr);
+        m_currentState = Idle;
     }
 }
