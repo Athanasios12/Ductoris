@@ -870,6 +870,9 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Death()
     QVERIFY(Person::PersonState::Idle == attacker->getCurrentState());
 }
 
+//Write a separate qml app that tests the collision mechanisms, draw areas
+// of every unit and show when clicked its coordinates system and view points
+// additionally visuallize collision tests
 //Interceptions during movement
 void PersonTests::TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Defending()
 {
