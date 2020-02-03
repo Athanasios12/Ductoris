@@ -206,50 +206,101 @@ void Person::addWeapon(std::unique_ptr<Weapon> &weapon)
     m_weapons.push_back(std::move(weapon));
 }
 
-void Person::move(int newX, int newY)
+void Person::fightingUpdate()
 {
-    if (m_uiItem && m_connectedToUi)
+    //If moving then do nothing, the command is ongoing
+    //when completed this object will be signalled by ui
+
+    //If the unit is fighting - attacking or defending this function needs
+    //to be called cyclicly to send damage info to its oponent
+    if (m_uiItem)
     {
-        auto x = m_uiItem->position().toPoint().x();
-        auto y = m_uiItem->position().toPoint().y();
-
-        //get this  - person width and height from the property of ui qmlItem
-        newX = newX - static_cast<int>(m_uiItem->width() / 2);
-        newY = newY - static_cast<int>(m_uiItem->height() / 2);
-
-        //replace with person member items
-        auto time = static_cast<int>(sqrt(pow(abs(newX - x), 2)
-            + pow(abs(newY - y), 2)) * m_currentStats.m_speed);
-        //rotation calculation
-        auto X_g = static_cast<double>(newX - x); //X in global coordinates
-        auto Y_g = static_cast<double>(newY - y); //Y in global coordinates
-        //transform to person coordinate system orientation
-        //custom rotation angle calculation for coordinates system with
-        // o------> x
-        // '
-        // '
-        // v y
-        auto Phi = static_cast<double>(m_uiItem->rotation());
-        auto X_p = ((X_g * cos((Phi / 180) * M_PI)) + (Y_g * sin((Phi / 180) * M_PI))); //x in local coordinates
-        auto Y_p = ((-X_g * sin((Phi / 180) * M_PI)) + (Y_g * cos((Phi / 180) * M_PI))); //y in local coordinates
-
-        int rotationAngle = 0;
-        if (X_p >= 0)
+        if ((PersonState::Attacking == m_currentState ||
+            PersonState::Defending == m_currentState) && !m_lockedOnEnemy.expired())
         {
-            rotationAngle = static_cast<int>(180 - ((atan2(X_p, Y_p) * 180) / M_PI));
+            //TODO - handle being attacked by multiple oponents,
+            //when new opponent attacks this unit and its already engaged
+            //it subscribes to its damage receive signal. The defender needs to
+            //know how many oponents its has to calculate how much damage is sent
+            //to each of them
+            auto enemyUnit = m_lockedOnEnemy.lock();
+            //check if locked on enemy is still alive
+            if (PersonState::Dead != enemyUnit->getCurrentState())
+            {
+                if (checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
+                {
+                    //do attacking stuff - damage, animation and so on
+                    quint16 damage = calculateAttackDamage();
+                    //Signal target about received damage
+                    AttackOrientation orientation = getAttackOrientation();
+                    emit attackedEnemy(m_id, damage, orientation,
+                        m_weapons[m_currentWeaponIdx]->getWeaponType());
+                }
+                else
+                {
+                    move(enemyUnit->getPosition().x(),
+                         enemyUnit->getPosition().y());
+                    m_currentState = PersonState::MovingToAttack;
+                    emit personStateUpdate(m_currentState);
+                }
+            }
         }
-        else
-        {
-            rotationAngle = static_cast<int>(-180 - ((atan2(X_p, Y_p) * 180) / M_PI));
-        }
-        //signal data change
-        m_destination.setX(newX);
-        m_destination.setY(newY);
-        m_currentState = PersonState::Moving;
-        updatePersonMovementData(newX, newY, time, rotationAngle);
     }
 }
 
+void Person::move(int newX, int newY)
+{
+    if (PersonState::Dead != m_currentState &&
+        PersonState::Retreating != m_currentState)
+    {
+        if (m_uiItem && m_connectedToUi)
+        {
+            auto x = m_uiItem->position().toPoint().x();
+            auto y = m_uiItem->position().toPoint().y();
+
+            //get this  - person width and height from the property of ui qmlItem
+            newX = newX - static_cast<int>(m_uiItem->width() / 2);
+            newY = newY - static_cast<int>(m_uiItem->height() / 2);
+
+            //replace with person member items
+            auto time = static_cast<int>(sqrt(pow(abs(newX - x), 2)
+                + pow(abs(newY - y), 2)) * m_currentStats.m_speed);
+            //rotation calculation
+            auto X_g = static_cast<double>(newX - x); //X in global coordinates
+            auto Y_g = static_cast<double>(newY - y); //Y in global coordinates
+            //transform to person coordinate system orientation
+            //custom rotation angle calculation for coordinates system with
+            // o------> x
+            // '
+            // '
+            // v y
+            auto Phi = static_cast<double>(m_uiItem->rotation());
+            auto X_p = ((X_g * cos((Phi / 180) * M_PI)) + (Y_g * sin((Phi / 180) * M_PI))); //x in local coordinates
+            auto Y_p = ((-X_g * sin((Phi / 180) * M_PI)) + (Y_g * cos((Phi / 180) * M_PI))); //y in local coordinates
+
+            int rotationAngle = 0;
+            if (X_p >= 0)
+            {
+                rotationAngle = static_cast<int>(180 - ((atan2(X_p, Y_p) * 180) / M_PI));
+            }
+            else
+            {
+                rotationAngle = static_cast<int>(-180 - ((atan2(X_p, Y_p) * 180) / M_PI));
+            }
+            //signal data change
+            m_destination.setX(newX);
+            m_destination.setY(newY);
+            m_currentState = PersonState::Moving;
+            updatePersonMovementData(newX, newY, time, rotationAngle);
+            if (PersonState::Moving != m_currentState)
+            {
+                emit personStateUpdate(m_currentState);
+            }
+        }
+    }
+}
+
+//called cycliccly by unit handler - remeber last unit command
 void Person::attack(std::shared_ptr<Person> &enemyUnit)
 {
     if (m_connectedToUi && enemyUnit)
@@ -284,15 +335,19 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
             {                
                 if (checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
                 {
-                    m_currentState = PersonState::Attacking;
+
                     //do attacking stuff - damage, animation and so on
                     quint16 damage = calculateAttackDamage();
                     //Signal target about received damage
                     AttackOrientation orientation = getAttackOrientation();
                     emit attackedEnemy(m_id, damage, orientation,
                         m_weapons[m_currentWeaponIdx]->getWeaponType());
-                    //Inform Ui
-                    emit personStateUpdate(m_currentState);
+                    //Inform Ui if state changed
+                    if (PersonState::Attacking != m_currentState)
+                    {
+                        m_currentState = PersonState::Attacking;
+                        emit personStateUpdate(m_currentState);
+                    }
                 }
                 else
                 {
@@ -367,9 +422,11 @@ bool Person::moraleCheck() const
 
 quint16 Person::calculateAttackDamage() const
 {
-//    return (m_currentStats.m_attack * m_skillTree->staminaAttackCoeff(m_currentStats.m_stamina)) +
-//    m_skillTree->stanceAttackModifier(m_currentState) + m_skillTree->skillModifier() +
-    //    m_skillTree->perkModifier() + defenderOrientetionModifier();
+    //TODO
+    //Take into account possible multiple opponents - damage reduce because of multiple targets
+    //return (m_currentStats.m_attack * m_skillTree->staminaAttackCoeff(m_currentStats.m_stamina)) +
+    //m_skillTree->stanceAttackModifier(m_currentState) + m_skillTree->skillModifier() +
+    //m_skillTree->perkModifier() + defenderOrientetionModifier();
     return 0;
 }
 
@@ -387,6 +444,11 @@ Person::AttackOrientation Person::getAttackOrientation() const
     return orientation;
 }
 
+void Person::retreat()
+{
+    //TODO
+}
+
 void Person::onPositionChanged(int x, int y, int rotation)
 {
     switch(m_currentState)
@@ -398,6 +460,8 @@ void Person::onPositionChanged(int x, int y, int rotation)
         {
             m_currentState = PersonState::Idle;
             //send stop to uiItem
+            //Inform Ui
+            emit personStateUpdate(m_currentState);
         }
         break;
     case MovingToAttack:
@@ -407,7 +471,10 @@ void Person::onPositionChanged(int x, int y, int rotation)
             if (checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
             {
                 m_currentState = PersonState::Attacking;
+                //Inform Ui
+                emit personStateUpdate(m_currentState);
                 //do attacking stuff - damage, animation and so on
+                attack(enemyUnit);
             }
             else
             {
@@ -424,7 +491,8 @@ void Person::onPositionChanged(int x, int y, int rotation)
         {
             //locked on enemy died or run away
             m_currentState = PersonState::Idle;
-            //send stop to uiItem
+            //Inform Ui
+            emit personStateUpdate(m_currentState);
         }
         break;
     case Attacking:
@@ -432,7 +500,8 @@ void Person::onPositionChanged(int x, int y, int rotation)
         {
             //locked on enemy died or run away
             m_currentState = PersonState::Idle;
-            //send stop to uiItem
+            //Inform Ui
+            emit personStateUpdate(m_currentState);
         }
         else
         {
@@ -464,7 +533,8 @@ void Person::onAttackedByEnemy(quint32 person_id, quint16 damage,
             if (Retreating != m_currentState)
             {
                 //unit morale too low, flee
-                m_currentState = Retreating;
+                m_currentState = Retreating;                
+                retreat();
                 emit personStateUpdate(Retreating);
             }
         }

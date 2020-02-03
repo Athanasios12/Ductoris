@@ -61,7 +61,7 @@ public:
     virtual void changeArmor(Armor &armor);
     virtual void addWeapon(std::unique_ptr<Weapon> &weapon);
 
-
+    virtual void fightingUpdate();
     virtual void move(int newX, int newY);
     virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
 protected:
@@ -76,6 +76,7 @@ protected:
     //when attacked by enemy
     virtual quint16 calculateAttackDamage() const;
     virtual AttackOrientation getAttackOrientation() const;
+    virtual void retreat();
 public slots:
     void onPositionChanged(int x, int y, int rotation);
     void onAttackedByEnemy(quint32 person_id, quint16 damage,
@@ -118,6 +119,7 @@ protected:
     quint8 m_currentWeaponIdx{0};
     //location
     QPoint m_destination{0, 0};
+    quint8 m_numOfOpponents{0};
     std::weak_ptr<Person> m_lockedOnEnemy;
     //qml uiItem data
     std::unique_ptr<QQuickItem> m_uiItem{nullptr};

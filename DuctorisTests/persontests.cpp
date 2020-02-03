@@ -580,7 +580,76 @@ void PersonTests::TestCase_Person_attack_OponnentInRange_MovingToAttack_To_Attac
 
 void PersonTests::TestCase_Person_attack_OponnentInRange_Attacking_To_MovingToAttack()
 {
+    //this transitions occurs if enemy moved out of our attacking range -
+    //disenaged or retreating. Unit will automaticly pursue enemy if
+    //that was ordered or unit type is not disciplined
+    std::shared_ptr<Person> defender(new TestStub_Person);
+    std::shared_ptr<Person> attacker(new TestStub_Person);
 
+    //Fake Ui Item
+    std::unique_ptr<QQuickItem> defenderUiItem(new QQuickItem);
+    std::unique_ptr<QQuickItem> attackerUiItem(new QQuickItem);
+
+    const QPoint defenderPos(100, 110); //person position in global coordinates
+    const QPoint attackerPos(100, 100);
+    //person range depends on his size and the size of his currently held weapon
+    const QSize personSize(10, 10);
+    const QPoint personArmPosition(8, 8); // arm position in person coordinates system
+    const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSize weaponSize(2, 6);
+    // in person's arm local coordinates system - its centered so that it fits evenly
+    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+                              static_cast<int>(weaponSize.width() / 2),
+                              personArmSize.height());
+    //transform it to person coordinates system
+    weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
+    weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
+
+    std::unique_ptr<Weapon> attackerWeapon(new Weapon);
+    std::unique_ptr<Weapon> defenderWeapon(new Weapon);
+
+    attackerWeapon->setSize(weaponSize);
+    attacker->addWeapon(attackerWeapon);
+    defenderWeapon->setSize(weaponSize);
+    defender->addWeapon(defenderWeapon);
+
+    defenderUiItem->setSize(personSize);
+    defenderUiItem->setPosition(defenderPos);
+    attackerUiItem->setSize(personSize);
+    attackerUiItem->setPosition(attackerPos);
+
+    defender->setUiItem(defenderUiItem);
+    attacker->setUiItem(attackerUiItem);
+    //Set weapon achors for tests manually, normaly read from qml property
+    static_cast<TestStub_Person*>(defender.get())->
+        tst_setWeaponAchorPoint(weaponPersonAnchor);
+    static_cast<TestStub_Person*>(attacker.get())->
+        tst_setWeaponAchorPoint(weaponPersonAnchor);
+
+    QSignalSpy attackedSpy(attacker.get(), &TestStub_Person::attackedEnemy);
+    QSignalSpy defenderStateUpdateSpy(defender.get(),
+                                      &TestStub_Person::personStateUpdate);
+
+    //Initialize
+    static_cast<TestStub_Person*>(attacker.get())->tst_setPersonState(
+        Person::PersonState::MovingToAttack);
+    static_cast<TestStub_Person*>(defender.get())->tst_setPersonState(
+        Person::PersonState::Defending);
+
+    //stub morale check - flee
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
+    static_cast<TestStub_Person*>(defender.get())->tst_set_retreat_UseStub(true);
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(false);
+
+    attacker->attack(defender);
+
+    QCOMPARE(attackedSpy.count(), 1u);
+    QCOMPARE(defenderStateUpdateSpy.count(), 1u);
+    QVERIFY(Person::PersonState::Retreating == defender->getCurrentState());
+    QVERIFY(Person::PersonState::Attacking == attacker->getCurrentState());
+    //this update would be called cyclicly for every unit in game in separate thread
+    attacker->fightingUpdate();
+    QVERIFY(Person::PersonState::MovingToAttack == attacker->getCurrentState());
 }
 
 void PersonTests::TestCase_Person_attack_OponnentInRange_Attacking_To_Idle()
@@ -866,6 +935,7 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Death()
     QCOMPARE(defenderStateUpdateSpy.count(), 1u);
     QCOMPARE(attackerStateUpdateSpy.count(), 1u);
     QCOMPARE(defenderDiedSpy.count(), 1u);
+    QThread::msleep(500);
     QVERIFY(Person::PersonState::Dead == defender->getCurrentState());
     QVERIFY(Person::PersonState::Idle == attacker->getCurrentState());
 }

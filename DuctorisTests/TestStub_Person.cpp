@@ -34,6 +34,11 @@ void TestStub_Person::tst_set_calculateAttackDamage_Return(uint16_t calculateDam
     m_tst_calculateAttackDamage_ReturnVal = calculateDamageResultsReturn;
 }
 
+void TestStub_Person::tst_set_getAttackOrientation_Return(Person::AttackOrientation attackOrientationReturn)
+{
+    m_tst_getAttackOrientation_ReturnVal = attackOrientationReturn;
+}
+
 void TestStub_Person::tst_set_moraleCheck_UseStub(bool useStub)
 {
     m_tst_useStub_moraleCheck = useStub;
@@ -47,6 +52,16 @@ void TestStub_Person::tst_set_calculateDamageResults_UseStub(bool useStub)
 void TestStub_Person::tst_set_calculateAttackDamage_UseStub(bool useStub)
 {
     m_tst_useStub_calculateDamageResults = useStub;
+}
+
+void TestStub_Person::tst_set_getAttackOrientation_UseStub(bool useStub)
+{
+    m_tst_useStub_getAttackOrientation = useStub;
+}
+
+void TestStub_Person::tst_set_retreat_UseStub(bool useStub)
+{
+    m_tst_useStub_retreat = useStub;
 }
 
 bool TestStub_Person::moraleCheck() const
@@ -126,5 +141,21 @@ uint16_t TestStub_Person::calculateAttackDamage() const
 
 Person::AttackOrientation TestStub_Person::getAttackOrientation() const
 {
+    return m_tst_getAttackOrientation_ReturnVal;
+}
 
+void TestStub_Person::retreat()
+{
+    if (m_tst_useStub_retreat)
+    {
+        //move the unit to go out of attack range
+        if (m_uiItem)
+        {
+            m_uiItem->setPosition(m_uiItem->position() * 2);
+        }
+    }
+    else
+    {
+        Person::retreat();
+    }
 }
