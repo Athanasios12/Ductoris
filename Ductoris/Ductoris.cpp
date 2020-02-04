@@ -80,7 +80,7 @@ Ductoris *Ductoris::getInstance()
 
 bool Ductoris::addNewUnit()
 {
-
+    return true;
 }
 
 void Ductoris::onChosenLeader(int leaderType)

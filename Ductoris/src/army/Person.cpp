@@ -6,18 +6,23 @@
 #include <cmath>
 #include <iostream>
 
-Person::Person()
-{
+quint32 Person::m_new_id = 1;
 
+Person::Person():
+    m_id{m_new_id}
+{
+    ++m_new_id;
 }
 
 Person::Person(const Person &other):
+    m_id{m_new_id},
     m_type(other.m_type),
     m_currentStats(other.m_currentStats),
     m_exp(other.m_exp),
     m_level(other.m_level),
     m_armor(other.m_armor)
 {
+    ++m_new_id;
     //add m_skillTree copying - skillTree factory or skill tree builder
     for(auto && weapon : other.m_weapons)
     {
@@ -33,6 +38,8 @@ Person &Person::operator=(const Person &other)
 {
     if (this != &other)
     {
+        m_id = m_new_id;
+        ++m_new_id;
         m_type = other.m_type;
         m_currentStats = other.m_currentStats;
         m_exp = other.m_exp;
@@ -51,6 +58,7 @@ Person &Person::operator=(const Person &other)
 }
 
 Person::Person(Person &&other):
+    m_id{other.m_id},
     m_type(other.m_type),
     m_currentStats(other.m_currentStats),
     m_exp(other.m_exp),
@@ -59,6 +67,7 @@ Person::Person(Person &&other):
     other.m_currentStats = SkillTree::UnitStats();
     other.m_exp = 0;
     other.m_level = 0;
+    other.m_id = 0;
     m_armor = std::move(other.m_armor);
     m_weapons = std::move(other.m_weapons);
 }
@@ -67,10 +76,12 @@ Person &Person::operator=(Person &&other)
 {
     if (this != &other)
     {
+        m_id = other.m_id;
         m_type = other.m_type;
         m_currentStats = other.m_currentStats;
         m_exp = other.m_exp;
         m_level = other.m_level;
+        other.m_id = 0;
         other.m_currentStats = SkillTree::UnitStats();
         other.m_exp = 0;
         other.m_level = 0;
@@ -291,17 +302,13 @@ void Person::move(int newX, int newY)
             m_destination.setX(newX);
             m_destination.setY(newY);
             m_currentState = PersonState::Moving;
-            updatePersonMovementData(newX, newY, time, rotationAngle);
-            if (PersonState::Moving != m_currentState)
-            {
-                emit personStateUpdate(m_currentState);
-            }
+            emit personStateUpdate(m_currentState);
+            emit updatePersonMovementData(newX, newY, time, rotationAngle);
         }
     }
 }
 
-//called cycliccly by unit handler - remeber last unit command
-void Person::attack(std::shared_ptr<Person> &enemyUnit)
+void Person::attack(std::shared_ptr<Person> enemyUnit)
 {
     if (m_connectedToUi && enemyUnit)
     {
@@ -335,19 +342,15 @@ void Person::attack(std::shared_ptr<Person> &enemyUnit)
             {                
                 if (checkIfEnemyInWeaponRange(enemyUnit->m_uiItem.get()))
                 {
-
+                    //Inform Ui if state changed
+                    m_currentState = PersonState::Attacking;
                     //do attacking stuff - damage, animation and so on
                     quint16 damage = calculateAttackDamage();
                     //Signal target about received damage
                     AttackOrientation orientation = getAttackOrientation();
                     emit attackedEnemy(m_id, damage, orientation,
                         m_weapons[m_currentWeaponIdx]->getWeaponType());
-                    //Inform Ui if state changed
-                    if (PersonState::Attacking != m_currentState)
-                    {
-                        m_currentState = PersonState::Attacking;
-                        emit personStateUpdate(m_currentState);
-                    }
+                    emit personStateUpdate(m_currentState);
                 }
                 else
                 {

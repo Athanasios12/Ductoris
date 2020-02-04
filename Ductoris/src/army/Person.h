@@ -31,7 +31,8 @@ public:
     //damage modificator on attacker side
     enum AttackOrientation
     {
-        Frontal = 0, // <140; 220> degrees related to orientation of target
+        Invalid = 0,
+        Frontal,     // <140; 220> degrees related to orientation of target
         Flank,       // <40; 140) u (220; 320>
         Rear         // (320; 40)
     };
@@ -63,7 +64,7 @@ public:
 
     virtual void fightingUpdate();
     virtual void move(int newX, int newY);
-    virtual void attack(std::shared_ptr<Person> &enemyUnit); //attack and lock on enemy
+    virtual void attack(std::shared_ptr<Person> enemyUnit); //attack and lock on enemy
 protected:
     virtual bool checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem);
     virtual bool calculateDamageResults(quint16 damage,
@@ -106,6 +107,7 @@ signals:
 protected:
     //Type
     quint32 m_id{0};
+    static quint32 m_new_id;
     DuctorisTypes::ArmyType m_type;
     std::unique_ptr<SkillTree> m_skillTree{nullptr};
     //Person Stats

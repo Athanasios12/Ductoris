@@ -127,7 +127,25 @@ bool TestStub_Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
     return false;
 }
 
-uint16_t TestStub_Person::calculateAttackDamage() const
+Person::AttackOrientation TestStub_Person::tst_get_sentAttack_Orienation() const
+{
+    return m_tst_sentAttack_Orientation;
+}
+
+quint16 TestStub_Person::tst_get_sentAttack_Damage() const
+{
+    return m_tst_sentAttack_Damage;
+}
+
+void TestStub_Person::onSentAttackEnemy(quint32 person_id, quint16 damage,
+                                        Person::AttackOrientation orientation,
+                                        Weapon::WeaponType weaponType)
+{
+    m_tst_sentAttack_Damage = damage;
+    m_tst_sentAttack_Orientation = orientation;
+}
+
+quint16 TestStub_Person::calculateAttackDamage() const
 {
     if (m_tst_useStub_calculateAttackDamage)
     {

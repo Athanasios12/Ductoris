@@ -67,9 +67,6 @@ private slots:
     //disenaged or retreating. Unit will automaticly pursue enemy if
     //that was ordered or unit type is not disciplined
     void TestCase_Person_attack_OponnentInRange_Attacking_To_MovingToAttack();
-    //Killed engaged unit or the unit ran away and the person is disciplined
-    //and was ordered not too pursue the fleeing enemy.
-    void TestCase_Person_attack_OponnentInRange_Attacking_To_Idle();
 
     void TestCase_Person_onAttackedByEnemy_Idle_To_Defending();
     void TestCase_Person_onAttackedByEnemy_Defending_To_Retreat();
