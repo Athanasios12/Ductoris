@@ -115,12 +115,18 @@ bool TestStub_Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
                             mapToItem(
                                 enemyUiItem,
                                 QPoint{x_weapon, y_weapon}).toPoint();
+
                         if (enemyUiItem->contains(weaponPosInEnemyCoords))
                         {
                             return true;
                         }
-                    }
+                    }                    
                 }
+                auto weaponPosInEnemyCoords = m_uiItem->
+                    mapToItem(
+                        enemyUiItem,
+                        QPoint{0, 0}).toPoint();
+                fprintf(stderr, "\nx: %d, y: %d\n", weaponPosInEnemyCoords.x(), weaponPosInEnemyCoords.y());
             }
         }
     }
@@ -159,7 +165,11 @@ quint16 TestStub_Person::calculateAttackDamage() const
 
 Person::AttackOrientation TestStub_Person::getAttackOrientation() const
 {
-    return m_tst_getAttackOrientation_ReturnVal;
+    if (m_tst_useStub_getAttackOrientation)
+    {
+        return m_tst_getAttackOrientation_ReturnVal;
+    }
+    return Person::getAttackOrientation();
 }
 
 void TestStub_Person::retreat()

@@ -122,12 +122,12 @@ quint32 Person::getId() const
     return m_id;
 }
 
-QPoint Person::getPosition() const
+QPointF Person::getPosition() const
 {
-    QPoint pos(0, 0);
+    QPointF pos{0, 0};
     if (m_uiItem)
     {
-        pos = m_uiItem->position().toPoint();
+        pos = m_uiItem->position();
     }
     return pos;
 }
@@ -435,13 +435,85 @@ quint16 Person::calculateAttackDamage() const
 
 Person::AttackOrientation Person::getAttackOrientation() const
 {
-    AttackOrientation orientation = AttackOrientation::Frontal;
+    AttackOrientation orientation = AttackOrientation::Invalid;
     if (!m_lockedOnEnemy.expired())
     {
-        quint16 rotation = m_lockedOnEnemy.lock()->getRotation();
-        if (rotation)
+        const qreal theta = (40.0 / 180.0) * M_PI; //angle used to define attack areas
+        //get position of locked on enemy in person local coordinates
+        //maps the center of enemy in its local coordinates system to this persons
+        //local coordinates system
+        auto personWidth = m_uiItem->width();
+        auto personHeight = m_uiItem->height();
+        auto enemy = m_lockedOnEnemy.lock();
+        QPointF enemyPosition = enemy->m_uiItem->mapToItem(m_uiItem.get(),
+            QPointF{personWidth / 2, personHeight / 2});
+        //Now the enemy position is in person local coordinates system
+        //check in which region it is - Front, Flank or Rear
+        if (enemyPosition.x() > personWidth && enemyPosition.y() > personHeight)
         {
-
+            auto rotPos = transformToRotatedAxis(enemyPosition, (M_PI / 2) - theta);
+            if (rotPos.x() + (personHeight * cos(theta)) - (personWidth * sin(theta)) > 0)
+            {
+                orientation = AttackOrientation::Flank;
+            }
+            else
+            {
+                orientation = AttackOrientation::Frontal;
+            }
+        }
+        else if (enemyPosition.x() > personWidth && enemyPosition.y() < 0)
+        {
+            auto rotPos = transformToRotatedAxis(enemyPosition, (M_PI / 2) + theta);
+            if (rotPos.x() + (personWidth * sin(theta)) > 0)
+            {
+                orientation = AttackOrientation::Flank;
+            }
+            else
+            {
+                orientation = AttackOrientation::Frontal;
+            }
+        }
+        else if (enemyPosition.x() < 0 && enemyPosition.y() < 0)
+        {
+            auto rotPos = transformToRotatedAxis(enemyPosition, (M_PI / 2) - theta);
+            if (rotPos.x() > 0)
+            {
+                orientation = AttackOrientation::Rear;
+            }
+            else
+            {
+                orientation = AttackOrientation::Flank;
+            }
+        }
+        else if (enemyPosition.x() < 0 && enemyPosition.y() > personHeight)
+        {
+            auto rotPos = transformToRotatedAxis(enemyPosition, (M_PI / 2) + theta);
+            if (rotPos.x() + (personHeight * cos(theta)) > 0)
+            {
+                orientation = AttackOrientation::Flank;
+            }
+            else
+            {
+                orientation = AttackOrientation::Frontal;
+            }
+        }
+        else
+        {
+            if (enemyPosition.x() <= personWidth && enemyPosition.x() >= 0 &&
+                enemyPosition.y() >= personHeight)
+            {
+                orientation = AttackOrientation::Frontal;
+            }
+            else if (enemyPosition.x() <= personWidth && enemyPosition.x() >= 0 &&
+                     enemyPosition.y() < 0)
+            {
+                orientation = AttackOrientation::Rear;
+            }
+            else if ((enemyPosition.x() >= personWidth || enemyPosition.x() <= 0)
+                    && enemyPosition.y() >= 0 && enemyPosition.y() <= personHeight)
+            {
+                orientation = AttackOrientation::Flank;
+            }
         }
     }
     return orientation;
@@ -450,6 +522,18 @@ Person::AttackOrientation Person::getAttackOrientation() const
 void Person::retreat()
 {
     //TODO
+}
+
+QPointF Person::transformToRotatedAxis(const QPointF &pos, qreal angleRadians) const
+{
+    qreal R = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
+    QPointF rotPos = pos;
+
+    qreal alpha = atan2(pos.y(), pos.x());
+    rotPos.setX(R * cos(alpha + angleRadians));
+    rotPos.setY(R * sin(alpha + angleRadians));
+
+    return rotPos;
 }
 
 void Person::onPositionChanged(int x, int y, int rotation)

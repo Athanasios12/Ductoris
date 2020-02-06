@@ -12,8 +12,8 @@ def convertDegree2Radian(beta):
     return (beta * math.pi) / 180
 
 def getInitAxis(x, y):
-    ax = np.linspace(-x * 2, x * 2)
-    ay = np.linspace(-y * 2, y * 2)
+    ax = np.linspace(-x * 3, x * 3)
+    ay = np.linspace(-y * 3, y * 3)
 
     px = np.zeros(len(ax))
     py = np.zeros(len(ay))
@@ -149,7 +149,7 @@ def checkRegion(x, y, w, h, theta):
         elif x >= 0 and x <= w and y < 0:
             color = region_colors['Rear']
     #TODO - draw the color and point, and name of region in which it is
-    plt.text(x + 1, -y - 2, r'XY= {0:.1f}; {1:.1f}'.format(*[ x, y]))
+    #plt.text(x + 1, -y - 2, r'XY= {0:.1f}; {1:.1f}'.format(*[ x, y]))
     plt.plot([x], [-y], color)
     
     return
@@ -246,9 +246,9 @@ if len(sys.argv) > 3:
         # checkRegion(15, 15, x, y, theta)
         # checkRegion(5, 20, x, y, theta)
         # checkRegion(-5, 15, x, y, theta)
-        for i in range(20):
-            checkRegion(-(x / 2), (y * 1.5) - (i * 2), x, y, theta)
-            checkRegion(x * 1.5, (y * 1.5) - (i * 2), x, y, theta)
-            checkRegion(-x * 1.5 + (i * 2), -(x / 2), x, y, theta)
-            checkRegion(-x * 1.5 + (i * 2), y * 1.5, x, y, theta)
+        for i in range(40):
+            checkRegion(-(x / 2), (y * 1.5) - (i), x, y, theta)
+            checkRegion(x * 1.5, (y * 1.5) - (i), x, y, theta)
+            checkRegion(-x * 1.5 + (i), -(x / 2), x, y, theta)
+            checkRegion(-x * 1.5 + (i), y * 1.5, x, y, theta)
         plt.show()

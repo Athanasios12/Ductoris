@@ -48,7 +48,7 @@ public:
     bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);
 
     quint32 getId() const;
-    QPoint getPosition() const;
+    QPointF getPosition() const;
     quint16 getRotation() const;
     quint16 getWidth() const;
     quint16 getHeight() const;
@@ -78,6 +78,8 @@ protected:
     virtual quint16 calculateAttackDamage() const;
     virtual AttackOrientation getAttackOrientation() const;
     virtual void retreat();
+
+    QPointF transformToRotatedAxis(const QPointF &pos, qreal angleRadians) const;
 public slots:
     void onPositionChanged(int x, int y, int rotation);
     void onAttackedByEnemy(quint32 person_id, quint16 damage,
