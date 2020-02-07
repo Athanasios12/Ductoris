@@ -1,8 +1,8 @@
-QT += quick
+QT += quick qml
 
 QT += testlib
 
-CONFIG += c++17 console
+CONFIG += c++17 gui -O0
 CONFIG += test
 CONFIG -= app_bundle
 

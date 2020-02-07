@@ -64,6 +64,11 @@ void TestStub_Person::tst_set_retreat_UseStub(bool useStub)
     m_tst_useStub_retreat = useStub;
 }
 
+void TestStub_Person::tst_set_checkIfEnemyInWeaponRange_UseStub(bool useStub)
+{
+    m_tst_useStub_checkIfEnemyInWeaponRange = useStub;
+}
+
 bool TestStub_Person::moraleCheck() const
 {
     if (m_tst_useStub_moraleCheck)
@@ -92,45 +97,47 @@ bool TestStub_Person::calculateDamageResults(quint16 damage,
 
 bool TestStub_Person::checkIfEnemyInWeaponRange(const QQuickItem *enemyUiItem)
 {
-    if (m_uiItem && enemyUiItem)
+    if (m_tst_useStub_checkIfEnemyInWeaponRange)
     {
-        if (!m_weapons.empty())
+        if (m_uiItem && enemyUiItem)
         {
-            auto &currentWeapon = m_weapons[m_currentWeaponIdx];
-            if (currentWeapon)
+            if (!m_weapons.empty())
             {
-                int weaponWidth = currentWeapon->getSize().width();
-                int weaponHeight = currentWeapon->getSize().height();
-                //Weapon achor point is its bottom left corner and
-                //its position is in person coordinates system
-                //Normally the anchor is read from QML property
-                //for testing this is set manually with "setWeaponAchorPoint"
-                const int x0 = m_weaponAnchorPoint.x();
-                const int y0 = m_weaponAnchorPoint.y();
-                for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)
+                auto &currentWeapon = m_weapons[m_currentWeaponIdx];
+                if (currentWeapon)
                 {
-                    for(int y_weapon = y0; y_weapon <= weaponHeight + y0; y_weapon++)
+                    int weaponWidth = currentWeapon->getSize().width();
+                    int weaponHeight = currentWeapon->getSize().height();
+                    //Weapon achor point is its bottom left corner and
+                    //its position is in person coordinates system
+                    //Normally the anchor is read from QML property
+                    //for testing this is set manually with "setWeaponAchorPoint"
+                    const int x0 = m_weaponAnchorPoint.x();
+                    const int y0 = m_weaponAnchorPoint.y();
+                    for(int x_weapon = x0; x_weapon <= weaponWidth + x0; x_weapon++)
                     {
-                        auto weaponPosInEnemyCoords = m_uiItem->
-                            mapToItem(
-                                enemyUiItem,
-                                QPoint{x_weapon, y_weapon}).toPoint();
-
-                        if (enemyUiItem->contains(weaponPosInEnemyCoords))
+                        for(int y_weapon = y0; y_weapon <= weaponHeight + y0; y_weapon++)
                         {
-                            return true;
+                            auto weaponPosInEnemyCoords = m_uiItem->
+                                mapToItem(
+                                    enemyUiItem,
+                                    QPoint{x_weapon, y_weapon});
+
+                            if (enemyUiItem->contains(weaponPosInEnemyCoords))
+                            {
+                                return true;
+                            }
                         }
-                    }                    
+                    }
                 }
-                auto weaponPosInEnemyCoords = m_uiItem->
-                    mapToItem(
-                        enemyUiItem,
-                        QPoint{0, 0}).toPoint();
-                fprintf(stderr, "\nx: %d, y: %d\n", weaponPosInEnemyCoords.x(), weaponPosInEnemyCoords.y());
             }
         }
+        return false;
     }
-    return false;
+    else
+    {
+        return Person::checkIfEnemyInWeaponRange(enemyUiItem);
+    }
 }
 
 Person::AttackOrientation TestStub_Person::tst_get_sentAttack_Orienation() const

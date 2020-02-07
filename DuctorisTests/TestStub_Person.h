@@ -15,7 +15,7 @@ public:
     void tst_set_moraleCheck_Return(bool moraleCheckReturn);
     void tst_set_calculateDamageResults_Return(bool calculateDamageResultsReturn);
     void tst_set_calculateAttackDamage_Return(uint16_t calculateDamageResultsReturn);
-    void tst_set_getAttackOrientation_Return(AttackOrientation attackOrientationReturn);    
+    void tst_set_getAttackOrientation_Return(AttackOrientation attackOrientationReturn);
 
     //disable, enable stubbed method
     void tst_set_moraleCheck_UseStub(bool useStub);
@@ -23,6 +23,7 @@ public:
     void tst_set_calculateAttackDamage_UseStub(bool useStub);
     void tst_set_getAttackOrientation_UseStub(bool useStub);
     void tst_set_retreat_UseStub(bool useStub);
+    void tst_set_checkIfEnemyInWeaponRange_UseStub(bool useStub);
 
     //method stubs
     bool moraleCheck() const override;
@@ -55,6 +56,7 @@ private:
     bool m_tst_useStub_calculateAttackDamage{false};
     bool m_tst_useStub_getAttackOrientation{false};
     bool m_tst_useStub_retreat{false};
+    bool m_tst_useStub_checkIfEnemyInWeaponRange{true};
 };
 
 #endif // TESTSTUB_PERSON_H

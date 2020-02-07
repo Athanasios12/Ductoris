@@ -1,10 +1,14 @@
-import QtQuick 2.6
+import QtQuick 2.12
 
 //ustaw żeby frame rate sprite'a zalezal od szybkosc speed ktora tez mowi o tym jak szybko sie przemieszcza
 //dodaj rotację - atan(dx/dy) - kat obrotu dla nowej pozycji(liczona od srodka sprite'a)
 //predkosc rotacji jest stala i bazuje na predkosci przemieszczania jednostki - speed ->anglespeed
 //Zrobic z sprite sequence osobny plik qml tak aby mozna było tworzyć ich wiele na mapie, generycznie z parametryzowanych
 //
+
+//In future make person not one sprite but do a separate sprite for
+//arms that hold weapon and are animated separatly from body. Separate sprites
+//will be defined for armor elements and shield for second hand
 Rectangle
 {
     id: person
@@ -21,12 +25,26 @@ Rectangle
     property int time: 0
     property int gameCanvasWidth: 0
     property int gameCanvasHeight: 0
+    property point primaryWeaponAnchorPoint: Qt.point(0, 0)
     //id aliases - to access from different file
     property alias personSpriteSequence: personSpriteSequence
     property alias personAnimation: personAnimation
     //signals
     signal finished
     signal positionChanged(int x, int y, int rotation)
+
+    //this properties for weapon will be removed from here, temporary for testing
+    property size weaponSize: Qt.size(0, 0)
+    Rectangle
+    {
+        //later on put this in separate file, add sprite
+        id: weapon
+        width: person.weaponSize.width
+        height: person.weaponSize.height
+        x: person.primaryWeaponAnchorPoint.x
+        y: person.primaryWeaponAnchorPoint.y
+        color: "steelblue"
+    }
 
     //funtion that can be connected to from backend c++ class
     function onSetSpeed(speed)

@@ -6,11 +6,13 @@
 #include <QQmlComponent>
 #include <QQmlApplicationEngine>
 #include <QSignalSpy>
+#include <QQuickWindow>
 
 void PersonTests::initTestCase()
 {
-   qRegisterMetaType<Person::AttackOrientation>();
-   qRegisterMetaType<Weapon::WeaponType>();
+    //register whose enums to use them in Person signals
+    qRegisterMetaType<Person::AttackOrientation>();
+    qRegisterMetaType<Weapon::WeaponType>();
 }
 
 void PersonTests::TestCase_Person_DeafultContructor()
@@ -917,7 +919,7 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_Death()
         Person::PersonState::MovingToAttack);
     static_cast<TestStub_Person*>(defender.get())->tst_setPersonState(
         Person::PersonState::Defending);
-y0 + weaponHeight
+
     //stub morale check - defended
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(true);
@@ -1058,6 +1060,12 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Def
     defenderWeapon->setSize(weaponSize);
     defender->addWeapon(defenderWeapon);
 
+    //Set weapon achors for tests manually, normaly read from qml property
+    QQmlProperty::write(defenderUiItem.get(), "PrimaryWeaponAnchorPoint", weaponPersonAnchor);
+    QQmlProperty::write(defenderUiItem.get(), "weaponSize", weaponSize);
+    QQmlProperty::write(attackerUiItem.get(), "PrimaryWeaponAnchorPoint", weaponPersonAnchor);
+    QQmlProperty::write(attackerUiItem.get(), "weaponSize", weaponSize);
+
     defenderUiItem->setSize(personSize);
     defenderUiItem->setPosition(defenderPos);
     defenderUiItem->setRotation(defenderRotation);
@@ -1065,13 +1073,16 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Def
     attackerUiItem->setPosition(attackerPos);
     attackerUiItem->setRotation(attackerRotation);
 
+    auto pos0 = defenderUiItem->mapToItem(attackerUiItem.get(), QPointF{0, 0});
+    auto pos1 = attackerUiItem->mapToItem(defenderUiItem.get(), QPointF{0, 0});
+    fprintf(stderr, "\ndef(%f, %f) att(%f, %f)\n", defenderUiItem->position().x(),
+            defenderUiItem->position().y(), attackerUiItem->position().x(),
+            attackerUiItem->position().y());
+
+    fprintf(stderr, "In def coords : att(%f, %f)\n", pos1.x(), pos1.y());
+    fprintf(stderr, "In att coords : def(%f, %f)\n", pos0.x(), pos0.y());
     defender->setUiItem(defenderUiItem);
     attacker->setUiItem(attackerUiItem);
-    //Set weapon achors for tests manually, normaly read from qml property
-    static_cast<TestStub_Person*>(defender.get())->
-        tst_setWeaponAchorPoint(weaponPersonAnchor);
-    static_cast<TestStub_Person*>(attacker.get())->
-        tst_setWeaponAchorPoint(weaponPersonAnchor);
 
     QObject::connect(static_cast<TestStub_Person*>(attacker.get()),
                      &TestStub_Person::attackedEnemy,
@@ -1092,6 +1103,7 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Def
     //stub morale check - defended
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(true);
+    static_cast<TestStub_Person*>(attacker.get())->tst_set_checkIfEnemyInWeaponRange_UseStub(false);
 
     attacker->attack(defender);
 
@@ -1252,4 +1264,9 @@ void PersonTests::TestCase_Person_MoveContructor()
 void PersonTests::TestCase_Person_MoveAssignment()
 {
 
+}
+
+void PersonTests::setQmlQuickView(QQuickView *view)
+{
+    _view = view;
 }

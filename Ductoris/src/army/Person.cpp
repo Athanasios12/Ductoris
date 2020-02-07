@@ -110,7 +110,7 @@ bool Person::setUiItem(std::unique_ptr<QQuickItem> &uiItem)
         connect(m_uiItem.get(), SIGNAL(positionChanged(int, int, int)), this,
                 SLOT(onPositionChanged(int,int,int)));
         //get uiItem weapon anchor point
-        m_weaponAnchorPoint = QQmlProperty::read(m_uiItem.get(), "PrimaryWeaponAnchorPoint").toPoint();
+        m_weaponAnchorPoint = QQmlProperty::read(m_uiItem.get(), "primaryWeaponAnchorPoint").toPoint();
         m_connectedToUi = true;
         uiSet = true;
     }
@@ -266,8 +266,8 @@ void Person::move(int newX, int newY)
     {
         if (m_uiItem && m_connectedToUi)
         {
-            auto x = m_uiItem->position().toPoint().x();
-            auto y = m_uiItem->position().toPoint().y();
+            auto x = m_uiItem->position().x();
+            auto y = m_uiItem->position().y();
 
             //get this  - person width and height from the property of ui qmlItem
             newX = newX - static_cast<int>(m_uiItem->width() / 2);
@@ -289,15 +289,8 @@ void Person::move(int newX, int newY)
             auto X_p = ((X_g * cos((Phi / 180) * M_PI)) + (Y_g * sin((Phi / 180) * M_PI))); //x in local coordinates
             auto Y_p = ((-X_g * sin((Phi / 180) * M_PI)) + (Y_g * cos((Phi / 180) * M_PI))); //y in local coordinates
 
-            int rotationAngle = 0;
-            if (X_p >= 0)
-            {
-                rotationAngle = static_cast<int>(180 - ((atan2(X_p, Y_p) * 180) / M_PI));
-            }
-            else
-            {
-                rotationAngle = static_cast<int>(-180 - ((atan2(X_p, Y_p) * 180) / M_PI));
-            }
+            auto rotationAngle = -(atan2(X_p, Y_p) * 180) / M_PI;
+
             //signal data change
             m_destination.setX(newX);
             m_destination.setY(newY);

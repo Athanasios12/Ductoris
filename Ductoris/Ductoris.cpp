@@ -155,48 +155,46 @@ void Ductoris::onGameStarted()
         QQmlComponent leaderUiComponent(m_engine.get(), QUrl(PERSON_QML_SRC_FILENAME));
         if ( leaderUiComponent.status() == QQmlComponent::Ready)
         {
+            //sprite size will be read from config file later
+            const QSize spriteSize{100, 100};
             std::unique_ptr<QQuickItem> leaderUiItem(qobject_cast<QQuickItem*>(leaderUiComponent.create()));
             leaderUiItem->setParentItem(gameCanvas);
-            leaderUiItem->setSize(QSize(100, 100));
+            leaderUiItem->setSize(spriteSize);
 
-            QQuickItem* personRotated_90 = qobject_cast<QQuickItem*>(leaderUiComponent.create());
-            personRotated_90->setParentItem(gameCanvas);
-            personRotated_90->setSize(QSize(100, 100));
-
-            QQuickItem* personRotated_180 = qobject_cast<QQuickItem*>(leaderUiComponent.create());
-            personRotated_180->setParentItem(gameCanvas);
-            personRotated_180->setSize(QSize(100, 100));
-
-            QQuickItem* personRotated_270 = qobject_cast<QQuickItem*>(leaderUiComponent.create());
-            personRotated_270->setParentItem(gameCanvas);
-            personRotated_270->setSize(QSize(100, 100));
-
-            QQuickItem* personRotated_355 = qobject_cast<QQuickItem*>(leaderUiComponent.create());
-            personRotated_355->setParentItem(gameCanvas);
-            personRotated_355->setSize(QSize(100, 100));
+            QQuickItem* personRotated = qobject_cast<QQuickItem*>(leaderUiComponent.create());
+            personRotated->setParentItem(gameCanvas);
+            personRotated->setSize(spriteSize);
 
             QQmlProperty::write(leaderUiItem.get(), "gameCanvasWidth", gameCanvas->width());
             QQmlProperty::write(leaderUiItem.get(), "gameCanvasHeight", gameCanvas->height());
-            QQmlProperty::write(personRotated_90, "gameCanvasWidth", gameCanvas->width());
-            QQmlProperty::write(personRotated_90, "gameCanvasHeight", gameCanvas->height());
-            QQmlProperty::write(personRotated_180, "gameCanvasWidth", gameCanvas->width());
-            QQmlProperty::write(personRotated_180, "gameCanvasHeight", gameCanvas->height());
-            QQmlProperty::write(personRotated_270, "gameCanvasWidth", gameCanvas->width());
-            QQmlProperty::write(personRotated_270, "gameCanvasHeight", gameCanvas->height());
-            QQmlProperty::write(personRotated_355, "gameCanvasWidth", gameCanvas->width());
-            QQmlProperty::write(personRotated_355, "gameCanvasHeight", gameCanvas->height());
+            QQmlProperty::write(personRotated, "gameCanvasWidth", gameCanvas->width());
+            QQmlProperty::write(personRotated, "gameCanvasHeight", gameCanvas->height());
+
+            const QPointF personArmPosition(0.25 * spriteSize.width(), spriteSize.height() * 0.4); // arm position in person coordinates system
+            const QSizeF personArmSize(0.1 * spriteSize.width(), 0.4 * spriteSize.height()); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+            const QSizeF weaponSize(0.1 * spriteSize.width(), 0.5 * spriteSize.height());
+            const qreal rotation = 40.0;
+
+            // in person's arm local coordinates system - its centered so that it fits evenly
+            QPointF weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+                                      static_cast<int>(weaponSize.width() / 2),
+                                      personArmSize.height() / 2);
+            //transform it to person coordinates system
+            weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
+            weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
+
+
+            QQmlProperty::write(leaderUiItem.get(), "primaryWeaponAnchorPoint", weaponPersonAnchor);
+            QQmlProperty::write(leaderUiItem.get(), "weaponSize", weaponSize);
+            QQmlProperty::write(personRotated, "primaryWeaponAnchorPoint", weaponPersonAnchor);
+            QQmlProperty::write(personRotated, "weaponSize", weaponSize);
 
             int x = static_cast<int>(gameCanvas->width() / 2) - static_cast<int>(leaderUiItem->width() / 2);
             int y = static_cast<int>(gameCanvas->height() / 2) - static_cast<int>(leaderUiItem->height() / 2);
             leaderUiItem->setPosition(QPoint(x, y));
-            personRotated_90->setPosition((QPoint(x + 100, y)));
-            personRotated_180->setPosition((QPoint(x, y + 100)));
-            personRotated_270->setPosition((QPoint(x + 100, y + 100)));
-            personRotated_355->setPosition((QPoint(x + 200, y)));
-            personRotated_90->setRotation(90);
-            personRotated_180->setRotation(180);
-            personRotated_270->setRotation(270);
-            personRotated_355->setRotation(355);
+            personRotated->setPosition((QPoint(x + 100, y)));
+
+            personRotated->setRotation(rotation);
             auto leaderUnit = m_leaderUnit.lock();
             leaderUnit->setUiItem(leaderUiItem);
             m_selectedUnit = m_leaderUnit.lock();

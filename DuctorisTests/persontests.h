@@ -1,6 +1,7 @@
 #ifndef PERSONTESTS_H
 #define PERSONTESTS_H
 #include <QTest>
+#include <QQuickView>
 #include "Person.h"
 
 class PersonTests : public QObject
@@ -132,7 +133,11 @@ private slots:
     void TestCase_Person_CopyAssignment();
     void TestCase_Person_MoveContructor();
     void TestCase_Person_MoveAssignment();
+public:
+    void setQmlQuickView(QQuickView *view);
 private:
+    std::unique_ptr<QQmlComponent> _personUiComponent;
+    QObject* _window;
     QPoint _newPos{0, 0};
     int _newTime{0};
     int _newRotation{0};
