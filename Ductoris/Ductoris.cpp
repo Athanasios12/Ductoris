@@ -172,8 +172,8 @@ void Ductoris::onGameStarted()
 
             const QPointF personArmPosition(0.25 * spriteSize.width(), spriteSize.height() * 0.4); // arm position in person coordinates system
             const QSizeF personArmSize(0.1 * spriteSize.width(), 0.4 * spriteSize.height()); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
-            const QSizeF weaponSize(0.1 * spriteSize.width(), 0.5 * spriteSize.height());
-            const qreal rotation = 40.0;
+            const QSizeF weaponSize(0.1 * spriteSize.width(), spriteSize.height());
+            const qreal rotation = 0.0;
 
             // in person's arm local coordinates system - its centered so that it fits evenly
             QPointF weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
@@ -191,10 +191,12 @@ void Ductoris::onGameStarted()
 
             int x = static_cast<int>(gameCanvas->width() / 2) - static_cast<int>(leaderUiItem->width() / 2);
             int y = static_cast<int>(gameCanvas->height() / 2) - static_cast<int>(leaderUiItem->height() / 2);
-            leaderUiItem->setPosition(QPoint(x, y));
-            personRotated->setPosition((QPoint(x + 100, y)));
+            personRotated->setPosition(QPoint(x, y));
+            leaderUiItem->setPosition((QPoint(x + static_cast<int>(spriteSize.width()), y - spriteSize.height())));
+            leaderUiItem->setZ(1);
 
             personRotated->setRotation(rotation);
+            leaderUiItem->setRotation(45);
             auto leaderUnit = m_leaderUnit.lock();
             leaderUnit->setUiItem(leaderUiItem);
             m_selectedUnit = m_leaderUnit.lock();

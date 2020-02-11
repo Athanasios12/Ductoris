@@ -122,12 +122,12 @@ quint32 Person::getId() const
     return m_id;
 }
 
-QPointF Person::getPosition() const
+QPoint Person::getPosition() const
 {
-    QPointF pos{0, 0};
+    QPoint pos{0, 0};
     if (m_uiItem)
     {
-        pos = m_uiItem->position();
+        pos = m_uiItem->position().toPoint();
     }
     return pos;
 }
@@ -438,13 +438,13 @@ Person::AttackOrientation Person::getAttackOrientation() const
         auto personWidth = m_uiItem->width();
         auto personHeight = m_uiItem->height();
         auto enemy = m_lockedOnEnemy.lock();
-        QPointF enemyPosition = enemy->m_uiItem->mapToItem(m_uiItem.get(),
-            QPointF{personWidth / 2, personHeight / 2});
+        QPointF attackerPosition = m_uiItem.get()->mapToItem(
+            enemy->m_uiItem.get(), QPointF{personWidth / 2, personHeight / 2});
         //Now the enemy position is in person local coordinates system
         //check in which region it is - Front, Flank or Rear
-        if (enemyPosition.x() > personWidth && enemyPosition.y() > personHeight)
+        if (attackerPosition.x() > personWidth && attackerPosition.y() > personHeight)
         {
-            auto rotPos = transformToRotatedAxis(enemyPosition, (M_PI / 2) - theta);
+            auto rotPos = transformToRotatedAxis(attackerPosition, (M_PI / 2) - theta);
             if (rotPos.x() + (personHeight * cos(theta)) - (personWidth * sin(theta)) > 0)
             {
                 orientation = AttackOrientation::Flank;
@@ -454,21 +454,21 @@ Person::AttackOrientation Person::getAttackOrientation() const
                 orientation = AttackOrientation::Frontal;
             }
         }
-        else if (enemyPosition.x() > personWidth && enemyPosition.y() < 0)
+        else if (attackerPosition.x() > personWidth && attackerPosition.y() < 0)
         {
-            auto rotPos = transformToRotatedAxis(enemyPosition, (M_PI / 2) + theta);
+            auto rotPos = transformToRotatedAxis(attackerPosition, (M_PI / 2) + theta);
             if (rotPos.x() + (personWidth * sin(theta)) > 0)
             {
-                orientation = AttackOrientation::Flank;
+                orientation = AttackOrientation::Rear;
             }
             else
             {
-                orientation = AttackOrientation::Frontal;
+                orientation = AttackOrientation::Flank;
             }
         }
-        else if (enemyPosition.x() < 0 && enemyPosition.y() < 0)
+        else if (attackerPosition.x() < 0 && attackerPosition.y() < 0)
         {
-            auto rotPos = transformToRotatedAxis(enemyPosition, (M_PI / 2) - theta);
+            auto rotPos = transformToRotatedAxis(attackerPosition, (M_PI / 2) - theta);
             if (rotPos.x() > 0)
             {
                 orientation = AttackOrientation::Rear;
@@ -478,9 +478,9 @@ Person::AttackOrientation Person::getAttackOrientation() const
                 orientation = AttackOrientation::Flank;
             }
         }
-        else if (enemyPosition.x() < 0 && enemyPosition.y() > personHeight)
+        else if (attackerPosition.x() < 0 && attackerPosition.y() > personHeight)
         {
-            auto rotPos = transformToRotatedAxis(enemyPosition, (M_PI / 2) + theta);
+            auto rotPos = transformToRotatedAxis(attackerPosition, (M_PI / 2) + theta);
             if (rotPos.x() + (personHeight * cos(theta)) > 0)
             {
                 orientation = AttackOrientation::Flank;
@@ -492,18 +492,18 @@ Person::AttackOrientation Person::getAttackOrientation() const
         }
         else
         {
-            if (enemyPosition.x() <= personWidth && enemyPosition.x() >= 0 &&
-                enemyPosition.y() >= personHeight)
+            if (attackerPosition.x() <= personWidth && attackerPosition.x() >= 0 &&
+                attackerPosition.y() >= personHeight)
             {
                 orientation = AttackOrientation::Frontal;
             }
-            else if (enemyPosition.x() <= personWidth && enemyPosition.x() >= 0 &&
-                     enemyPosition.y() < 0)
+            else if (attackerPosition.x() <= personWidth && attackerPosition.x() >= 0 &&
+                     attackerPosition.y() < 0)
             {
                 orientation = AttackOrientation::Rear;
             }
-            else if ((enemyPosition.x() >= personWidth || enemyPosition.x() <= 0)
-                    && enemyPosition.y() >= 0 && enemyPosition.y() <= personHeight)
+            else if ((attackerPosition.x() >= personWidth || attackerPosition.x() <= 0)
+                    && attackerPosition.y() >= 0 && attackerPosition.y() <= personHeight)
             {
                 orientation = AttackOrientation::Flank;
             }
@@ -558,8 +558,8 @@ void Person::onPositionChanged(int x, int y, int rotation)
             }
             else
             {
-                if (m_destination.x() != enemyUnit->getPosition().x() ||
-                    m_destination.y() != enemyUnit->getPosition().y())
+                if (m_destination.x() != static_cast<quint16>(enemyUnit->getPosition().x()) ||
+                    m_destination.y() != static_cast<quint16>(enemyUnit->getPosition().y()))
                 {
                     move(enemyUnit->getPosition().x(), enemyUnit->getPosition().y());
                     //do moving towards the enemy, and check every position update

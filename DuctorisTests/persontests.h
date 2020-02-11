@@ -1,7 +1,6 @@
 #ifndef PERSONTESTS_H
 #define PERSONTESTS_H
 #include <QTest>
-#include <QQuickView>
 #include "Person.h"
 
 class PersonTests : public QObject
@@ -34,7 +33,7 @@ private slots:
     void TestCase_Person_move_Rotation_ClockWise_45();
     void TestCase_Person_move_Rotation_ClockWise_90();
     void TestCase_Person_move_Rotation_ClockWise_135();
-    void TestCase_Person_move_Rotation_ClockWise_180();
+    void TestCase_Person_move_Rotation_180();
     void TestCase_Person_move_Rotation_CounterClockWise_45();
     void TestCase_Person_move_Rotation_CounterClockWise_90();
     void TestCase_Person_move_Rotation_CounterClockWise_135();
@@ -78,9 +77,7 @@ private slots:
     void TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Defending();
     void TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Defending();
     void TestCase_Person_onAttackedByEnemy_RearIntercept_Moving_To_Defending();
-    void TestCase_Person_onAttackedByEnemy_FrontIntercept_MovingToAttack_To_Defending();
-    void TestCase_Person_onAttackedByEnemy_FlankIntercept_MovingToAttack_To_Defending();
-    void TestCase_Person_onAttackedByEnemy_RearIntercept_MovingToAttack_To_Defending();
+
     //Damage result calculation: update health and morale based on attack
     //orientation, type(ranged or melee), damage, defence, armor, perks, skills.
     void TestCase_Person_defender_calculateDamageResults_Frontal_Melee_Attack();
@@ -133,11 +130,8 @@ private slots:
     void TestCase_Person_CopyAssignment();
     void TestCase_Person_MoveContructor();
     void TestCase_Person_MoveAssignment();
-public:
-    void setQmlQuickView(QQuickView *view);
+
 private:
-    std::unique_ptr<QQmlComponent> _personUiComponent;
-    QObject* _window;
     QPoint _newPos{0, 0};
     int _newTime{0};
     int _newRotation{0};

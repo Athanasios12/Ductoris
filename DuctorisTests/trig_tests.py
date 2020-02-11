@@ -246,9 +246,18 @@ if len(sys.argv) > 3:
         # checkRegion(15, 15, x, y, theta)
         # checkRegion(5, 20, x, y, theta)
         # checkRegion(-5, 15, x, y, theta)
-        for i in range(40):
-            checkRegion(-(x / 2), (y * 1.5) - (i), x, y, theta)
-            checkRegion(x * 1.5, (y * 1.5) - (i), x, y, theta)
-            checkRegion(-x * 1.5 + (i), -(x / 2), x, y, theta)
-            checkRegion(-x * 1.5 + (i), y * 1.5, x, y, theta)
+        x_start = -x
+        x_end = 2*x
+        y_start = -y
+        y_end = 2 * y
+        i = x_start
+        while i < x_end:
+            checkRegion(i, -(y / 2), x, y, theta)
+            checkRegion(i, y * 1.5, x, y, theta)
+            i += 0.1 * x
+        i = y_start
+        while i < y_end:
+            checkRegion(-(x / 2), i, x, y, theta)
+            checkRegion(x * 1.5, i, x, y, theta)
+            i += 0.1 * y
         plt.show()

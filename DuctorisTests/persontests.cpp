@@ -83,7 +83,7 @@ void PersonTests::TestCase_Person_move_Rotation_0()
     person.setUiItem(uiItem);
 
     int newX = 100;
-    int newY = 90;
+    int newY = 110;
     const int newRotation = 0;
     const int rotationTolerance = 1;
     QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
@@ -109,8 +109,8 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_45()
     uiItem->setPosition(personPos);
     person.setUiItem(uiItem);
 
-    int newX = 110;
-    int newY = 90;
+    int newX = 90;
+    int newY = 110;
     const int newRotation = 45;
     const int rotationTolerance = 1;
     QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
@@ -136,7 +136,7 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_90()
     uiItem->setPosition(personPos);
     person.setUiItem(uiItem);
 
-    int newX = 110;
+    int newX = 90;
     int newY = 100;
     const int newRotation = 90;
     const int rotationTolerance = 1;
@@ -163,8 +163,8 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_135()
     uiItem->setPosition(personPos);
     person.setUiItem(uiItem);
 
-    int newX = 110;
-    int newY = 110;
+    int newX = 90;
+    int newY = 90;
     const int newRotation = 135;
     const int rotationTolerance = 1;
     QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
@@ -176,7 +176,7 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_135()
     QVERIFY((_newRotation >= newRotation - rotationTolerance) && (_newRotation <= newRotation + rotationTolerance));
 }
 
-void PersonTests::TestCase_Person_move_Rotation_ClockWise_180()
+void PersonTests::TestCase_Person_move_Rotation_180()
 {
     Person person;
     //Fake Ui Item
@@ -191,7 +191,7 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_180()
     person.setUiItem(uiItem);
 
     int newX = 100;
-    int newY = 110;
+    int newY = 90;
     const int newRotation = 180;
     const int rotationTolerance = 1;
     QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
@@ -200,7 +200,7 @@ void PersonTests::TestCase_Person_move_Rotation_ClockWise_180()
     QVERIFY(person.isConnectedToUi());
     QVERIFY(newX == _newPos.x());
     QVERIFY(newY == _newPos.y());
-    QVERIFY((_newRotation >= newRotation - rotationTolerance) && (_newRotation <= newRotation + rotationTolerance));
+    QVERIFY((abs(_newRotation) >= newRotation - rotationTolerance) && (abs(_newRotation) <= newRotation + rotationTolerance));
 }
 
 void PersonTests::TestCase_Person_move_Rotation_CounterClockWise_45()
@@ -217,8 +217,8 @@ void PersonTests::TestCase_Person_move_Rotation_CounterClockWise_45()
     uiItem->setPosition(personPos);
     person.setUiItem(uiItem);
 
-    int newX = 90;
-    int newY = 90;
+    int newX = 110;
+    int newY = 110;
     const int newRotation = -45;
     const int rotationTolerance = 1;
     QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
@@ -244,7 +244,7 @@ void PersonTests::TestCase_Person_move_Rotation_CounterClockWise_90()
     uiItem->setPosition(personPos);
     person.setUiItem(uiItem);
 
-    int newX = 90;
+    int newX = 110;
     int newY = 100;
     const int newRotation = -90;
     const int rotationTolerance = 1;
@@ -271,8 +271,8 @@ void PersonTests::TestCase_Person_move_Rotation_CounterClockWise_135()
     uiItem->setPosition(personPos);
     person.setUiItem(uiItem);
 
-    int newX = 90;
-    int newY = 110;
+    int newX = 110;
+    int newY = 90;
     const int newRotation = -135;
     const int rotationTolerance = 1;
     QObject::connect(&person, &Person::updatePersonMovementData, this, &PersonTests::onUpdateMovementData);
@@ -951,18 +951,18 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Def
 
     const QSize personSize(10, 10);
     const QPointF defenderPos(100, 100); //person position in global coordinates
-    qreal dx = 5 - (personSize.width()/ 2);
-    qreal dy = 10 - (personSize.height() / 2);
+    qreal dx = -(personSize.width() / 2) - 4;
+    qreal dy = personSize.height();
     const QPointF attackerPos = defenderPos + QPointF(dx, dy);
     //person range depends on his size and the size of his currently held weapon
 
-    const QPoint personArmPosition(8, 8); // arm position in person coordinates system
-    const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
-    const QSize weaponSize(2, 6);
-    const qreal attackerRotation = 180.0;
+    const QPointF personArmPosition(0.25 * personSize.width(), personSize.height() * 0.4); // arm position in person coordinates system
+    const QSizeF personArmSize(0.1 * personSize.width(), 0.4 * personSize.height()); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSizeF weaponSize(0.1 * personSize.width(), personSize.height());
+    const qreal attackerRotation = 200.0;
     const qreal defenderRotation = 0.0;
     // in person's arm local coordinates system - its centered so that it fits evenly
-    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+    QPointF weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
                               static_cast<int>(weaponSize.width() / 2),
                               personArmSize.height());
     //transform it to person coordinates system
@@ -972,9 +972,9 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Def
     std::unique_ptr<Weapon> attackerWeapon(new Weapon);
     std::unique_ptr<Weapon> defenderWeapon(new Weapon);
 
-    attackerWeapon->setSize(weaponSize);
+    attackerWeapon->setSize(weaponSize.toSize());
     attacker->addWeapon(attackerWeapon);
-    defenderWeapon->setSize(weaponSize);
+    defenderWeapon->setSize(weaponSize.toSize());
     defender->addWeapon(defenderWeapon);
 
     defenderUiItem->setSize(personSize);
@@ -988,9 +988,9 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Def
     attacker->setUiItem(attackerUiItem);
     //Set weapon achors for tests manually, normaly read from qml property
     static_cast<TestStub_Person*>(defender.get())->
-        tst_setWeaponAchorPoint(weaponPersonAnchor);
+        tst_setWeaponAchorPoint(weaponPersonAnchor.toPoint());
     static_cast<TestStub_Person*>(attacker.get())->
-        tst_setWeaponAchorPoint(weaponPersonAnchor);
+        tst_setWeaponAchorPoint(weaponPersonAnchor.toPoint());
 
     QObject::connect(static_cast<TestStub_Person*>(attacker.get()),
                      &TestStub_Person::attackedEnemy,
@@ -1011,6 +1011,7 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FrontIntercept_Moving_To_Def
     //stub morale check - defended
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(true);
+    static_cast<TestStub_Person*>(attacker.get())->tst_set_checkIfEnemyInWeaponRange_UseStub(true);
 
     attacker->attack(defender);
 
@@ -1034,18 +1035,18 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Def
 
     const QSize personSize(10, 10);
     const QPointF defenderPos(100, 100); //person position in global coordinates
-    qreal dx = -4 - (personSize.width() / 2);
-    qreal dy = -2 - (personSize.height() / 2);
+    qreal dx = -(personSize.width() / 2) - 5;
+    qreal dy = -(personSize.height() / 2) - 2;
     const QPointF attackerPos = defenderPos + QPointF(dx, dy);
     //person range depends on his size and the size of his currently held weapon
 
-    const QPoint personArmPosition(8, 8); // arm position in person coordinates system
-    const QSize personArmSize(2, 4); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
-    const QSize weaponSize(4, 20);
-    const qreal attackerRotation = 40.0;
+    const QPointF personArmPosition(0.25 * personSize.width(), personSize.height() * 0.4); // arm position in person coordinates system
+    const QSizeF personArmSize(0.1 * personSize.width(), 0.4 * personSize.height()); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSizeF weaponSize(0.1 * personSize.width(), 0.7 * personSize.height());
+    const qreal attackerRotation = -45.0;
     const qreal defenderRotation = 0.0;
     // in person's arm local coordinates system - its centered so that it fits evenly
-    QPoint weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+    QPointF weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
                               static_cast<int>(weaponSize.width() / 2),
                               personArmSize.height());
     //transform it to person coordinates system
@@ -1055,16 +1056,10 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Def
     std::unique_ptr<Weapon> attackerWeapon(new Weapon);
     std::unique_ptr<Weapon> defenderWeapon(new Weapon);
 
-    attackerWeapon->setSize(weaponSize);
+    attackerWeapon->setSize(weaponSize.toSize());
     attacker->addWeapon(attackerWeapon);
-    defenderWeapon->setSize(weaponSize);
+    defenderWeapon->setSize(weaponSize.toSize());
     defender->addWeapon(defenderWeapon);
-
-    //Set weapon achors for tests manually, normaly read from qml property
-    QQmlProperty::write(defenderUiItem.get(), "PrimaryWeaponAnchorPoint", weaponPersonAnchor);
-    QQmlProperty::write(defenderUiItem.get(), "weaponSize", weaponSize);
-    QQmlProperty::write(attackerUiItem.get(), "PrimaryWeaponAnchorPoint", weaponPersonAnchor);
-    QQmlProperty::write(attackerUiItem.get(), "weaponSize", weaponSize);
 
     defenderUiItem->setSize(personSize);
     defenderUiItem->setPosition(defenderPos);
@@ -1073,16 +1068,14 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Def
     attackerUiItem->setPosition(attackerPos);
     attackerUiItem->setRotation(attackerRotation);
 
-    auto pos0 = defenderUiItem->mapToItem(attackerUiItem.get(), QPointF{0, 0});
-    auto pos1 = attackerUiItem->mapToItem(defenderUiItem.get(), QPointF{0, 0});
-    fprintf(stderr, "\ndef(%f, %f) att(%f, %f)\n", defenderUiItem->position().x(),
-            defenderUiItem->position().y(), attackerUiItem->position().x(),
-            attackerUiItem->position().y());
-
-    fprintf(stderr, "In def coords : att(%f, %f)\n", pos1.x(), pos1.y());
-    fprintf(stderr, "In att coords : def(%f, %f)\n", pos0.x(), pos0.y());
     defender->setUiItem(defenderUiItem);
     attacker->setUiItem(attackerUiItem);
+
+    //Set weapon achors for tests manually, normaly read from qml property
+    static_cast<TestStub_Person*>(defender.get())->
+        tst_setWeaponAchorPoint(weaponPersonAnchor.toPoint());
+    static_cast<TestStub_Person*>(attacker.get())->
+        tst_setWeaponAchorPoint(weaponPersonAnchor.toPoint());
 
     QObject::connect(static_cast<TestStub_Person*>(attacker.get()),
                      &TestStub_Person::attackedEnemy,
@@ -1103,7 +1096,7 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Def
     //stub morale check - defended
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
     static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(true);
-    static_cast<TestStub_Person*>(attacker.get())->tst_set_checkIfEnemyInWeaponRange_UseStub(false);
+    static_cast<TestStub_Person*>(attacker.get())->tst_set_checkIfEnemyInWeaponRange_UseStub(true);
 
     attacker->attack(defender);
 
@@ -1118,23 +1111,87 @@ void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_Moving_To_Def
 
 void PersonTests::TestCase_Person_onAttackedByEnemy_RearIntercept_Moving_To_Defending()
 {
+    std::shared_ptr<Person> defender(new TestStub_Person);
+    std::shared_ptr<Person> attacker(new TestStub_Person);
 
+    //Fake Ui Item
+    std::unique_ptr<QQuickItem> defenderUiItem(new QQuickItem);
+    std::unique_ptr<QQuickItem> attackerUiItem(new QQuickItem);
 
-}
+    const QSize personSize(10, 10);
+    const QPointF defenderPos(100, 100); //person position in global coordinates
+    qreal dx = personSize.width();
+    qreal dy = -personSize.height();
+    const QPointF attackerPos = defenderPos + QPointF(dx, dy);
+    //person range depends on his size and the size of his currently held weapon
 
-void PersonTests::TestCase_Person_onAttackedByEnemy_FrontIntercept_MovingToAttack_To_Defending()
-{
+    const QPointF personArmPosition(0.25 * personSize.width(), personSize.height() * 0.4); // arm position in person coordinates system
+    const QSizeF personArmSize(0.1 * personSize.width(), 0.4 * personSize.height()); //arm holding the weapon has a separate sprite which is subsprite of person Sprite
+    const QSizeF weaponSize(0.1 * personSize.width(), personSize.height());
+    const qreal attackerRotation = 45.0;
+    const qreal defenderRotation = 0.0;
+    // in person's arm local coordinates system - its centered so that it fits evenly
+    QPointF weaponPersonAnchor(static_cast<int>(personArmSize.width() / 2) -
+                              static_cast<int>(weaponSize.width() / 2),
+                              personArmSize.height());
+    //transform it to person coordinates system
+    weaponPersonAnchor.setX(weaponPersonAnchor.x() + personArmPosition.x());
+    weaponPersonAnchor.setY(weaponPersonAnchor.y() + personArmPosition.y());
 
-}
+    std::unique_ptr<Weapon> attackerWeapon(new Weapon);
+    std::unique_ptr<Weapon> defenderWeapon(new Weapon);
 
-void PersonTests::TestCase_Person_onAttackedByEnemy_FlankIntercept_MovingToAttack_To_Defending()
-{
+    attackerWeapon->setSize(weaponSize.toSize());
+    attacker->addWeapon(attackerWeapon);
+    defenderWeapon->setSize(weaponSize.toSize());
+    defender->addWeapon(defenderWeapon);
 
-}
+    defenderUiItem->setSize(personSize);
+    defenderUiItem->setPosition(defenderPos);
+    defenderUiItem->setRotation(defenderRotation);
+    attackerUiItem->setSize(personSize);
+    attackerUiItem->setPosition(attackerPos);
+    attackerUiItem->setRotation(attackerRotation);
 
-void PersonTests::TestCase_Person_onAttackedByEnemy_RearIntercept_MovingToAttack_To_Defending()
-{
+    defender->setUiItem(defenderUiItem);
+    attacker->setUiItem(attackerUiItem);
 
+    //Set weapon achors for tests manually, normaly read from qml property
+    static_cast<TestStub_Person*>(defender.get())->
+        tst_setWeaponAchorPoint(weaponPersonAnchor.toPoint());
+    static_cast<TestStub_Person*>(attacker.get())->
+        tst_setWeaponAchorPoint(weaponPersonAnchor.toPoint());
+
+    QObject::connect(static_cast<TestStub_Person*>(attacker.get()),
+                     &TestStub_Person::attackedEnemy,
+                     static_cast<TestStub_Person*>(attacker.get()),
+                     &TestStub_Person::onSentAttackEnemy);
+
+    QSignalSpy attackedSpy(attacker.get(), &TestStub_Person::attackedEnemy);
+    QSignalSpy attackerStateUpdateSpy(attacker.get(),
+                                      &TestStub_Person::personStateUpdate);
+    QSignalSpy defenderStateUpdateSpy(defender.get(),
+                                      &TestStub_Person::personStateUpdate);
+
+    static_cast<TestStub_Person*>(attacker.get())->tst_setPersonState(
+        Person::PersonState::MovingToAttack);
+    static_cast<TestStub_Person*>(defender.get())->tst_setPersonState(
+        Person::PersonState::Moving);
+
+    //stub morale check - defended
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_UseStub(true);
+    static_cast<TestStub_Person*>(defender.get())->tst_set_moraleCheck_Return(true);
+    static_cast<TestStub_Person*>(attacker.get())->tst_set_checkIfEnemyInWeaponRange_UseStub(true);
+
+    attacker->attack(defender);
+
+    QCOMPARE(attackedSpy.count(), 1u);
+    QCOMPARE(defenderStateUpdateSpy.count(), 1u);
+    QCOMPARE(attackerStateUpdateSpy.count(), 1u);
+    QVERIFY(Person::PersonState::Defending == defender->getCurrentState());
+    QVERIFY(Person::PersonState::Attacking == attacker->getCurrentState());
+    QCOMPARE(static_cast<TestStub_Person*>(attacker.get())->
+        tst_get_sentAttack_Orienation(), Person::AttackOrientation::Rear);
 }
 
 void PersonTests::TestCase_Person_defender_calculateDamageResults_Frontal_Melee_Attack()
@@ -1264,9 +1321,4 @@ void PersonTests::TestCase_Person_MoveContructor()
 void PersonTests::TestCase_Person_MoveAssignment()
 {
 
-}
-
-void PersonTests::setQmlQuickView(QQuickView *view)
-{
-    _view = view;
 }

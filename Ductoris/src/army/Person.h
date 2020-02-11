@@ -48,7 +48,7 @@ public:
     bool setUiItem(std::unique_ptr<QQuickItem> &uiItem);
 
     quint32 getId() const;
-    QPointF getPosition() const;
+    QPoint getPosition() const;
     quint16 getRotation() const;
     quint16 getWidth() const;
     quint16 getHeight() const;

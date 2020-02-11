@@ -14,7 +14,8 @@ Rectangle
     id: person
     x : 0
     y: 0
-    color: "#00000000"
+    z: 0
+    color: "red"
     rotation:0
     //animation properties
     property int newX: 0
@@ -43,6 +44,7 @@ Rectangle
         height: person.weaponSize.height
         x: person.primaryWeaponAnchorPoint.x
         y: person.primaryWeaponAnchorPoint.y
+        z: person.z + 1
         color: "steelblue"
     }
 
